@@ -37,9 +37,13 @@ const LIVE_KEY_NAME='tomFxZeroConnectionKeyV1';
 const CONNECTION_PROFILES_KEY='tomFxZeroConnectionProfilesV1';
 const ACTIVE_PROFILE_KEY='tomFxZeroActiveConnectionProfileV1';
 const MODE_PROFILE_KEY='tomFxZeroModeProfileV1';
-const LIVE_ENDPOINT='/api/v1/snapshot';
-const COMMAND_ENDPOINT='/api/v1/command';
-const PAIRING_ENDPOINT='/api/v1/pairing';
+// GitHub Pages hosts only the static frontend.  Keep the existing API/EA/VPS
+// backend on the established Sites origin so the existing pairing keys and
+// communication contract remain unchanged.
+const API_ORIGIN='https://tom-fx-zero.ryuichi512.chatgpt.site';
+const LIVE_ENDPOINT=API_ORIGIN+'/api/v1/snapshot';
+const COMMAND_ENDPOINT=API_ORIGIN+'/api/v1/command';
+const PAIRING_ENDPOINT=API_ORIGIN+'/api/v1/pairing';
 const NANPIN_SETTINGS_KEY='tomFxZeroNanpinSettingsV1';
 const ORDER_VOLUME_KEY='tomFxZeroOrderVolumeV1';
 const WEEKEND_BTC_TEST_KEY='tomFxZeroWeekendBtcTestV1';
