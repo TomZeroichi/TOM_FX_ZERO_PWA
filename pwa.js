@@ -69,7 +69,7 @@
 
     window.addEventListener('load',async()=>{
       try{
-        const registration=await navigator.serviceWorker.register('/service-worker.js?v=0.4.73',{scope:'/'});
+        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.4.73',{scope:'./'});
         await registration.update();
         await navigator.serviceWorker.ready;
         if(navigator.serviceWorker.controller)showManualInstall();
