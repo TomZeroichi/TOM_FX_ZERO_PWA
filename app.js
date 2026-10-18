@@ -2140,6 +2140,7 @@ function updateProfileUi(){
  const titanButton=$('addTitanProfile');if(titanButton)titanButton.disabled=connectionProfiles.some(item=>item.id==='titan-fx-blade-demo');
  const hfmButton=$('addHfmProfile');if(hfmButton)hfmButton.disabled=connectionProfiles.some(item=>item.id==='hfm-mt5-demo');
  const mt4Button=$('addMt4Profile');if(mt4Button)mt4Button.disabled=connectionProfiles.filter(item=>item.accountType==='MT4').length>=4;
+ updateAccountConnectionStatus();
 }
 function attachProfileLongPress(row,id){
  let timer=0;
@@ -2233,27 +2234,45 @@ function makeConnectionKey(){
  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 
+let currentSyncState='idle';
+let currentSyncDetail='';
+function updateAccountConnectionStatus(){
+ const select=$('accountProfile'),profile=activeProfile();
+ if(!select||!profile)return;
+ const seconds=String(currentSyncDetail||'').match(/(\d+)\s*秒/)?.[1]||'0';
+ const lamp=currentSyncState==='online'?'🟢':'🔴';
+ [...select.options].forEach(option=>{
+  const item=connectionProfiles.find(candidate=>candidate.id===option.value);
+  if(!item)return;
+  option.textContent=item.id===profile.id?profileTitle(item)+'　'+lamp+seconds+'秒':profileTitle(item);
+ });
+}
 function setSyncState(state,label,detail){
- $('syncStrip').dataset.state=state;
- $('syncLabel').textContent=label;
- $('syncAge').textContent=detail;
+ currentSyncState=state;
+ currentSyncDetail=detail||'';
+ const strip=$('syncStrip');
+ if(strip)strip.dataset.state=state;
+ const syncLabel=$('syncLabel');if(syncLabel)syncLabel.textContent=label;
+ const syncAge=$('syncAge');if(syncAge)syncAge.textContent=detail;
+ updateAccountConnectionStatus();
 }
 
 function refreshSyncAge(){
  const key=connectionKey();
  const platform=currentPlatform();
  if(!key){
-  setSyncState('idle',platform+' 未接続','接続キーを作成してください');
+  setSyncState('idle',platform+' 未接続','0秒');
   updateVpsUi();
   return;
  }
  if(!navigator.onLine){
-  setSyncState('stale','通信オフライン','インターネット接続を確認してください');
+  const age=liveReceivedAt?Math.max(0,Math.floor(Date.now()/1000-liveReceivedAt)):0;
+  setSyncState('stale','通信オフライン',age+'秒');
   updateVpsUi();
   return;
  }
  if(!liveReceivedAt){
-  setSyncState('waiting',platform+' 接続待ち','EAの設定とWebRequest許可URLを確認してください');
+  setSyncState('waiting',platform+' 接続待ち','0秒');
   updateVpsUi();
   return;
  }
