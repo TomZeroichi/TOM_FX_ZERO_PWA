@@ -546,13 +546,17 @@ body[data-app-page="home"] .nanpin-toggle-copy strong{color:#ecf6ff}.nanpin-save
  .desktop-watchlist-tabs{background:#04182f;border:1px solid #1d4f7a}.desktop-watchlist-tabs .is-active{background:#ff8737;color:#1d130c}
  .desktop-watch-row{grid-template-columns:minmax(0,1fr) 72px;padding:10px 8px;border-color:#194a75;border-radius:6px;background:#062340}.desktop-watch-row:hover,.desktop-watch-row.is-active{border-left:4px solid #ff8737;border-color:#ff8737;background:#0b3158}.desktop-watch-row-main strong{font-size:.82rem}.desktop-watch-row-quote{color:#eaf7ff;font-size:.8rem}.desktop-watch-row-spark{height:22px}
  #marketPanel{grid-column:2/4;grid-row:2;grid-template-columns:minmax(0,1fr) 294px;gap:0 12px;margin:0;padding:12px;border-color:#1d5a8a;border-radius:8px;background:linear-gradient(145deg,#062b50,#04172e)}
- #marketPanel>.market-head{padding:0 4px 5px}.market-head h2{font-size:1.28rem}.market-head p{font-size:.78rem}
- #marketPanel>.trade-symbol-row{align-items:end;margin:4px 4px 10px}.trade-symbol-row select{height:40px}.current-price-box strong{font-size:2.2rem}
+ #marketPanel>.market-head{grid-row:1;padding:0 4px 5px}.market-head h2{font-size:1.28rem}.market-head p{font-size:.78rem}
+ #marketPanel>.trade-symbol-row{grid-row:2;align-items:end;margin:4px 4px 10px}.trade-symbol-row select{height:40px}.current-price-box strong{font-size:2.2rem}
  #marketPanel>.chart-toolbar{display:none}
- #marketPanel>.chart-wrap-trade{height:min(52vh,550px)!important;border-radius:5px}
- #marketPanel>.chart-line-help{padding-left:2px;font-size:.67rem}
- #marketPanel>.order-common-settings{margin:0 0 10px;padding:12px;border-radius:7px}
- #marketPanel>.goto-order-tabs{margin:0 0 8px}.goto-order-tabs button{min-height:38px}
+ #marketPanel>.chart-wrap-trade{grid-row:3;height:min(52vh,550px)!important;border-radius:5px}
+ #marketPanel>.chart-line-help{grid-row:4;padding-left:2px;font-size:.67rem}
+ #marketPanel>.chart-level-action{grid-row:5}
+ #marketPanel>.order-common-settings{grid-row:3;margin:0 0 10px;padding:12px;border-radius:7px}
+ #marketPanel>.goto-order-tabs{grid-row:4;margin:0 0 8px}.goto-order-tabs button{min-height:38px}
+ #marketPanel>.order-panel{grid-row:5}
+ #marketPanel>.reserve-panel{grid-row:6}
+ #marketPanel>.nanpin-panel{grid-row:7}
  #marketPanel>.order-panel,#marketPanel>.reserve-panel,#marketPanel>.nanpin-panel{margin-top:8px;padding-top:8px}
  #marketPanel>.order-panel{border:0;padding:0}.order-toggle{display:none}.order-panel:not([open]) .order-body{display:block}.order-body{padding-top:0}
  #marketPanel>.order-panel .order-actions{margin-top:0}.order-panel .small{display:none}
