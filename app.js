@@ -754,11 +754,6 @@ function updateMarket(){
  $('marketLive').textContent=currentPlatform()+'価格';
  updateChartWatermark('marketChartWatermark',market?.symbol||selectedTradeSymbol,chartTimeframe);
  updateChartTimeframeUi();
- if(!market&&data.source==='demo'){
-  $('marketPanel').hidden=true;
-  setOrderBusy(orderInFlight);
-  return;
- }
  $('marketPanel').hidden=false;
  $('tradeSymbol').value=selectedTradeSymbol;
  $('marketSymbol').textContent=selectedTradeSymbol;
