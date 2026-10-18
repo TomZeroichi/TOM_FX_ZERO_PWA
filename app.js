@@ -2237,15 +2237,13 @@ function makeConnectionKey(){
 let currentSyncState='idle';
 let currentSyncDetail='';
 function updateAccountConnectionStatus(){
- const select=$('accountProfile'),profile=activeProfile();
- if(!select||!profile)return;
+ const status=$('accountConnectionStatus'),age=$('accountConnectionAge');
+ if(!status||!age)return;
  const seconds=String(currentSyncDetail||'').match(/(\d+)\s*秒/)?.[1]||'0';
- const lamp=currentSyncState==='online'?'🟢':'🔴';
- [...select.options].forEach(option=>{
-  const item=connectionProfiles.find(candidate=>candidate.id===option.value);
-  if(!item)return;
-  option.textContent=item.id===profile.id?profileTitle(item)+'　'+lamp+seconds+'秒':profileTitle(item);
- });
+ const online=currentSyncState==='online';
+ status.dataset.state=online?'online':'offline';
+ age.textContent=seconds+'秒';
+ status.setAttribute('aria-label',(online?'接続中 ':'未接続 ')+seconds+'秒');
 }
 function setSyncState(state,label,detail){
  currentSyncState=state;
