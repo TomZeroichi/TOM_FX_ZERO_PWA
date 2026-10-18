@@ -66,10 +66,24 @@ function profilePlatform(profile){
  if(type==='MT5'||type==='MT5 Zero')return 'MT5';
  return null;
 }
-function isConnectedProfile(profile){
- return !!profile&&!profile.pairingPending&&String(profile.connectionKey||'').trim()!=='';
+function hasStoredConnectionSnapshot(profile){
+ if(!profile)return false;
+ try{
+  const stored=JSON.parse(localStorage.getItem(profileCacheKey(profile.id)||'')||'null');
+  const snapshot=stored?.snapshot||stored;
+  return isLiveSource(snapshot?.source);
+ }catch{return false;}
 }
-function connectedProfiles(){return connectionProfiles.filter(isConnectedProfile);}
+function hasConnectionHistory(profile){
+ if(!profile||profile.pairingPending)return false;
+ if(profile.connectionHistory===true||Number(profile.connectionHistoryAt)>0)return true;
+ if(String(profile.accountNumber||'').trim()!=='')return true;
+ return hasStoredConnectionSnapshot(profile);
+}
+function isConnectedProfile(profile){
+ return hasConnectionHistory(profile)&&String(profile.connectionKey||'').trim()!=='';
+}
+function connectedProfiles(){return connectionProfiles.filter(hasConnectionHistory);}
 function nextSnapshotProfileId(platform){
  let index=1;
  let id=(platform==='MT4'?'mt4-demo-':'mt5-demo-')+index;
@@ -142,6 +156,11 @@ function updateProfileFromSnapshot(snapshot){
  const profile=ensureProfileForSnapshot(snapshot);
  if(!profile)return;
  let changed=previousId!==activeConnectionProfileId;
+ if(profile.connectionHistory!==true||!Number(profile.connectionHistoryAt)){
+  profile.connectionHistory=true;
+  profile.connectionHistoryAt=Date.now();
+  changed=true;
+ }
  if(typeof snapshot.broker==='string'&&snapshot.broker&&profile.broker!==snapshot.broker){profile.broker=snapshot.broker;changed=true;}
  if(typeof snapshot.server==='string'&&snapshot.server&&profile.server!==snapshot.server){profile.server=snapshot.server;changed=true;}
  if(typeof snapshot.accountName==='string'&&snapshot.accountName&&profile.accountName!==snapshot.accountName){profile.accountName=snapshot.accountName;changed=true;}
@@ -2095,7 +2114,7 @@ function updateProfileUi(){
   if(available.length){
    select.replaceChildren(...available.map(item=>new Option(profileTitle(item),item.id)));
    select.disabled=false;
-   select.value=isConnectedProfile(profile)?profile.id:available[0].id;
+   select.value=available.some(item=>item.id===profile.id)?profile.id:available[0].id;
   }else{
    const empty=new Option('接続口座なし（メニューから追加）','');
    empty.disabled=true;
@@ -2111,7 +2130,7 @@ function updateProfileUi(){
   rows.replaceChildren();
   connectionProfiles.forEach(item=>{
    const row=document.createElement('div');row.className='profile-row';row.dataset.profileId=item.id;row.title='長押しでこの口座を削除';
-   const detail=document.createElement('div');const name=document.createElement('strong');name.textContent=profileTitle(item);const note=document.createElement('small');const accountMeta=[item.accountNumber,item.server].filter(Boolean).join(' · ');note.textContent=(item.connectionKey?'接続キー設定済み':'未接続')+(accountMeta?' · '+accountMeta:'');detail.append(name,note);
+   const detail=document.createElement('div');const name=document.createElement('strong');name.textContent=profileTitle(item);const note=document.createElement('small');const accountMeta=[item.accountNumber,item.server].filter(Boolean).join(' · ');const status=item.pairingPending?'ペアリング中':isConnectedProfile(item)?'接続キー設定済み':hasConnectionHistory(item)?'接続履歴あり・現在未接続':'未接続';note.textContent=status+(accountMeta?' · '+accountMeta:'');detail.append(name,note);
    const hint=document.createElement('small');hint.className='profile-delete-hint';hint.textContent='長押しで削除';detail.append(hint);
    const button=document.createElement('button');button.type='button';button.textContent=item.id===profile.id?'選択中':'この口座に切替';button.disabled=item.id===profile.id;button.onclick=()=>switchProfile(item.id);
    row.append(detail,button);rows.append(row);
@@ -2142,7 +2161,7 @@ function removeProfile(id){
  }
  if(!window.confirm(profileTitle(target)+'をこのPWAから削除しますか？\nEA側の接続設定は変更されません。'))return;
  const wasActive=activeConnectionProfileId===id;
- const next=connectionProfiles.find(profile=>profile.id!==id&&isConnectedProfile(profile))||connectionProfiles.find(profile=>profile.id!==id);
+ const next=connectionProfiles.find(profile=>profile.id!==id&&hasConnectionHistory(profile))||connectionProfiles.find(profile=>profile.id!==id);
  pauseLiveConnection();
  [LIVE_SNAPSHOT_KEY,WEEKEND_BTC_TEST_KEY,NANPIN_SETTINGS_KEY,ORDER_VOLUME_KEY,LOT_CALCULATOR_KEY,INDICATOR_PRESETS_KEY].forEach(key=>{try{localStorage.removeItem(key+'_'+id);}catch{}});
  connectionProfiles=connectionProfiles.filter(profile=>profile.id!==id);
