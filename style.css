@@ -525,6 +525,7 @@ body[data-app-page="home"] .order-actions button strong{font-size:1.08rem;font-v
 body[data-app-page="home"] .order-panel .small,body[data-app-page="home"] .reserve-body .small,body[data-app-page="home"] .nanpin-body .small{color:#94b7d4}
 body[data-app-page="home"] .nanpin-toggle{border-color:#2e6292;background:#04182e}
 body[data-app-page="home"] .nanpin-toggle-copy strong{color:#ecf6ff}.nanpin-save{background:#ff8737;border-color:#ff8737;color:#24170d}
+#marketPanel[hidden],#indicatorMode[hidden],#indicatorMarketPanel[hidden]{display:none!important}
 
 /* PC版：左に通貨、中央にチャート、右に口座・注文を置く */
 @media(min-width:1000px){
