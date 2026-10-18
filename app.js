@@ -1631,7 +1631,11 @@ function setGotoOrderTab(target){
  if(!targetId)return;
  Object.entries(panels).forEach(([key,id])=>{
   const panel=$(id);
-  if(panel)panel.open=key===target;
+  if(panel){
+   const active=key===target;
+   panel.hidden=!active;
+   panel.open=active;
+  }
  });
  document.querySelectorAll('[data-goto-order-tab]').forEach(button=>{
   const active=button.dataset.gotoOrderTab===target;
