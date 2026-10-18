@@ -66,6 +66,10 @@ function profilePlatform(profile){
  if(type==='MT5'||type==='MT5 Zero')return 'MT5';
  return null;
 }
+function isConnectedProfile(profile){
+ return !!profile&&!profile.pairingPending&&String(profile.connectionKey||'').trim()!=='';
+}
+function connectedProfiles(){return connectionProfiles.filter(isConnectedProfile);}
 function nextSnapshotProfileId(platform){
  let index=1;
  let id=(platform==='MT4'?'mt4-demo-':'mt5-demo-')+index;
@@ -2087,8 +2091,18 @@ function connectionKey(){return activeProfile().connectionKey||'';}
 function updateProfileUi(){
  const profile=activeProfile(),select=$('accountProfile');
  if(select){
-  select.replaceChildren(...connectionProfiles.map(item=>new Option(profileTitle(item),item.id)));
-  select.value=profile.id;
+  const available=connectedProfiles();
+  if(available.length){
+   select.replaceChildren(...available.map(item=>new Option(profileTitle(item),item.id)));
+   select.disabled=false;
+   select.value=isConnectedProfile(profile)?profile.id:available[0].id;
+  }else{
+   const empty=new Option('接続口座なし（メニューから追加）','');
+   empty.disabled=true;
+   empty.selected=true;
+   select.replaceChildren(empty);
+   select.disabled=true;
+  }
  }
  const title=$('accountTitle');if(title)title.textContent=profileTitle(profile);
  const intro=$('connectionDialogIntro');if(intro)intro.textContent='検証版では'+profileTitle(profile)+'のみ送信できます。初回はMT4／MT5の6桁コード、2台目以降は1台目に表示する端末追加コードで接続できます。';
@@ -2096,15 +2110,53 @@ function updateProfileUi(){
  if(rows){
   rows.replaceChildren();
   connectionProfiles.forEach(item=>{
-   const row=document.createElement('div');row.className='profile-row';
+   const row=document.createElement('div');row.className='profile-row';row.dataset.profileId=item.id;row.title='長押しでこの口座を削除';
    const detail=document.createElement('div');const name=document.createElement('strong');name.textContent=profileTitle(item);const note=document.createElement('small');const accountMeta=[item.accountNumber,item.server].filter(Boolean).join(' · ');note.textContent=(item.connectionKey?'接続キー設定済み':'未接続')+(accountMeta?' · '+accountMeta:'');detail.append(name,note);
+   const hint=document.createElement('small');hint.className='profile-delete-hint';hint.textContent='長押しで削除';detail.append(hint);
    const button=document.createElement('button');button.type='button';button.textContent=item.id===profile.id?'選択中':'この口座に切替';button.disabled=item.id===profile.id;button.onclick=()=>switchProfile(item.id);
    row.append(detail,button);rows.append(row);
+   attachProfileLongPress(row,item.id);
   });
  }
  const titanButton=$('addTitanProfile');if(titanButton)titanButton.disabled=connectionProfiles.some(item=>item.id==='titan-fx-blade-demo');
  const hfmButton=$('addHfmProfile');if(hfmButton)hfmButton.disabled=connectionProfiles.some(item=>item.id==='hfm-mt5-demo');
  const mt4Button=$('addMt4Profile');if(mt4Button)mt4Button.disabled=connectionProfiles.filter(item=>item.accountType==='MT4').length>=4;
+}
+function attachProfileLongPress(row,id){
+ let timer=0;
+ const cancel=()=>{if(timer){window.clearTimeout(timer);timer=0;}};
+ row.addEventListener('pointerdown',event=>{
+  if(event.pointerType==='mouse'&&event.button!==0)return;
+  cancel();
+  timer=window.setTimeout(()=>{timer=0;removeProfile(id);},650);
+ });
+ ['pointerup','pointercancel','pointerleave'].forEach(type=>row.addEventListener(type,cancel));
+ row.addEventListener('contextmenu',event=>event.preventDefault());
+}
+function removeProfile(id){
+ const target=connectionProfiles.find(profile=>profile.id===id);
+ if(!target)return;
+ if(connectionProfiles.length<=1){
+  window.alert('最後の口座は削除できません。再接続用として残します。');
+  return;
+ }
+ if(!window.confirm(profileTitle(target)+'をこのPWAから削除しますか？\nEA側の接続設定は変更されません。'))return;
+ const wasActive=activeConnectionProfileId===id;
+ const next=connectionProfiles.find(profile=>profile.id!==id&&isConnectedProfile(profile))||connectionProfiles.find(profile=>profile.id!==id);
+ pauseLiveConnection();
+ [LIVE_SNAPSHOT_KEY,WEEKEND_BTC_TEST_KEY,NANPIN_SETTINGS_KEY,ORDER_VOLUME_KEY,LOT_CALCULATOR_KEY,INDICATOR_PRESETS_KEY].forEach(key=>{try{localStorage.removeItem(key+'_'+id);}catch{}});
+ connectionProfiles=connectionProfiles.filter(profile=>profile.id!==id);
+ ['goto','indicator'].forEach(mode=>{if(modeProfiles[mode]===id)modeProfiles[mode]=next.id;});
+ try{localStorage.setItem(MODE_PROFILE_KEY,JSON.stringify(modeProfiles));}catch{}
+ if(wasActive){
+  activeConnectionProfileId=next.id;
+  persistProfiles();
+  data=demo();data.live=false;selected=new Set(data.positions.slice(0,4).map(position=>position.id));liveReceivedAt=0;lastLiveCacheSavedAt=0;selectedTradeSymbol='USDJPYz';
+  updateProfileUi();restoreCachedLiveSnapshot();syncTradeSymbolOptions();syncIndicatorSymbolOptions();renderIndicatorPresets();symbols();render();connection();showStoredKey();
+ }else{
+  persistProfiles();
+  updateProfileUi();
+ }
 }
 function moveBalanceStrip(){
  const balance=$('balanceStrip')||document.querySelector('.balance-strip');
