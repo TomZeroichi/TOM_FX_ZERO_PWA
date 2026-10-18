@@ -1,1 +1,373 @@
-base64: invalid input
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14171c">
+  <meta name="application-name" content="TOM FX ZERO">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
+  <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
+  <title>TOM FX Zero｜手数料込み損益</title>
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.79">
+  <link rel="icon" href="icons/app-icon.svg?v=0.4.27" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg">
+  <link rel="stylesheet" href="style.css?v=0.4.79">
+</head>
+<body>
+  <header>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.79</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="account-select-wrap">
+      <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
+      <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
+        <span id="accountConnectionLamp" class="account-connection-lamp" aria-hidden="true"></span>
+        <span id="accountConnectionAge">0秒</span>
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <section id="homePage" class="app-page" data-app-page="home" aria-label="ホーム">
+    <div class="connection-notice" id="connection" role="alert" hidden>オフラインです。最新データの取得や決済操作はできません。</div>
+    <div class="trade-quickbar" aria-label="取引モードと口座残高">
+      <div class="account-metrics" id="accountMetrics">
+        <div class="balance-strip" id="balanceStrip" aria-label="口座残高"><span>残高</span><strong id="balanceValue">--</strong><button id="toggleBalance" type="button" aria-pressed="false">非表示</button></div>
+        <details class="equity-details" id="equityDetails">
+          <summary><span>有効証拠金</span><strong id="equityValue">--</strong><small>詳細</small></summary>
+          <div class="equity-body"><div><span>現在の含み損益</span><strong id="equityFloatingValue">--</strong></div><p>残高＋保有ポジションの現在損益</p></div>
+        </details>
+      </div>
+      <div class="mode-switch" role="tablist" aria-label="取引モード"><button id="modeGoto" type="button" class="is-active" role="tab" aria-selected="true" aria-label="ゴトー日を表示">ゴトー</button><button id="modeIndicator" type="button" role="tab" aria-selected="false" aria-label="指標トレードを表示">指標</button></div>
+    </div>
+    <div class="desktop-market-ticker" id="desktopMarketTicker" aria-label="市場概況">
+      <span class="desktop-ticker-label">MARKET WATCH</span><div id="desktopTickerItems" class="desktop-ticker-items"></div><span class="desktop-ticker-live"><i aria-hidden="true"></i> REALTIME</span>
+    </div>
+    <div id="gotoMode">
+    <aside id="desktopWatchlistGoto" class="desktop-watchlist" aria-label="通貨リスト">
+      <div class="desktop-watchlist-head"><div><strong>通貨リスト</strong><small>お気に入り・主要銘柄</small></div><span>+</span></div>
+      <div class="desktop-watchlist-tabs" aria-hidden="true"><span class="is-active">主要</span><span>ゴトー</span><span>指標</span></div>
+      <div id="desktopWatchlistRows" class="desktop-watchlist-rows"></div>
+    </aside>
+    <section class="market-panel" id="marketPanel" hidden aria-labelledby="marketTitle">
+      <div class="market-head">
+        <div><h2 id="marketTitle"><span id="marketSymbol">USDJPYz</span> チャート</h2><p id="marketQuote">EAから価格を受信すると表示します</p></div>
+        <span class="market-live" id="marketLive">EA価格</span>
+      </div>
+      <div class="trade-symbol-row"><label><span id="tradeSymbolLabel">ゴトー日 通貨ペア</span><select id="tradeSymbol"><option value="USDJPYz">ドル円（USDJPYz）</option><option value="EURJPYz">ユーロ円（EURJPYz）</option></select></label><div class="current-price-box"><span>現在価格</span><strong id="marketPrice">--</strong></div></div>
+      <div class="chart-toolbar"><div class="timeframes" aria-label="チャート時間足"><button type="button" data-timeframe="M1">M1</button><button type="button" data-timeframe="M5" class="is-active">M5</button><button type="button" data-timeframe="M15">M15</button><button type="button" data-timeframe="M30">M30</button><button type="button" data-timeframe="H1">H1</button><button type="button" data-timeframe="H4">H4</button><button type="button" data-timeframe="D1">D1</button><button type="button" data-timeframe="W1">W1</button><button type="button" data-timeframe="MN1">MN1</button></div><button id="resetMarketChart" class="chart-reset" type="button">初期位置</button></div>
+      <div class="chart-wrap chart-wrap-trade" data-chart-surface="market"><canvas id="marketChart" role="img" aria-label="MT4／MT5ローソク足チャート"></canvas><div id="marketChartTradingView" class="tradingview-chart" role="img" aria-label="TradingView形式のMT4／MT5ローソク足チャート" hidden></div><div class="chart-watermark" id="marketChartWatermark" aria-hidden="true"></div><div class="chart-level-labels" id="marketChartLevelLabels" aria-hidden="true"></div><button class="chart-timeframe-tap" id="marketChartTimeframeTap" type="button" aria-label="ゴトーチャートの時間足を変更">M5</button><div class="chart-timeframe-picker" id="marketChartTimeframePicker" role="menu" aria-label="ゴトーチャートの時間足一覧" hidden></div><div class="chart-empty" id="chartEmpty">チャートを準備中です</div><a class="chart-attribution" href="https://www.tradingview.com/" target="_blank" rel="noreferrer" aria-label="TradingView Lightweight Charts">TradingView</a></div><div class="chart-line-help" id="chartLineHelp">チャート内の時間足ボタンをタップ／ピンチで拡大・縮小／SL・TPラインをドラッグ</div>
+      <div class="chart-level-action" id="chartLevelAction" hidden><span id="chartLevelText">SL／TPを変更</span><small>ドラッグ終了時に接続中のEAへ自動反映</small></div>
+      <section class="order-common-settings" aria-labelledby="orderCommonTitle">
+        <div class="order-common-head"><strong id="orderCommonTitle">注文設定</strong><span>成行・予約 共通</span></div>
+        <div class="order-fields">
+          <label>ロット<input id="orderVolume" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.01"></label>
+          <label>SL（pips・任意）<input id="orderStopLoss" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0＝なし"></label>
+          <label>TP（pips・任意）<input id="orderTakeProfit" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0＝なし"></label>
+        </div>
+      </section>
+      <div class="goto-order-tabs" role="tablist" aria-label="ゴトー日注文メニュー">
+        <button type="button" class="is-active" data-goto-order-tab="market" role="tab" aria-selected="true">成行</button>
+        <button type="button" data-goto-order-tab="reserve" role="tab" aria-selected="false">予約</button>
+        <button type="button" data-goto-order-tab="nanpin" role="tab" aria-selected="false">ナンピン</button>
+      </div>
+      <details class="order-panel" id="marketOrderDetails" aria-labelledby="orderTitle">
+        <summary class="order-toggle"><strong id="orderTitle">デモ成行注文</strong><span>デモ限定</span></summary>
+        <div class="order-body">
+        <div class="order-actions"><button id="orderBuy" type="button" class="order-buy">成行 BUY</button><button id="orderSell" type="button" class="order-sell">成行 SELL</button></div>
+        <p class="small">接続中のMT4／MT5の現在価格・銘柄を使います。送信前に内容を確認してからデモ口座へ指示します。</p>
+        </div>
+      </details>
+      <details id="reserveDetails" class="reserve-panel order-independent-panel"><summary class="reserve-toggle"><strong>ゴトー日 予約エントリー</strong><span>設定を開く</span></summary><div class="reserve-body"><div class="reserve-fields"><label>注文日<input id="reserveDate" type="date"></label><label class="time-select-field">目標時刻<div class="time-selects" aria-label="目標時刻"><select id="reserveHour" aria-label="目標時刻・時"></select><span>:</span><select id="reserveMinute" aria-label="目標時刻・分"></select><span>:</span><select id="reserveSecond" aria-label="目標時刻・秒"></select></div></label><label>先行実行（秒）<input id="reserveLead" type="number" min="0" max="10" step="1" value="3"></label></div><div class="order-actions"><button id="reserveBuy" type="button" class="order-buy">BUYを予約</button><button id="reserveSell" type="button" class="order-sell">SELLを予約</button></div><p class="small">時・分・秒を選んで日本時間の目標時刻を設定します。初期設定では9:54:56にEAが実行します。SL／TPはpips距離で指定します。</p></div></details>
+      <details id="nanpinDetails" class="nanpin-panel order-independent-panel"><summary class="reserve-toggle"><strong>ゴトー日 ナンピン設定</strong><span>アプリから設定</span></summary><div class="nanpin-body"><div class="nanpin-fields"><label class="nanpin-toggle"><span class="nanpin-toggle-copy"><strong>ゴトー日ナンピン</strong><small>タップでON／OFF</small></span><input id="nanpinEnabled" type="checkbox" role="switch" aria-label="ゴトー日ナンピン"><span id="nanpinEnabledState" class="nanpin-state" aria-live="polite">OFF</span></label><label class="nanpin-check"><input id="nanpinSellOnly" type="checkbox" checked> SELLのみ</label><label>ナンピン幅（pips）<input id="nanpinWidth" type="number" min="0.1" step="0.1" value="5"></label><label>ナンピンLot（最大5.00）<input id="nanpinLots" type="number" min="0.01" max="5" step="0.01" value="0.01"></label><label>ナンピン後 一括利確（pips）<input id="nanpinTakeProfit" type="number" min="0" step="0.1" value="2"></label></div><button id="nanpinSave" type="button" class="nanpin-save">設定をEAへ送信</button><p class="small" id="nanpinStatus" aria-live="polite">未送信です</p><p class="small">設定はこの端末に保存し、EAへ送信後はPWAを閉じてもMT4／MT5側で動作します。EAのAllowDemoClose=trueが必要です。</p></div></details>
+    </section>
+
+    <div id="tradeManagement">
+    <section class="hero">
+      <div class="eyebrow">選択分の純損益 <span id="selected">0件</span></div>
+      <div class="net" id="net" aria-live="polite"></div>
+      <div class="selected-pips"><span>現在の合計pips</span><strong id="selectedPips">--</strong></div>
+      <p id="netnote">現在価格での目安</p>
+      <div class="breakdown">
+        <div>売買損益<strong id="gross"></strong></div>
+        <div title="残数量に対応する手数料">手数料<strong id="commission"></strong></div>
+        <div title="スワップ・その他費用">スワップ等<strong id="other"></strong></div>
+      </div>
+    </section>
+
+    <section class="quick-close" aria-labelledby="quickCloseTitle">
+      <div class="quick-close-head">
+        <div><h2 id="quickCloseTitle">一括決済</h2><p>口座内の対象ポジションをまとめて決済</p></div>
+        <span>最優先操作</span>
+      </div>
+      <div class="quick-close-grid">
+        <button type="button" class="close-all" data-quick-close="all"><strong>全決済</strong><small id="allCloseCount">0件</small></button>
+        <button type="button" class="close-buy" data-quick-close="BUY"><strong>BUYのみ</strong><small id="buyCloseCount">0件</small></button>
+        <button type="button" class="close-sell" data-quick-close="SELL"><strong>SELLのみ</strong><small id="sellCloseCount">0件</small></button>
+      </div>
+      <div class="quick-current-pnl"><span>現在の口座損益（手数料込み）</span><strong id="quickCurrentNet"></strong></div>
+      <div class="quick-current-pips"><span>現在の合計pips</span><strong id="quickCurrentPips">--</strong></div>
+      <p class="small quick-note">タップ後に対象件数と手数料込み純損益を確認してから実行します。</p>
+    </section>
+
+    <section class="positions">
+      <div class="sectionhead">
+        <h2>保有ポジション <span id="count"></span></h2>
+        <label>銘柄 <select id="symbol"><option value="">すべて</option></select></label>
+      </div>
+      <div class="filters" aria-label="ポジションを選択">
+        <button data-pick="all">表示分すべて</button><button data-pick="BUY">BUY</button><button data-pick="SELL">SELL</button><button data-pick="profit">純利益あり</button><button data-pick="loss">純損失あり</button><button data-pick="none">選択解除</button>
+      </div>
+      <div class="position-tools">
+        <div><h3>選択ポジションのSL／TP</h3><p class="small">チェックしたポジションに、建値基準のpips距離で設定・変更します。0は解除です。</p></div>
+        <div class="position-tool-fields"><label>SL（pips）<input id="selectedStopLoss" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0＝解除"></label><label>TP（pips）<input id="selectedTakeProfit" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0＝解除"></label></div>
+        <button id="modifySelected" type="button">選択分のSL／TPを設定</button>
+        <p class="small" id="modifyStatus" aria-live="polite"></p>
+      </div>
+      <div id="rows"></div>
+      <p class="small">行をタップして内訳を表示。チェックしたポジションだけを決済する場合は画面下の「選択分」を使用します。</p>
+    </section>
+
+    <section class="history-dialog" id="historyDialog" aria-labelledby="historyTitle">
+      <div class="sectionhead"><h2 id="historyTitle">取引履歴 <span id="historyCount">0件</span></h2><div class="history-dialog-actions"><strong class="history-total" id="historyTotal">--</strong></div></div>
+      <p class="small" id="historyStatus">MT4／MT5から履歴を受信すると表示します。</p>
+      <div id="historyRows"></div>
+    </section>
+
+    <details class="import">
+      <summary>EAファイル・損益照合・ダウンロード</summary>
+      <div class="import-body"><h2>MT4／MT5の手数料と照合する</h2>
+      <p>専用EAが出力したJSONを読み込み、取得時点の損益を確認できます。読み込んだ情報はこのブラウザ内だけで処理します。</p>
+      <label class="upload">MT4／MT5出力ファイルを選ぶ<input type="file" id="file" accept=".json,application/json"></label>
+      <p class="small" id="timestamp"></p>
+      <p id="message" role="status"></p>
+      <details>
+        <summary>計算方法・検証版の範囲</summary>
+        <p>純損益＝売買損益＋スワップ＋履歴の手数料＋その他費用（すべて符号付き）。新規時に記録された往復手数料を使用し、決済手数料を追加で二重計上しません。現在の売買損益に含まれるスプレッドも再控除しません。</p>
+        <p>一部決済後は新規時の費用を残数量に配分します。既に決済した部分の利益・費用はこの合計に含めません。これは取引全体の損益であり、決済時に口座残高へ新たに加算される額とは異なります。</p>
+        <p>「履歴取得」は約定から手数料を取得できた状態です。ゼロ手数料、履歴不足、非対応履歴は未確認として扱います。口座単位の調整金などは含みません。</p>
+    <p>接続キーを設定した専用EAから、デモ口座の最新ポジション、MT4／MT5価格チャートを暗号化通信で取得できます。リアルタイム連携中はデモ口座限定で決済・成行注文の指示を送信できます。実口座とコンテスト口座は常にロックされます。</p>
+      </details>
+      <div class="downloads">
+        <a href="TOM_FX_Zero_FULL.zip" download>フルコード・EA・VPS自動起動BAT・導入手順をダウンロード</a>
+        <a href="README.txt">導入手順を読む</a>
+      </div>
+      </div>
+    </details>
+    </div>
+    </div>
+    <section id="indicatorMode" class="indicator-mode" hidden aria-labelledby="indicatorTitle">
+      <aside id="desktopWatchlistIndicator" class="desktop-watchlist" aria-label="指標用通貨リスト">
+        <div class="desktop-watchlist-head"><div><strong>通貨リスト</strong><small>指標トレード銘柄</small></div><span>+</span></div>
+        <div class="desktop-watchlist-tabs" aria-hidden="true"><span>主要</span><span class="is-active">指標</span><span>全銘柄</span></div>
+        <div id="desktopWatchlistIndicatorRows" class="desktop-watchlist-rows"></div>
+      </aside>
+      <section class="market-panel indicator-market-panel" id="indicatorMarketPanel" hidden aria-labelledby="indicatorMarketTitle">
+        <div class="market-head">
+          <div><h2 id="indicatorMarketTitle"><span id="indicatorMarketSymbol">USDJPYz</span> チャート</h2><p id="indicatorMarketQuote">選択した銘柄のMT4／MT5価格を表示します</p></div>
+          <span class="market-live" id="indicatorMarketLive">EA価格</span>
+        </div>
+        <div class="trade-symbol-row indicator-symbol-row"><label><span>指標 通貨ペア</span><select id="indicatorSymbol"><option value="USDJPYz">USDJPYz</option><option value="EURJPYz">EURJPYz</option><option value="XAUUSDz">XAUUSDz</option></select></label><div class="current-price-box"><span>現在価格</span><strong id="indicatorMarketPrice">--</strong></div></div>
+        <div class="chart-toolbar"><div class="timeframes" aria-label="指標チャート時間足"><button type="button" data-indicator-timeframe="M1">M1</button><button type="button" data-indicator-timeframe="M5" class="is-active">M5</button><button type="button" data-indicator-timeframe="M15">M15</button><button type="button" data-indicator-timeframe="M30">M30</button><button type="button" data-indicator-timeframe="H1">H1</button><button type="button" data-indicator-timeframe="H4">H4</button><button type="button" data-indicator-timeframe="D1">D1</button><button type="button" data-indicator-timeframe="W1">W1</button><button type="button" data-indicator-timeframe="MN1">MN1</button></div><button id="resetIndicatorChart" class="chart-reset" type="button">初期位置</button></div>
+        <div class="chart-wrap chart-wrap-trade" data-chart-surface="indicator"><canvas id="indicatorMarketChart" role="img" aria-label="指標トレード用MT4／MT5ローソク足チャート"></canvas><div id="indicatorMarketChartTradingView" class="tradingview-chart" role="img" aria-label="TradingView形式の指標トレード用MT4／MT5ローソク足チャート" hidden></div><div class="chart-watermark" id="indicatorChartWatermark" aria-hidden="true"></div><div class="chart-level-labels" id="indicatorChartLevelLabels" aria-hidden="true"></div><button class="chart-timeframe-tap" id="indicatorChartTimeframeTap" type="button" aria-label="指標チャートの時間足を変更">M5</button><div class="chart-timeframe-picker" id="indicatorChartTimeframePicker" role="menu" aria-label="指標チャートの時間足一覧" hidden></div><div class="chart-empty" id="indicatorChartEmpty">チャートを準備中です</div><a class="chart-attribution" href="https://www.tradingview.com/" target="_blank" rel="noreferrer" aria-label="TradingView Lightweight Charts">TradingView</a></div><div class="chart-line-help" id="indicatorChartLineHelp">チャート内の時間足ボタンをタップ／ピンチで拡大・縮小／SL・TPラインをドラッグ</div>
+        <div class="chart-level-action" id="indicatorChartLevelAction" hidden><span id="indicatorChartLevelText">SL／TPを変更</span><small>ドラッグ終了時に接続中のEAへ自動反映</small></div>
+      </section>
+      <section class="indicator-order-panel" aria-labelledby="indicatorOrderTitle"><h2 id="indicatorOrderTitle" class="sr-only">指標トレード注文</h2>
+      <div class="indicator-entry-modes" role="radiogroup" aria-label="指標トレードのエントリーモード">
+        <label><input type="radio" name="indicatorEntryMode" value="scheduled" checked><span><strong>予約モード</strong><small>指定時刻に上下逆指値</small></span></label>
+        <label><input type="radio" name="indicatorEntryMode" value="immediate"><span><strong>即時モード</strong><small>すぐ上下逆指値</small></span></label>
+        <label><input type="radio" name="indicatorEntryMode" value="market"><span><strong>成行モード</strong><small>TP／SL付き両建て</small></span></label>
+      </div>
+      <div class="indicator-fields">
+        <label><span>ロット</span><input id="indicatorVolume" type="number" min="0.01" step="0.01" value="0.10"></label>
+        <label id="indicatorMarginField"><span>マージン（pips）</span><input id="indicatorMargin" type="number" min="0.1" step="0.1" value="10"></label>
+        <label><span>SL（pips）</span><input id="indicatorSL" type="number" min="0" step="0.1" value="10"></label>
+        <label><span>TP（pips）</span><input id="indicatorTP" type="number" min="0" step="0.1" value="20"></label>
+        <div class="indicator-time indicator-reserve-fields" id="indicatorTimeField"><label>注文日<input id="indicatorDate" type="date" aria-label="注文日"></label><label class="time-select-field">目標時刻<div class="time-selects" aria-label="目標時刻（時・分・秒）"><select id="indicatorHour" aria-label="目標時刻・時"></select><span>:</span><select id="indicatorMinute" aria-label="目標時刻・分"></select><span>:</span><select id="indicatorSecond" aria-label="目標時刻・秒"></select></div></label></div>
+      </div>
+      <button id="indicatorReserve" type="button" class="primary">上下逆指値を予約</button>
+      <button id="indicatorCancel" type="button" class="indicator-cancel">この銘柄の指標注文をキャンセル</button>
+      <p class="small" id="indicatorStatus" aria-live="polite">未予約</p>
+      <details class="indicator-presets" id="indicatorPresetDetails">
+        <summary><span><strong id="indicatorPresetTitle">指標プリセット</strong><small>銘柄・ロット・マージン・SL／TP・モード・時刻を保存</small></span><b>開く</b></summary>
+        <div class="indicator-preset-body"><label><span>プリセット</span><select id="indicatorPreset" aria-label="指標プリセット"></select></label><div class="indicator-preset-actions"><button id="indicatorPresetSave" type="button">保存／更新</button><button id="indicatorPresetDuplicate" type="button">複製</button><button id="indicatorPresetDelete" type="button">削除</button></div><p id="indicatorPresetStatus" class="small" aria-live="polite">「＋ 新規プリセット」で米CPIなどの設定を保存できます。</p></div>
+      </details>
+      </section>
+    </section>
+    </section>
+
+    <section id="symbolsPage" class="app-page page-panel" data-app-page="symbols" hidden aria-labelledby="symbolsPageTitle">
+      <div class="page-title-row"><div><h2 id="symbolsPageTitle">通貨リスト</h2><p>銘柄を選ぶとホームのチャートへ反映します。</p></div><span id="currencyListStatus" class="page-status">EA価格</span></div>
+      <div id="currencyRows" class="currency-list"></div>
+    </section>
+
+    <section id="positionsPage" class="app-page" data-app-page="positions" hidden aria-labelledby="positionsPageTitle">
+      <div class="page-title-row positions-page-title"><div><h2 id="positionsPageTitle">ポジション</h2><p>現在の保有ポジションと決済操作</p></div></div>
+    </section>
+
+    <section id="historyPage" class="app-page" data-app-page="history" hidden aria-labelledby="historyPageTitle">
+      <h2 id="historyPageTitle" class="sr-only">取引履歴</h2>
+    </section>
+
+    <section id="calendarPage" class="app-page page-panel" data-app-page="calendar" hidden aria-labelledby="calendarPageTitle">
+      <div class="page-title-row"><div><h2 id="calendarPageTitle">損益カレンダー</h2><p>決済履歴を日別に集計します。</p></div><label class="calendar-scope-label">集計<select id="calendarScope"><option value="active">選択中の口座</option><option value="all">全口座トータル</option></select></label></div>
+      <div class="calendar-controls"><label>表示月<input id="calendarMonth" type="month"></label><div id="calendarSummary" class="calendar-summary">--</div></div>
+      <div class="pnl-calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
+      <div id="pnlCalendarGrid" class="pnl-calendar-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <dialog id="calendarDayDialog" class="calendar-day-dialog" aria-labelledby="calendarDayTitle">
+    <div class="sectionhead"><div><h2 id="calendarDayTitle">日別詳細</h2><p id="calendarDaySummary" class="small"></p></div><button id="closeCalendarDay" type="button">閉じる</button></div>
+    <div id="calendarDayRows" class="calendar-day-rows"></div>
+  </dialog>
+
+  <footer id="actionFooter" hidden>
+    <div class="action-footer-summary"><span id="bottomPositionStatus" class="action-footer-status">保有ポジション 0件</span><span>選択分の純損益</span><strong id="bottomNet"></strong></div>
+    <div class="footer-close-actions">
+      <label class="direct-close-option"><input id="closeNoConfirm" type="checkbox">ワンクリック決済</label>
+      <button id="close">選択分を一括決済</button>
+    </div>
+  </footer>
+
+  <nav id="bottomNav" class="bottom-nav" aria-label="メインメニュー">
+    <button type="button" data-app-nav="symbols"><span class="nav-icon" aria-hidden="true">☷</span><span>通貨リスト</span></button>
+    <button type="button" data-app-nav="positions"><span class="nav-icon" aria-hidden="true">◉</span><span>ポジション</span></button>
+    <button type="button" data-app-nav="home" class="is-active"><span class="nav-icon" aria-hidden="true">⌂</span><span>ホーム</span></button>
+    <button type="button" data-app-nav="history"><span class="nav-icon" aria-hidden="true">▤</span><span>取引履歴</span></button>
+    <button type="button" data-app-nav="calendar"><span class="nav-icon" aria-hidden="true">▦</span><span>損益カレンダー</span></button>
+  </nav>
+
+  <dialog id="menuDialog" class="menu-dialog" aria-labelledby="menuTitle">
+    <div class="menu-head"><div><h2 id="menuTitle">メニュー</h2><p>接続・履歴・管理機能</p></div><button id="closeMenu" type="button">閉じる</button></div>
+    <div class="menu-actions">
+      <button id="openLotCalculator" type="button" class="menu-item"><span>ロット計算ツール</span><small>注文・ナンピン・指標へ反映</small></button>
+      <button id="openSync" type="button" class="menu-item"><span>接続設定</span><small>MT4／MT5 EA・接続キー</small></button>
+      <button id="manageProfiles" type="button" class="menu-item"><span>口座を管理</span><small>接続口座を追加・切替</small></button>
+      <button id="installPwa" type="button" class="menu-item" disabled>PWA準備中</button>
+      <button id="reset" type="button" class="menu-item menu-item-muted">サンプルに戻す</button>
+    </div>
+    <label class="menu-toggle weekend-btc-test"><input id="weekendBtcTest" type="checkbox"><span><strong>週末BTCテストを有効化</strong><small>BTCUSDはデモ口座でのみテストできます。EA側のBTCテスト許可も必要です。</small></span></label>
+    <p class="market-test-note menu-test-note" id="marketTestNote" hidden>BTC週末テスト中です。ゴトー日・ナンピンの本番運用とは分離され、ナンピン自動注文の対象にはなりません。</p>
+    <div class="menu-divider"></div>
+    <section class="vps-panel" id="vpsPanel" aria-labelledby="vpsTitle">
+      <div class="vps-head"><div><h2 id="vpsTitle">Windows VPS管理</h2><p>VPS上の専用エージェントへ再起動を指示します。MT4／MT5とEAは停止し、約30秒後にWindowsを再起動します。</p></div><span>デモ接続時のみ</span></div>
+      <button id="restartVps" type="button" class="vps-restart" disabled>VPSを再起動</button>
+      <p class="small" id="vpsStatus" role="status">MT4／MT5デモ接続後に操作できます。先にダウンロードしたBATでVPS側の設定を行ってください。</p>
+    </section>
+  </dialog>
+
+  <dialog id="lotCalculatorDialog" class="lot-calculator-dialog" aria-labelledby="lotCalculatorTitle">
+    <div class="sectionhead"><div><h2 id="lotCalculatorTitle">ロット計算ツール</h2><p>選択中の口座残高とリスク率から、SL幅に応じたロットを自動計算します。</p></div><button id="closeLotCalculator" type="button">閉じる</button></div>
+    <div class="lot-calculator-fields"><label class="lot-reference-field">口座残高（自動参照）<input id="lotAccountBalance" type="text" value="--" readonly></label><label>リスク率（%）<select id="lotRiskPercent"><option value="0.5">0.5%</option><option value="1">1%</option><option value="2" selected>2%</option><option value="3">3%</option><option value="5">5%</option><option value="8">8%</option><option value="10">10%</option></select></label><label>許容損失額（自動）<input id="lotRiskAmount" type="text" value="--" readonly></label><label>SL幅（pips）<input id="lotStopPips" type="number" inputmode="decimal" min="0.1" step="0.1" value="10"></label><label>1lot・1pip（円）<input id="lotPipValue" type="number" inputmode="decimal" min="0.01" step="1" value="1000"></label></div>
+    <div class="lot-calculator-result"><span>推奨ロット</span><strong id="lotCalculatorResult">--</strong><small id="lotCalculatorStatus">口座残高 × リスク率 ÷（SL幅 × 1lot・1pip）で計算します。リスク率を選ぶと自動更新します。</small></div>
+    <button id="applyLotCalculator" type="button" class="primary">注文・ナンピン・指標ロットへ反映</button>
+  </dialog>
+
+  <dialog id="confirm">
+    <h2 id="confirmTitle">サンプル決済</h2>
+    <p id="confirmText"></p>
+    <div class="confirm-live-pnl"><span id="confirmLiveLabel">現在の損益</span><strong id="confirmLiveNet">--</strong></div>
+    <p class="small" id="confirmNote">実際の注文は送信されません。</p>
+    <div class="dialogActions"><button id="cancel">戻る</button><button class="primary" id="execute">サンプルを決済</button></div>
+  </dialog>
+
+  <dialog id="orderConfirm">
+    <h2 id="orderConfirmTitle">デモ成行注文</h2>
+    <p id="orderConfirmText"></p>
+    <p class="small" id="orderConfirmNote">MT4／MT5側で価格と注文条件を再確認してから発注します。</p>
+    <div class="dialogActions"><button id="orderCancel">戻る</button><button class="primary" id="orderExecute">注文指示を送信</button></div>
+  </dialog>
+
+  <dialog id="modifyConfirm">
+    <h2>SL／TPを設定・変更</h2>
+    <p id="modifyConfirmText"></p>
+    <p class="small">0 pipsにすると、その側の設定を解除します。設定後は次のMT4／MT5更新で現在値へ反映されます。</p>
+    <div class="dialogActions"><button id="modifyCancel">戻る</button><button class="primary" id="modifyExecute">設定を送信</button></div>
+  </dialog>
+
+  <dialog id="vpsRestartConfirm">
+    <h2>VPSを再起動しますか？</h2>
+    <p id="vpsRestartConfirmText">Windows VPSを再起動します。MT4／MT5とEAは一時停止します。</p>
+    <p class="small">VPS側に「VPS自動起動セットアップ.bat」を実行済みで、Windows自動ログオンが設定済みの場合、再起動後にMT4／MT5とEAが自動起動します。ブローカー側のTP／SLは通常そのまま残ります。</p>
+    <div class="dialogActions"><button id="vpsRestartCancel">戻る</button><button class="primary" id="vpsRestartExecute">再起動を指示</button></div>
+  </dialog>
+
+  <dialog id="installGuide">
+    <h2>PWAの追加方法</h2>
+    <p>Chromeがまだインストール画面を表示できない場合は、次の順で準備してください。</p>
+    <ol class="install-steps">
+      <li>以前追加したTOM FX ZEROのショートカットをホーム画面から削除</li>
+      <li>このページをChromeで再読み込み</li>
+      <li>画面を一度タップして30秒ほど開いたままにする</li>
+      <li>「アプリとして追加」をタップ</li>
+    </ol>
+    <p class="small">Chromeメニューが「ホーム画面へ追加」だけの場合も、再読み込み後にもう一度確認してください。</p>
+    <div class="dialogActions"><button id="closeInstallGuide" class="primary">閉じる</button></div>
+  </dialog>
+
+  <dialog id="syncDialog">
+    <h2>MT4／MT5リアルタイム接続</h2>
+    <p id="connectionDialogIntro">検証版では登録済みのデモ口座だけ送信できます。接続キー.txtをスマホへ送らなくても、EAに表示される6桁コードだけで接続できます。</p>
+    <div class="pairing-box">
+      <h3>6桁コードでかんたん接続</h3>
+      <p>新規EAはチャートに表示されたコード、既存EAはチャートの「スマホ再接続」を押して表示されたコードを入力します。接続キー.txtの保存・LINE送信・ファイル読み込みは不要です。</p>
+      <div class="pairing-row"><input id="pairingCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="EAに表示された6桁コード"><button id="claimPairing" type="button" class="primary">6桁で接続</button></div>
+      <div class="pairing-row add-device-row"><button id="addDevice" type="button">端末を追加（1台目）</button><strong id="addDeviceCode" aria-live="polite"></strong></div>
+      <p class="small" id="pairingMessage" role="status">MT4／MT5コードは10分、端末追加コードは5分有効です。</p>
+    </div>
+    <label class="connection-key-label" for="connectionKey">接続キー</label>
+    <div class="connection-key-row">
+      <input id="connectionKey" type="text" readonly autocomplete="off" spellcheck="false" placeholder="未作成">
+      <button id="copyConnection" type="button" disabled>コピー</button>
+    </div>
+    <div class="connection-actions">
+      <button id="createConnection" type="button" class="primary">接続キーを作成</button>
+      <button id="downloadConnection" type="button" disabled>接続キー.txtを保存</button>
+      <button id="removeConnection" type="button" hidden>接続を解除</button>
+    </div>
+    <label class="connection-import">別端末から接続キー.txtを読み込む<input id="importConnection" type="file" accept=".txt,text/plain"></label>
+    <ol class="install-steps">
+      <li>通常はEAの「スマホ再接続」ボタンで6桁コードを発行し、この画面へ入力</li>
+      <li>MT4／MT5のEA設定で EnableRealtimeSync を true にする</li>
+      <li>初回の新規接続も既存口座の再接続も、6桁コード方式ならファイル移送は不要</li>
+      <li>従来の接続キー方式を使う場合だけ、接続キー.txtをMT4は<strong>MQL4\Files</strong>、MT5は<strong>MQL5\Files</strong>へ置く</li>
+      <li>MT4／MT5の「ツール → オプション → エキスパートアドバイザ」で <strong>https://tom-fx-zero.ryuichi512.chatgpt.site</strong> をWebRequest許可URLへ追加</li>
+    </ol>
+    <p class="small" id="syncMessage" role="status">接続後、約1秒ごとに手数料込み損益が更新されます。</p>
+    <div class="dialogActions"><button id="closeSyncDialog">閉じる</button></div>
+  </dialog>
+
+  <dialog id="profileDialog" class="profile-dialog" aria-labelledby="profileDialogTitle">
+    <h2 id="profileDialogTitle">接続口座を管理</h2>
+    <p>接続済み・接続履歴のある口座だけを上部の口座切替へ表示します。未接続の仮枠は非表示です。不要な口座は一覧を長押しして削除できます。</p>
+    <div id="profileRows" class="profile-rows"></div>
+    <div class="profile-add">
+      <strong>MT4デモ口座</strong>
+      <p class="small">MT4のチャートにMT4版EAを設定すると、ブローカー名・サーバー名・口座番号を自動取得してPWAへ表示します。MT4を複数起動する場合は口座ごとに追加してください。</p>
+      <button id="addMt4Profile" type="button" class="primary">MT4デモ口座を追加</button>
+    </div>
+    <div class="profile-add">
+      <strong>MT5デモ口座</strong>
+      <p class="small">既存のMT5接続を別口座として登録します。EAチャートの「スマホ再接続」で6桁コードを表示すれば、接続キー.txtなしで登録できます。</p>
+      <button id="addMt5Profile" type="button" class="primary">MT5デモ口座を追加</button>
+    </div>
+    <div class="profile-add">
+      <strong>Titan FX Blade（デモ）</strong>
+      <p class="small">追加後にTitan MT5で最新版EAを起動し、表示された6桁コードでペアリングします。銘柄名はEAが自動検出します。</p>
+      <button id="addTitanProfile" type="button" class="primary">Titan FX Blade デモを追加</button>
+    </div>
+    <div class="profile-add">
+      <strong>HFM MT5（デモ・テスト用）</strong>
+      <p class="small">KATANAはデモ口座がないため、HFMのデモ対応口座で接続・注文・決済を確認します。実口座への送信はできません。</p>
+      <button id="addHfmProfile" type="button" class="primary">HFM MT5デモを追加</button>
+    </div>
+    <div class="dialogActions"><button id="closeProfileDialog" type="button">閉じる</button></div>
+  </dialog>
+
+  <script src="calc.js?v=0.4.79"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.79"></script>
+  <script src="app.js?v=0.4.79"></script>
+  <script src="pwa.js?v=0.4.79"></script>
+</body>
+</html>
