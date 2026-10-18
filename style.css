@@ -536,7 +536,7 @@ body[data-app-page="home"] .nanpin-toggle-copy strong{color:#ecf6ff}.nanpin-save
  #homePage{display:grid;grid-template-columns:236px minmax(0,1fr) 310px;gap:10px;align-items:start}
  .desktop-market-ticker{grid-column:1/3;grid-row:1;display:flex!important;min-height:48px;margin:0;padding:9px 13px;border:1px solid #1c507d;border-radius:0 0 8px 8px;background:#041b35;box-shadow:none}
  .desktop-ticker-label{color:#ff8737;font-size:.76rem}.desktop-ticker-items{gap:16px}.desktop-ticker-item strong{color:#edf8ff}.desktop-ticker-item span{color:#9ec8e8}
- .trade-quickbar{grid-column:3;grid-row:1/3;display:grid!important;grid-template-columns:1fr;gap:8px;margin:0!important;padding:10px;border:1px solid #1c507d;border-top:0;border-radius:0 0 8px 8px;background:#041b35}
+ .trade-quickbar{grid-column:3;grid-row:1;display:grid!important;grid-template-columns:1fr;gap:8px;margin:0!important;padding:10px;border:1px solid #1c507d;border-top:0;border-radius:0 0 8px 8px;background:#041b35}
  .trade-quickbar .mode-switch{display:grid;grid-template-columns:1fr 1fr;min-width:0;margin:0}.trade-quickbar .mode-switch button{min-height:39px;border-color:#24537d;background:#071f3a;color:#d8ebfb}.trade-quickbar .mode-switch button.is-active{background:#ff8737;border-color:#ff8737;color:#21150d}
  .account-metrics{gap:7px}.balance-strip{border-color:#275b88!important;background:linear-gradient(180deg,#092d52,#061d37)!important;color:#bcd5e9!important}.balance-strip strong{color:#f3f8fe!important}.balance-strip button{border-color:#356a99!important;background:#0c3155!important;color:#d7e8f7!important}
  .equity-details{border-color:#275b88;background:#061d37}.equity-details>summary{color:#abc6de}.equity-details>summary strong{color:#f1f8ff}.equity-details>summary small{color:#ffb17e}.equity-body{border-color:#1e4a73;background:#05182f}.equity-body>div{color:#9fc0da}.equity-body>div strong{color:#f0f7fe}.equity-body p{color:#7fa8c8}
@@ -549,7 +549,7 @@ body[data-app-page="home"] .nanpin-toggle-copy strong{color:#ecf6ff}.nanpin-save
  #marketPanel>.market-head{grid-row:1;padding:0 4px 5px}.market-head h2{font-size:1.28rem}.market-head p{font-size:.78rem}
  #marketPanel>.trade-symbol-row{grid-row:2;align-items:end;margin:4px 4px 10px}.trade-symbol-row select{height:40px}.current-price-box strong{font-size:2.2rem}
  #marketPanel>.chart-toolbar{display:none}
- #marketPanel>.chart-wrap-trade{grid-row:3;height:min(52vh,550px)!important;border-radius:5px}
+ #marketPanel>.chart-wrap-trade{grid-row:3;height:min(44vh,470px)!important;border-radius:5px}
  #marketPanel>.chart-line-help{grid-row:4;padding-left:2px;font-size:.67rem}
  #marketPanel>.chart-level-action{grid-row:5}
  #marketPanel>.order-common-settings{grid-row:3;margin:0 0 10px;padding:12px;border-radius:7px}
