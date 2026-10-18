@@ -10,14 +10,14 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.4.74">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.75">
   <link rel="icon" href="icons/app-icon.svg?v=0.4.27" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/app-icon.svg">
-  <link rel="stylesheet" href="style.css?v=0.4.74">
+  <link rel="stylesheet" href="style.css?v=0.4.75">
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.74</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.75</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
   </header>
 
@@ -317,7 +317,7 @@
 
   <dialog id="profileDialog" class="profile-dialog" aria-labelledby="profileDialogTitle">
     <h2 id="profileDialogTitle">接続口座を管理</h2>
-    <p>口座ごとに接続キーと最新データを分けて保存します。Exnessの接続はそのまま残ります。</p>
+    <p>接続済み・接続履歴のある口座だけを上部の口座切替へ表示します。未接続の仮枠は非表示です。不要な口座は一覧を長押しして削除できます。</p>
     <div id="profileRows" class="profile-rows"></div>
     <div class="profile-add">
       <strong>MT4デモ口座</strong>
@@ -342,9 +342,9 @@
     <div class="dialogActions"><button id="closeProfileDialog" type="button">閉じる</button></div>
   </dialog>
 
-  <script src="calc.js?v=0.4.74"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.4.74"></script>
-  <script src="app.js?v=0.4.74"></script>
-  <script src="pwa.js?v=0.4.74"></script>
+  <script src="calc.js?v=0.4.75"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.75"></script>
+  <script src="app.js?v=0.4.75"></script>
+  <script src="pwa.js?v=0.4.75"></script>
 </body>
 </html>
