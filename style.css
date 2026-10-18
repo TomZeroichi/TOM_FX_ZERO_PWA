@@ -488,3 +488,100 @@ details.indicator-presets{display:block;margin:16px 0 0;padding:11px 12px;border
  .equity-details>summary small{font-size:.6rem}
  .market-panel .chart-wrap-trade,.indicator-mode .indicator-market-panel .chart-wrap-trade{height:360px!important}
 }
+
+/* 0.4.81：承認画像を基準にしたTOM FX ZERO取引端末テーマ */
+:root{color-scheme:dark;--ink:#e8f4ff;--muted:#98b3ce;--orange:#ff8737;--green:#35e4b5;--red:#ff5a68;--blue:#092747;--blue-deep:#03152b;--blue-line:#1d5a8a}
+body{background:radial-gradient(circle at 50% -15%,#174a78 0,#071c35 43%,#020d1d 100%);color:var(--ink)}
+button,select,.upload{border-color:#285c8a;background:#0a2544;color:#e8f4ff}
+button:hover{border-color:#ff8737}
+input,select{color-scheme:dark}
+header{max-width:1500px;margin:0 auto;border:0;background:linear-gradient(180deg,#071d37,#04152a);box-shadow:0 1px 0 #2a5b85 inset,0 10px 32px #01091588}
+.brand{color:#f5fbff;font-style:italic;font-weight:900;letter-spacing:-1.45px}.brand b{color:#ff8737}.brand span{color:#f5fbff;font-size:.76rem;letter-spacing:2px}
+.version{color:#91acc7}.menu-button{border-color:#356890;background:#0b2747}.menu-button span{background:#eaf5ff}.header-account{border-color:#356890;background:#071d36;color:#eef8ff}.account-connection-status{color:#dff5ec}
+.connection-notice{background:#3a1320;border-color:#a93c4b;color:#ffb1b9}
+body[data-app-page="home"] main{max-width:1500px;margin-top:0;padding-top:14px;color:#e8f4ff}
+body[data-app-page="home"] .trade-quickbar{margin-top:0}
+body[data-app-page="home"] .market-panel,body[data-app-page="home"] .indicator-market-panel{background:linear-gradient(145deg,#082c51,#041a34 70%);border-color:#1c5787;box-shadow:0 14px 36px #0109157a}
+body[data-app-page="home"] .market-head h2,body[data-app-page="home"] .market-head p,body[data-app-page="home"] .trade-symbol-row label,body[data-app-page="home"] .current-price-box span{color:#c9ddf0}
+body[data-app-page="home"] .market-head h2{font-weight:850}body[data-app-page="home"] .market-live{background:#063d38;color:#73f0cb}
+body[data-app-page="home"] .trade-symbol-row select{border-color:#315f89;background:#061629;color:#f4f8fd}
+body[data-app-page="home"] .current-price-box strong{color:#ffb17e;text-shadow:0 3px 14px #ff87372b}
+body[data-app-page="home"] .chart-wrap{border-color:#245f91;border-radius:8px;background:#041932;box-shadow:inset 0 0 0 1px #2a5d8d33}
+body[data-app-page="home"] .chart-reset,body[data-app-page="home"] .chart-timeframe-tap{border-color:#3974a5;background:#0a2a4d;color:#e5f3ff}
+body[data-app-page="home"] .chart-reset:hover,body[data-app-page="home"] .chart-timeframe-tap:hover,body[data-app-page="home"] .chart-timeframe-tap[aria-expanded="true"]{background:#ff8737;border-color:#ff8737;color:#1b130d}
+body[data-app-page="home"] .chart-line-help{color:#8fb4d6;background:transparent}
+body[data-app-page="home"] .order-common-settings,body[data-app-page="home"] .chart-level-action{border-color:#285e90;background:#082846;color:#dcecff}
+body[data-app-page="home"] .order-common-head,body[data-app-page="home"] .order-common-head span,body[data-app-page="home"] .order-fields label,body[data-app-page="home"] .reserve-fields label,body[data-app-page="home"] .nanpin-fields label{color:#aec9e0}
+body[data-app-page="home"] .order-fields input,body[data-app-page="home"] .reserve-fields input,body[data-app-page="home"] .reserve-fields select,body[data-app-page="home"] .nanpin-fields input[type=number]{border-color:#2e6292;background:#04182e;color:#f2f7fd}
+body[data-app-page="home"] .goto-order-tabs button{border-color:#235783;background:#0a294b;color:#bed8ed}
+body[data-app-page="home"] .goto-order-tabs button.is-active{background:#ff8737;border-color:#ff8737;color:#1c140d;box-shadow:0 0 18px #ff873744}
+body[data-app-page="home"] .order-panel,body[data-app-page="home"] .reserve-panel,body[data-app-page="home"] .nanpin-panel{border-color:#224f78}
+body[data-app-page="home"] .order-toggle,body[data-app-page="home"] .reserve-toggle{color:#eff7ff}
+body[data-app-page="home"] .order-toggle span,body[data-app-page="home"] .reserve-toggle span{background:#3e2a1c;color:#ffbf8e}
+body[data-app-page="home"] .order-buy{border-color:#1887ff;background:linear-gradient(160deg,#178dfb,#0b64d6);color:#fff}
+body[data-app-page="home"] .order-sell{border-color:#ff5364;background:linear-gradient(160deg,#ff5263,#de3042);color:#fff}
+body[data-app-page="home"] .order-actions button{display:grid;place-items:center;gap:1px;min-height:60px;font-size:.78rem;line-height:1.1;box-shadow:0 7px 17px #020b1870}
+body[data-app-page="home"] .order-actions button strong{font-size:1.08rem;font-variant-numeric:tabular-nums}
+body[data-app-page="home"] .order-panel .small,body[data-app-page="home"] .reserve-body .small,body[data-app-page="home"] .nanpin-body .small{color:#94b7d4}
+body[data-app-page="home"] .nanpin-toggle{border-color:#2e6292;background:#04182e}
+body[data-app-page="home"] .nanpin-toggle-copy strong{color:#ecf6ff}.nanpin-save{background:#ff8737;border-color:#ff8737;color:#24170d}
+
+/* PC版：左に通貨、中央にチャート、右に口座・注文を置く */
+@media(min-width:1000px){
+ body{padding:28px;background:radial-gradient(circle at 50% -10%,#9fc4e8 0,#5d8dbd 40%,#2c5f8c 100%)}
+ header{max-width:1500px;padding:14px 20px 10px;border:1px solid #1d5a8a;border-bottom:0;border-radius:18px 18px 0 0;grid-template-columns:minmax(0,1fr) 340px}
+ .brand{font-size:1.75rem}.header-account{height:42px;min-height:42px}
+ main{max-width:1500px;padding:0 12px 12px;margin:0 auto 80px;border:1px solid #1d5a8a;border-top:0;border-radius:0 0 18px 18px;background:linear-gradient(145deg,#062747,#031429 72%);box-shadow:0 18px 40px #0a294a7d}
+ body[data-app-page="home"] main{padding:0 12px 12px;margin:0 auto 80px}
+ #homePage{display:grid;grid-template-columns:236px minmax(0,1fr) 310px;gap:10px;align-items:start}
+ .desktop-market-ticker{grid-column:1/3;grid-row:1;display:flex!important;min-height:48px;margin:0;padding:9px 13px;border:1px solid #1c507d;border-radius:0 0 8px 8px;background:#041b35;box-shadow:none}
+ .desktop-ticker-label{color:#ff8737;font-size:.76rem}.desktop-ticker-items{gap:16px}.desktop-ticker-item strong{color:#edf8ff}.desktop-ticker-item span{color:#9ec8e8}
+ .trade-quickbar{grid-column:3;grid-row:1/3;display:grid!important;grid-template-columns:1fr;gap:8px;margin:0!important;padding:10px;border:1px solid #1c507d;border-top:0;border-radius:0 0 8px 8px;background:#041b35}
+ .trade-quickbar .mode-switch{display:grid;grid-template-columns:1fr 1fr;min-width:0;margin:0}.trade-quickbar .mode-switch button{min-height:39px;border-color:#24537d;background:#071f3a;color:#d8ebfb}.trade-quickbar .mode-switch button.is-active{background:#ff8737;border-color:#ff8737;color:#21150d}
+ .account-metrics{gap:7px}.balance-strip{border-color:#275b88!important;background:linear-gradient(180deg,#092d52,#061d37)!important;color:#bcd5e9!important}.balance-strip strong{color:#f3f8fe!important}.balance-strip button{border-color:#356a99!important;background:#0c3155!important;color:#d7e8f7!important}
+ .equity-details{border-color:#275b88;background:#061d37}.equity-details>summary{color:#abc6de}.equity-details>summary strong{color:#f1f8ff}.equity-details>summary small{color:#ffb17e}.equity-body{border-color:#1e4a73;background:#05182f}.equity-body>div{color:#9fc0da}.equity-body>div strong{color:#f0f7fe}.equity-body p{color:#7fa8c8}
+ #gotoMode{display:contents}
+ #desktopWatchlistGoto{grid-column:1;grid-row:2/5;display:grid!important;min-height:650px;padding:13px 10px;border-color:#1d5a8a;border-radius:8px;background:linear-gradient(180deg,#072a4d,#04182f);box-shadow:none}
+ .desktop-watchlist-head strong{font-size:1.05rem;color:#f1f8ff}.desktop-watchlist-head small{color:#8fb6d4}.desktop-watchlist-head>span{border-color:#4077a5;color:#f5f9ff}
+ .desktop-watchlist-tabs{background:#04182f;border:1px solid #1d4f7a}.desktop-watchlist-tabs .is-active{background:#ff8737;color:#1d130c}
+ .desktop-watch-row{grid-template-columns:minmax(0,1fr) 72px;padding:10px 8px;border-color:#194a75;border-radius:6px;background:#062340}.desktop-watch-row:hover,.desktop-watch-row.is-active{border-left:4px solid #ff8737;border-color:#ff8737;background:#0b3158}.desktop-watch-row-main strong{font-size:.82rem}.desktop-watch-row-quote{color:#eaf7ff;font-size:.8rem}.desktop-watch-row-spark{height:22px}
+ #marketPanel{grid-column:2/4;grid-row:2;grid-template-columns:minmax(0,1fr) 294px;gap:0 12px;margin:0;padding:12px;border-color:#1d5a8a;border-radius:8px;background:linear-gradient(145deg,#062b50,#04172e)}
+ #marketPanel>.market-head{padding:0 4px 5px}.market-head h2{font-size:1.28rem}.market-head p{font-size:.78rem}
+ #marketPanel>.trade-symbol-row{align-items:end;margin:4px 4px 10px}.trade-symbol-row select{height:40px}.current-price-box strong{font-size:2.2rem}
+ #marketPanel>.chart-toolbar{display:none}
+ #marketPanel>.chart-wrap-trade{height:min(52vh,550px)!important;border-radius:5px}
+ #marketPanel>.chart-line-help{padding-left:2px;font-size:.67rem}
+ #marketPanel>.order-common-settings{margin:0 0 10px;padding:12px;border-radius:7px}
+ #marketPanel>.goto-order-tabs{margin:0 0 8px}.goto-order-tabs button{min-height:38px}
+ #marketPanel>.order-panel,#marketPanel>.reserve-panel,#marketPanel>.nanpin-panel{margin-top:8px;padding-top:8px}
+ #marketPanel>.order-panel{border:0;padding:0}.order-toggle{display:none}.order-panel:not([open]) .order-body{display:block}.order-body{padding-top:0}
+ #marketPanel>.order-panel .order-actions{margin-top:0}.order-panel .small{display:none}
+ #marketPanel>.reserve-panel[open],#marketPanel>.nanpin-panel[open]{padding:9px;border:1px solid #245986;border-radius:7px;background:#061d37}
+ #marketPanel>.reserve-panel:not([open]),#marketPanel>.nanpin-panel:not([open]){padding:8px 0}
+ #marketPanel>.chart-level-action{margin-top:8px}
+ #indicatorMode{grid-template-columns:236px minmax(0,1fr) 310px;gap:10px;margin-top:0}.indicator-mode{margin-top:0}
+ #indicatorMode>.desktop-watchlist{min-height:650px;border-radius:8px}.indicator-mode .indicator-market-panel,.indicator-mode .indicator-order-panel{border-color:#1d5a8a;background:linear-gradient(145deg,#062b50,#04172e);box-shadow:none}.indicator-mode .indicator-order-panel{color:#e6f3ff}
+ #indicatorMode .indicator-market-panel .chart-wrap-trade{height:min(52vh,550px)!important;border-radius:5px}
+ .bottom-nav{border-color:#1d507d;background:#03172bf7!important;box-shadow:0 -4px 18px #020c1ca8}.bottom-nav button{color:#a8c5dd}.bottom-nav button.is-active{background:#ff8737;color:#20150e;border-color:#ff8737}.nav-icon{color:inherit}
+}
+
+/* PWA版：縦長画面を参照画像どおり濃紺で統一し、チャートを最優先にする */
+@media(max-width:999px){
+ header{padding:14px 16px 10px;border-bottom:1px solid #1d537d;background:linear-gradient(180deg,#06182f,#041329)}
+ .brand{font-size:1.48rem}.version{display:none}.account-select-wrap{width:100%}.header-account{height:42px;min-height:42px;border-color:#285b87;background:#071f3b}.account-connection-status{right:28px;color:#c6f5e5}
+ main,body[data-app-page="home"] main{margin:0 auto calc(90px + env(safe-area-inset-bottom));padding:10px 10px 0;background:#04162d}
+ body[data-app-page="home"] .trade-quickbar{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:0 0 10px}.trade-quickbar .mode-switch{margin:0}.trade-quickbar .mode-switch button{border-color:#245985;background:#082442;color:#d9ebfa}.trade-quickbar .mode-switch button.is-active{background:#ff8737;border-color:#ff8737;color:#20150e}
+ .balance-strip{min-height:50px;border-color:#245985!important;background:linear-gradient(160deg,#092d51,#061c35)!important;color:#b9d3e8!important}.balance-strip strong{color:#f2f8ff!important;font-size:1.12rem}.balance-strip button{border-color:#326894!important;background:#0b2b4c!important;color:#d9e9f6!important}
+ .equity-details{border-color:#245985;background:#061c35}.equity-details>summary{color:#a7c5dc}.equity-details>summary strong{color:#f0f8ff}.equity-details>summary small{color:#ffb17e}.equity-body{border-color:#1c4a73;background:#04172e}.equity-body>div{color:#9dbbd3}.equity-body>div strong{color:#f3f8fe}.equity-body p{color:#7ba3c4}
+ .market-panel{margin:0 -10px!important;padding:12px 10px 0!important;border:0!important;border-radius:0!important;background:linear-gradient(160deg,#082d52,#04172d 76%)!important;box-shadow:none!important}
+ .market-head{padding:0 3px}.market-head h2{font-size:1.15rem}.market-head p{font-size:.76rem;margin-top:2px}.market-live{border-radius:999px;background:#063d38!important;color:#72efc9!important}
+ .trade-symbol-row{margin:7px 2px 8px}.trade-symbol-row select{height:39px;border-color:#2c6190!important;background:#06172b!important;color:#f1f7fd!important}.current-price-box strong{font-size:clamp(1.85rem,9.5vw,2.5rem)!important}
+ .chart-toolbar{display:none}.market-panel .chart-wrap-trade,.indicator-mode .indicator-market-panel .chart-wrap-trade{height:clamp(400px,58dvh,590px)!important;width:calc(100% + 20px)!important;margin-left:-10px!important;margin-right:-10px!important;border-radius:0!important;border-left:0!important;border-right:0!important}
+ .chart-timeframe-tap{top:9px;left:10px;background:#092947e8!important;border-color:#4a80ac!important}.chart-line-help{margin:7px 4px 8px!important;color:#8cb2d2!important}
+ .chart-level-action{margin:8px 3px 12px!important;border-color:#2a6292!important;background:#082746!important}
+ .order-common-settings{margin:0 3px 10px!important;padding:10px!important;border-color:#2a6190!important;background:#082746!important}.order-fields input,.reserve-fields input,.reserve-fields select,.nanpin-fields input[type=number]{border-color:#2e6292!important;background:#04182e!important;color:#f2f7fd!important}
+ .goto-order-tabs{margin:0 3px 9px!important}.goto-order-tabs button{border-color:#245783!important;background:#082746!important;color:#c7dff2!important}.goto-order-tabs button.is-active{background:#ff8737!important;border-color:#ff8737!important;color:#21150d!important}
+ .order-panel,.reserve-panel,.nanpin-panel{margin:0 3px 10px!important;border-color:#245783!important}.order-actions button{min-height:56px!important}.order-buy{background:linear-gradient(160deg,#178dfb,#0b64d6)!important;border-color:#178dfb!important;color:#fff!important}.order-sell{background:linear-gradient(160deg,#ff5263,#de3042)!important;border-color:#ff5263!important;color:#fff!important}
+ .indicator-mode{margin-top:0!important}.indicator-intro,.indicator-order-panel,details.indicator-presets{border-color:#245985!important;background:#082746!important;color:#e7f3fc!important}.indicator-intro .small,.indicator-presets small{color:#9ebdd5!important}
+ .bottom-nav{background:#03172bf7!important;border-top-color:#1b507b!important;box-shadow:0 -5px 20px #020b1c9c}.bottom-nav button{color:#9cbad4!important}.bottom-nav button.is-active{background:#ff8737!important;border-color:#ff8737!important;color:#21150d!important}
+}
