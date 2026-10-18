@@ -401,7 +401,7 @@ details.indicator-presets{display:block;margin:16px 0 0;padding:11px 12px;border
  details.indicator-presets{margin-top:13px;padding:10px}
 }
 
-/* 0.4.79：画像の口座ヘッダー・大チャート・PC向け取引レイアウト */
+/* 0.4.80：画像の口座ヘッダー・大チャート・PC向け取引レイアウト */
 .account-metrics{display:grid;gap:5px;min-width:0}
 .account-metrics .balance-strip{margin:0}
 .equity-details{border:1px solid #dfe3e9;border-radius:10px;background:#fff;overflow:hidden}
