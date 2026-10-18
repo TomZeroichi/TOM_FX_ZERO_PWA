@@ -10,27 +10,20 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.4.75">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.76">
   <link rel="icon" href="icons/app-icon.svg?v=0.4.27" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/app-icon.svg">
-  <link rel="stylesheet" href="style.css?v=0.4.75">
+  <link rel="stylesheet" href="style.css?v=0.4.76">
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.75</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.76</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
   </header>
 
   <main>
     <section id="homePage" class="app-page" data-app-page="home" aria-label="ホーム">
     <div class="connection-notice" id="connection" role="alert" hidden>オフラインです。最新データの取得や決済操作はできません。</div>
-    <div class="sync-strip" id="syncStrip">
-      <div>
-        <span class="sync-dot" id="syncDot" aria-hidden="true"></span>
-        <strong id="syncLabel">MT4／MT5 未接続</strong>
-        <small id="syncAge">接続キーを作成してください</small>
-      </div>
-    </div>
     <div class="trade-quickbar" aria-label="取引モードと口座残高">
       <div class="balance-strip" id="balanceStrip" aria-label="口座残高"><span>残高</span><strong id="balanceValue">--</strong><button id="toggleBalance" type="button" aria-pressed="false">非表示</button></div>
       <div class="mode-switch" role="tablist" aria-label="取引モード"><button id="modeGoto" type="button" class="is-active" role="tab" aria-selected="true" aria-label="ゴトー日を表示">ゴトー</button><button id="modeIndicator" type="button" role="tab" aria-selected="false" aria-label="指標トレードを表示">指標</button></div>
@@ -342,9 +335,9 @@
     <div class="dialogActions"><button id="closeProfileDialog" type="button">閉じる</button></div>
   </dialog>
 
-  <script src="calc.js?v=0.4.75"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.4.75"></script>
-  <script src="app.js?v=0.4.75"></script>
-  <script src="pwa.js?v=0.4.75"></script>
+  <script src="calc.js?v=0.4.76"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.76"></script>
+  <script src="app.js?v=0.4.76"></script>
+  <script src="pwa.js?v=0.4.76"></script>
 </body>
 </html>
