@@ -732,8 +732,25 @@ function setupChartTimeframeControls(){
  updateChartTimeframeUi();
 }
 
+function renderMarketOrderLabels(market){
+ const sell=$('orderSell'),buy=$('orderBuy');
+ if(!sell||!buy)return;
+ if(!market){
+  sell.textContent='成行 SELL';
+  buy.textContent='成行 BUY';
+  return;
+ }
+ sell.replaceChildren();buy.replaceChildren();
+ const sellSide=document.createElement('span'),sellPrice=document.createElement('strong');
+ sellSide.textContent='SELL';sellPrice.textContent=marketPrice(market.bid,market);
+ const buySide=document.createElement('span'),buyPrice=document.createElement('strong');
+ buySide.textContent='BUY';buyPrice.textContent=marketPrice(market.ask,market);
+ sell.append(sellSide,sellPrice);buy.append(buySide,buyPrice);
+}
+
 function updateMarket(){
  const market=selectedMarket();
+ renderMarketOrderLabels(market);
  $('marketLive').textContent=currentPlatform()+'価格';
  updateChartWatermark('marketChartWatermark',market?.symbol||selectedTradeSymbol,chartTimeframe);
  updateChartTimeframeUi();
