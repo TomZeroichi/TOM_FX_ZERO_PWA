@@ -474,6 +474,36 @@ details.indicator-presets{display:block;margin:16px 0 0;padding:11px 12px;border
  .desktop-market-ticker,.desktop-watchlist{display:none!important}
 }
 
+/* 0.4.87: 下部ページ・設定画面もホームと同じ濃紺ターミナル配色へ統一 */
+#marketOrderDetails[hidden],#reserveDetails[hidden],#nanpinDetails[hidden]{display:none!important}
+body[data-app-page="symbols"] main,body[data-app-page="positions"] main,body[data-app-page="history"] main,body[data-app-page="calendar"] main{color:#e6f3ff;background:#04162d}
+.page-panel,.positions-page-title,#historyPage .history-dialog{background:linear-gradient(155deg,#082b4d,#041a33 78%)!important;border-color:#245985!important;color:#e6f3ff!important;box-shadow:0 12px 30px #01091452}
+.page-title-row h2,.page-title-row p,.positions-page-title h2,.positions-page-title p{color:#e6f3ff!important}
+.page-title-row p,.calendar-scope-label,.calendar-controls label,.calendar-summary,.pnl-calendar-weekdays,.calendar-day,.history-meta,.history-cost,.history-pips,.position-meta,.position-breakdown dt,.calendar-day-time,.calendar-day-row small{color:#9fbdd5!important}
+.page-status{border-color:#2b6595!important;background:#0a3155!important;color:#cde8fa!important}
+.currency-row,.calendar-cell,.calendar-cell.has-result,.calendar-day-row,.profile-row{border-color:#245985!important;background:#072541!important;color:#e6f3ff!important}
+.currency-row:hover,.currency-row.is-active,.calendar-cell:hover,.calendar-cell:focus-visible{border-color:#ff8737!important;background:#0c355b!important}
+.currency-row small,.currency-row span,.calendar-pips{color:#9fbdd5!important}
+.calendar-controls input,.calendar-scope-label select{border-color:#326895!important;background:#061a30!important;color:#eaf6ff!important;color-scheme:dark}
+.calendar-cell.has-result{box-shadow:inset 0 0 0 1px #5791bd22}.calendar-gotobi{color:#ffb17e!important}
+.history-dialog .sectionhead{background:transparent!important;border-color:#245985!important;color:#e6f3ff!important}
+.history-row{border-color:#1e507d!important}.history-title,.history-result,.position-title,.position-result{color:#ecf7ff!important}
+.quick-close,.positions,.import,.position-tools{border-color:#245985!important;background:linear-gradient(160deg,#082846,#051b33)!important;color:#e6f3ff!important}
+.position-tools p,.positions>.small{color:#9fbdd5!important}.position-tools input{border-color:#326895!important;background:#061a30!important;color:#ecf7ff!important}
+.position-breakdown{background:#061a30!important;color:#e6f3ff!important}
+#actionFooter{background:#041a33f2!important;border-color:#245985!important;color:#e6f3ff!important}.action-footer-summary span{color:#a9c5db!important}.action-footer-summary strong{color:#f1f8ff!important}
+dialog{border:1px solid #2a6594!important;background:linear-gradient(155deg,#082b4e,#04192f 78%)!important;color:#e7f4ff!important;box-shadow:0 22px 70px #000b18cc}dialog::backdrop{background:#010b18b8!important}
+.menu-head,.history-dialog .sectionhead,.calendar-day-dialog .sectionhead{background:#082846!important;border-color:#245985!important}.menu-head h2,.menu-head p,.sectionhead h2,.sectionhead p{color:#e7f4ff!important}
+.menu-item,.menu-toggle,.vps-panel,.profile-add,.lot-calculator-result{border-color:#286293!important;background:#082846!important;color:#e7f4ff!important}.menu-item small,.menu-toggle small,.vps-panel p,.profile-add p,.lot-calculator-result small{color:#a5c2d9!important}
+.menu-item-muted{background:#061a30!important;color:#9eb8cf!important}.menu-divider{border-color:#245985!important}
+.lot-calculator-fields label,.connection-key-label,.connection-import{color:#afc9df!important}.lot-calculator-fields input,.lot-calculator-fields select,.connection-key-row input,.pairing-row input{border-color:#326895!important;background:#061a30!important;color:#edf7ff!important;color-scheme:dark}.lot-calculator-fields input[readonly]{background:#0b2946!important;color:#c7dff1!important}
+.lot-calculator-result span{color:#ffb17e!important}.lot-calculator-result strong{color:#ffb17e!important}
+.calendar-day-dialog .sectionhead{background:#082846!important}.calendar-day-row{background:#061d35!important}.profile-row small,.profile-row .profile-delete-hint{color:#a8c4dc!important}
+@media(min-width:1000px){
+ body[data-app-page="symbols"] main,body[data-app-page="positions"] main,body[data-app-page="history"] main,body[data-app-page="calendar"] main{padding-top:16px}
+ .page-panel,.positions-page-title,#historyPage .history-dialog{border-radius:10px!important}
+}
+
 @media(max-width:600px){
  .account-metrics{gap:4px}
  .equity-details>summary{min-height:34px;padding:5px 9px}
