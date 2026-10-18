@@ -61,7 +61,7 @@
 
   if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
     navigator.serviceWorker.addEventListener('controllerchange',()=>{
-      const reloadKey='tomFxPwaControllerReloaded_0.4.73';
+      const reloadKey='tomFxPwaControllerReloaded_0.4.74';
       if(sessionStorage.getItem(reloadKey)==='done')return;
       sessionStorage.setItem(reloadKey,'done');
       location.reload();
@@ -69,7 +69,7 @@
 
     window.addEventListener('load',async()=>{
       try{
-        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.4.73',{scope:'./'});
+        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.4.74',{scope:'./'});
         await registration.update();
         await navigator.serviceWorker.ready;
         if(navigator.serviceWorker.controller)showManualInstall();
