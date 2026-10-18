@@ -12,7 +12,7 @@ header{max-width:1120px;padding:12px 28px;margin:auto;display:grid;gap:8px;borde
 .brand{text-decoration:none;color:var(--ink);font-size:1.5625rem;letter-spacing:-1px;font-weight:850;white-space:nowrap}
 .brand b{color:#cb5a17}
 .brand span{letter-spacing:2px;font-size:.75rem;margin-left:2px}
-.header-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto}.header-account{width:min(360px,100%);min-width:0;height:40px;min-height:40px;padding:7px 28px 7px 10px;font-size:.8125rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.header-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto}.account-select-wrap{position:relative;width:min(360px,100%);min-width:0}.header-account{width:100%;min-width:0;height:40px;min-height:40px;padding:7px 86px 7px 10px;font-size:.8125rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-connection-status{position:absolute;right:27px;top:50%;display:inline-flex;align-items:center;gap:5px;transform:translateY(-50%);pointer-events:none;font-size:.75rem;font-weight:700;line-height:1;white-space:nowrap;color:#344054}.account-connection-lamp{width:12px;height:12px;display:inline-block;border-radius:50%;background:#9aa1ab;box-shadow:0 0 0 2px #9aa1ab33,0 0 5px #9aa1ab99;transition:background .2s ease,box-shadow .2s ease}.account-connection-status[data-state="online"] .account-connection-lamp{background:#45d483;box-shadow:0 0 0 2px #45d48340,0 0 6px #45d483cc,0 0 13px #45d48399;animation:accountLampPulse 1.5s ease-in-out infinite}.account-connection-status[data-state="offline"] .account-connection-lamp{background:#ff5b6e;box-shadow:0 0 0 2px #ff5b6e40,0 0 6px #ff5b6ecc,0 0 13px #ff5b6e99;animation:accountLampPulse 1.5s ease-in-out infinite}@keyframes accountLampPulse{0%,100%{filter:brightness(.95);transform:scale(.96)}50%{filter:brightness(1.2);transform:scale(1.08)}}
 .menu-button{display:grid;place-content:center;gap:4px;width:42px;height:42px;min-height:42px;padding:8px;border:1px solid #ccd1d8;border-radius:10px;background:#fff}
 .menu-button span{display:block;width:18px;height:2px;border-radius:2px;background:var(--ink)}
 .menu-button:hover{background:#f5f7fa;border-color:#7c8797}
@@ -151,7 +151,7 @@ dialog::backdrop{background:#10172188}
 .empty{text-align:center;padding:35px;color:var(--muted)}
 #message{font-size:.875rem;color:#93410f}
 @media(max-width:600px){
- header{padding:10px 14px;gap:7px}.header-actions{gap:7px}.header-account{width:100%;font-size:.72rem;padding-left:8px}
+ header{padding:10px 14px;gap:7px}.header-actions{gap:7px}.account-select-wrap{width:100%}.header-account{width:100%;font-size:.72rem;padding-left:8px;padding-right:82px}
  main{padding:0 12px;margin-top:12px}
  h1{font-size:1.125rem}
  .menu-button{width:40px;height:40px;min-height:40px}
