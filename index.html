@@ -10,14 +10,14 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.4.90">
-  <link rel="icon" href="icons/app-icon.svg?v=0.4.27" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg">
-  <link rel="stylesheet" href="style.css?v=0.4.90">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.91">
+  <link rel="icon" href="icons/app-icon.svg?v=0.4.91" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.4.91">
+  <link rel="stylesheet" href="style.css?v=0.4.91">
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.90</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.91</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -33,8 +33,8 @@
     <div class="trade-quickbar" aria-label="取引モードと口座残高">
       <div class="account-metrics" id="accountMetrics">
         <details class="equity-details balance-details" id="equityDetails">
-          <summary class="balance-strip" id="balanceStrip" aria-label="口座残高をタップして有効証拠金を表示"><span>残高</span><strong id="balanceValue">--</strong><button id="toggleBalance" type="button" aria-pressed="false">非表示</button><small>⌄</small></summary>
-          <div class="equity-body"><div class="equity-summary"><span>有効証拠金</span><strong id="equityValue">--</strong></div><div><span>現在の含み損益</span><strong id="equityFloatingValue">--</strong></div><p>残高＋保有ポジションの現在損益</p></div>
+          <summary class="balance-strip" id="balanceStrip" aria-label="残高と有効証拠金を切り替える"><span id="balanceLabel">残高</span><strong id="balanceValue">--</strong><button id="toggleBalance" type="button" aria-label="金額を非表示にする" aria-pressed="false"><span class="eye-icon" aria-hidden="true"></span></button></summary>
+          <div class="equity-body" aria-hidden="true"><div><span>現在の含み損益</span><strong id="equityFloatingValue">--</strong></div></div>
         </details>
       </div>
       <div class="mode-switch" role="tablist" aria-label="取引モード"><button id="modeGoto" type="button" class="is-active" role="tab" aria-selected="true" aria-label="ゴトー日を表示">ゴトー</button><button id="modeIndicator" type="button" role="tab" aria-selected="false" aria-label="指標トレードを表示">指標</button></div>
@@ -217,7 +217,7 @@
   </main>
 
   <dialog id="calendarDayDialog" class="calendar-day-dialog" aria-labelledby="calendarDayTitle">
-    <div class="sectionhead"><div><h2 id="calendarDayTitle">日別詳細</h2><p id="calendarDaySummary" class="small"></p></div><button id="closeCalendarDay" type="button">閉じる</button></div>
+    <div class="sectionhead"><div><h2 id="calendarDayTitle">日別詳細</h2><p id="calendarDaySummary" class="small"></p></div><button id="closeCalendarDay" class="dialog-close" type="button" aria-label="日別詳細を閉じる">×</button></div>
     <div id="calendarDayRows" class="calendar-day-rows"></div>
   </dialog>
 
@@ -238,7 +238,7 @@
   </nav>
 
   <dialog id="menuDialog" class="menu-dialog" aria-labelledby="menuTitle">
-    <div class="menu-head"><div><h2 id="menuTitle">メニュー</h2><p>接続・履歴・管理機能</p></div><button id="closeMenu" type="button">閉じる</button></div>
+    <div class="menu-head"><div><h2 id="menuTitle">メニュー</h2><p>接続・履歴・管理機能</p></div><button id="closeMenu" class="dialog-close" type="button" aria-label="メニューを閉じる">×</button></div>
     <div class="menu-actions">
       <button id="openLotCalculator" type="button" class="menu-item"><span>ロット計算ツール</span><small>注文・ナンピン・指標へ反映</small></button>
       <button id="openChartSettings" type="button" class="menu-item"><span>チャート設定</span><small>表示本数・初期位置</small></button>
@@ -259,7 +259,7 @@
   </dialog>
 
   <dialog id="lotCalculatorDialog" class="lot-calculator-dialog" aria-labelledby="lotCalculatorTitle">
-    <div class="sectionhead"><div><h2 id="lotCalculatorTitle">ロット計算ツール</h2><p>選択中の口座残高とリスク率から、SL幅に応じたロットを自動計算します。</p></div><button id="closeLotCalculator" type="button">閉じる</button></div>
+    <div class="sectionhead"><div><h2 id="lotCalculatorTitle">ロット計算ツール</h2><p>選択中の口座残高とリスク率から、SL幅に応じたロットを自動計算します。</p></div><button id="closeLotCalculator" class="dialog-close" type="button" aria-label="ロット計算ツールを閉じる">×</button></div>
     <div class="lot-calculator-fields"><label class="lot-reference-field">口座残高（自動参照）<input id="lotAccountBalance" type="text" value="--" readonly></label><label>リスク率（%）<select id="lotRiskPercent"><option value="0.5">0.5%</option><option value="1">1%</option><option value="2" selected>2%</option><option value="3">3%</option><option value="5">5%</option><option value="8">8%</option><option value="10">10%</option></select></label><label>許容損失額（自動）<input id="lotRiskAmount" type="text" value="--" readonly></label><label>SL幅（pips）<input id="lotStopPips" type="number" inputmode="decimal" min="0.1" step="0.1" value="10"></label><label>1lot・1pip（円）<input id="lotPipValue" type="number" inputmode="decimal" min="0.01" step="1" value="1000"></label></div>
     <div class="lot-calculator-result"><span>推奨ロット</span><strong id="lotCalculatorResult">--</strong><small id="lotCalculatorStatus">口座残高 × リスク率 ÷（SL幅 × 1lot・1pip）で計算します。リスク率を選ぶと自動更新します。</small></div>
     <button id="applyLotCalculator" type="button" class="primary">注文・ナンピン・指標ロットへ反映</button>
@@ -312,7 +312,7 @@
       <li>「アプリとして追加」をタップ</li>
     </ol>
     <p class="small">Chromeメニューが「ホーム画面へ追加」だけの場合も、再読み込み後にもう一度確認してください。</p>
-    <div class="dialogActions"><button id="closeInstallGuide" class="primary">閉じる</button></div>
+    <button id="closeInstallGuide" class="dialog-close" type="button" aria-label="PWA追加方法を閉じる">×</button>
   </dialog>
 
   <dialog id="syncDialog">
@@ -346,9 +346,9 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.4.90"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.4.90"></script>
-  <script src="app.js?v=0.4.90"></script>
-  <script src="pwa.js?v=0.4.90"></script>
+  <script src="calc.js?v=0.4.91"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.91"></script>
+  <script src="app.js?v=0.4.91"></script>
+  <script src="pwa.js?v=0.4.91"></script>
 </body>
 </html>
