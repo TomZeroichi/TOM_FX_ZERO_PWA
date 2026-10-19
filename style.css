@@ -644,3 +644,6 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
 .menu-head{position:relative;padding-right:54px}.menu-head>.dialog-close{top:0;right:0}.lot-calculator-dialog .sectionhead{position:relative;padding-right:54px}.lot-calculator-dialog .sectionhead>.dialog-close{top:0;right:0}
 .calendar-day-dialog .sectionhead{position:relative;padding-right:54px}.calendar-day-dialog .sectionhead>.dialog-close{top:0;right:0}
 #syncDialog #syncMessage{border:1px solid #28608f;background:#082846;color:#b8d4e8}#syncDialog .connection-actions{align-items:center}#syncDialog .connection-actions button:not(.primary){border-color:#2e6292;background:#082846;color:#e3f1fb}
+
+/* 0.4.92：チャート上部の重複ラベルを非表示 */
+#marketPanel .market-head h2,#marketPanel .market-live,#marketPanel .trade-symbol-row label>span,#indicatorMarketPanel .market-head h2,#indicatorMarketPanel .market-live,#indicatorMarketPanel .indicator-symbol-row label>span{display:none!important}
