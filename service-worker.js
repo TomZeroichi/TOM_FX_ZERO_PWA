@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME='tom-fx-zero-shell-0.4.92';
+const CACHE_NAME='tom-fx-zero-shell-0.4.93';
 const APP_SHELL=[
   './',
   './index.html',
