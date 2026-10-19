@@ -2025,6 +2025,7 @@ document.querySelectorAll('input[name="indicatorEntryMode"]').forEach(input=>inp
 updateIndicatorEntryMode();
 $('tradeSymbol').onchange=()=>{selectedTradeSymbol=$('tradeSymbol').value;updateMarket();};
 $('toggleBalance').onclick=event=>{event.preventDefault();event.stopPropagation();balanceHidden=!balanceHidden;updateBalance();};
+$('balanceStrip').onclick=event=>{if(event.target.closest('#toggleBalance'))return;event.preventDefault();const details=$('equityDetails');details.open=!details.open;};
 setupChartTimeframeControls();
 $('resetMarketChart').onclick=()=>resetChartPosition('marketChart');
 $('resetIndicatorChart').onclick=()=>resetChartPosition('indicatorMarketChart');
