@@ -25,6 +25,7 @@ let chartTimeframe='M5';
 let indicatorChartTimeframe='M5';
 let chartZoom=1;
 let chartDisplayBars=180;
+let balanceView='balance';
 let chartLevelDraft=null;
 let chartDrag=null;
 const chartPinches=new Map();
@@ -403,15 +404,18 @@ function amount(el,n){
 
 function updateBalance(){
  const value=$('balanceValue'),toggle=$('toggleBalance');
- if(value&&toggle){
-  value.textContent=balanceHidden?'••••••':balanceMoney(data.balance);
-  value.classList.toggle('is-hidden',balanceHidden);
-  toggle.textContent=balanceHidden?'表示':'非表示';
-  toggle.setAttribute('aria-pressed',balanceHidden?'true':'false');
- }
  const equityValue=$('equityValue'),equityFloatingValue=$('equityFloatingValue');
  const floatingSummary=C.sum(data.positions||[]),floating=floatingSummary.net;
  const equity=Number.isFinite(Number(data.equity))?Number(data.equity):Number.isFinite(Number(data.balance))&&floating!==null?Number(data.balance)+floating:null;
+ const showingEquity=balanceView==='equity';
+ const label=$('balanceLabel');
+ if(label)label.textContent=showingEquity?'有効証拠金':'残高';
+ if(value&&toggle){
+  value.textContent=balanceHidden?'••••••':balanceMoney(showingEquity?equity:data.balance);
+  value.classList.toggle('is-hidden',balanceHidden);
+  toggle.setAttribute('aria-label',balanceHidden?'金額を表示する':'金額を非表示にする');
+  toggle.setAttribute('aria-pressed',balanceHidden?'true':'false');
+ }
  if(equityValue){
   equityValue.textContent=balanceHidden?'••••••':balanceMoney(equity);
   equityValue.classList.toggle('is-hidden',balanceHidden);
@@ -2028,7 +2032,7 @@ document.querySelectorAll('input[name="indicatorEntryMode"]').forEach(input=>inp
 updateIndicatorEntryMode();
 $('tradeSymbol').onchange=()=>{selectedTradeSymbol=$('tradeSymbol').value;updateMarket();};
 $('toggleBalance').onclick=event=>{event.preventDefault();event.stopPropagation();balanceHidden=!balanceHidden;updateBalance();};
-$('balanceStrip').onclick=event=>{if(event.target.closest('#toggleBalance'))return;event.preventDefault();const details=$('equityDetails');details.open=!details.open;};
+$('balanceStrip').onclick=event=>{if(event.target.closest('#toggleBalance'))return;event.preventDefault();balanceView=balanceView==='balance'?'equity':'balance';updateBalance();};
 setupChartTimeframeControls();
 $('resetMarketChart').onclick=()=>resetChartPosition('marketChart');
 $('resetIndicatorChart').onclick=()=>resetChartPosition('indicatorMarketChart');
@@ -2068,7 +2072,8 @@ function openMenu(){const menu=$('menuDialog');if(menu&&!menu.open){menu.showMod
 $('openMenu').onclick=openMenu;
 $('closeMenu').onclick=closeMenu;
 $('openLotCalculator').onclick=openLotCalculator;
-$('closeLotCalculator').onclick=()=>{$('lotCalculatorDialog').close();};
+function closeSettingsDialog(id){$(id).close();openMenu();}
+$('closeLotCalculator').onclick=()=>closeSettingsDialog('lotCalculatorDialog');
 ['lotRiskPercent','lotStopPips','lotPipValue'].forEach(id=>$(id).addEventListener('input',calculateLot));
 $('lotRiskPercent').addEventListener('change',calculateLot);
 $('applyLotCalculator').onclick=applyLotCalculator;
@@ -2598,12 +2603,12 @@ function showStoredKey(){
 
 $('openSync').onclick=()=>{closeMenu();$('syncDialog').showModal();showStoredKey();};
 $('openChartSettings').onclick=()=>{closeMenu();const setting=$('chartBarsSetting');if(setting)setting.value=String(chartDisplayBars);const received=selectedMarket()?.charts?.[chartTimeframe]?.length||0;const status=$('chartBarsStatus');if(status)status.textContent=received?'現在はEAから'+received+'本を受信しています。表示本数はこの範囲内で切り替わります。':'EAからローソク足を受信すると、表示本数を反映します。';$('chartSettingsDialog').showModal();};
-$('closeChartSettings').onclick=()=>$('chartSettingsDialog').close();
+$('closeChartSettings').onclick=()=>closeSettingsDialog('chartSettingsDialog');
 $('chartBarsSetting').onchange=event=>{const count=Number(event.target.value);if(![60,120,180].includes(count))return;chartDisplayBars=count;try{localStorage.setItem(CHART_DISPLAY_BARS_KEY,String(count));}catch{};redrawTradeCharts();};
 $('resetChartView').onclick=()=>{chartZoom=1;redrawTradeCharts();};
-$('closeSyncDialog').onclick=()=>$('syncDialog').close();
+$('closeSyncDialog').onclick=()=>closeSettingsDialog('syncDialog');
 $('manageProfiles').onclick=()=>{closeMenu();$('profileDialog').showModal();updateProfileUi();};
-$('closeProfileDialog').onclick=()=>$('profileDialog').close();
+$('closeProfileDialog').onclick=()=>closeSettingsDialog('profileDialog');
 const addTitanButton=$('addTitanProfile');if(addTitanButton)addTitanButton.onclick=addTitanProfile;
 const addHfmButton=$('addHfmProfile');if(addHfmButton)addHfmButton.onclick=addHfmProfile;
 const addMt4Button=$('addMt4Profile');if(addMt4Button)addMt4Button.onclick=addMt4Profile;
