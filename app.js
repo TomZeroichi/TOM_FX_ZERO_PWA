@@ -2077,7 +2077,7 @@ $('closeLotCalculator').onclick=()=>closeSettingsDialog('lotCalculatorDialog');
 ['lotRiskPercent','lotStopPips','lotPipValue'].forEach(id=>$(id).addEventListener('input',calculateLot));
 $('lotRiskPercent').addEventListener('change',calculateLot);
 $('applyLotCalculator').onclick=applyLotCalculator;
-$('installPwa').addEventListener('click',closeMenu,{capture:true});
+ $('installPwa')?.addEventListener('click',closeMenu,{capture:true});
 $('menuDialog').addEventListener('close',()=>{$('openMenu')?.setAttribute('aria-expanded','false');});
 $('menuDialog').addEventListener('click',event=>{if(event.target===$('menuDialog'))closeMenu();});
 document.querySelectorAll('[data-app-nav]').forEach(button=>button.onclick=()=>setAppPage(button.dataset.appNav));
