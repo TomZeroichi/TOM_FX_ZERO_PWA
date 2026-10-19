@@ -667,3 +667,18 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
  .app-page:not(#homePage),.page-panel{max-width:none}
  .bottom-nav{left:0;right:0;max-width:none;border-radius:0;padding-left:28px;padding-right:28px}
 }
+
+/* 0.4.94：PCはアプリ全体をブラウザにフィットさせる。下部スマホメニューは表示しない */
+@media(min-width:1000px){
+ html,body{width:100%;height:100%;min-height:100%;overflow:hidden!important;background:#031429!important}
+ body{min-width:1100px}
+ header{height:74px;min-height:74px}
+ main,body[data-app-page="home"] main{height:calc(100vh - 74px);min-height:0;margin:0!important;padding:0 14px!important;overflow:auto}
+ #homePage{min-height:100%;padding-bottom:0}
+ #desktopWatchlistGoto,#marketPanel{min-height:calc(100vh - 136px);height:calc(100vh - 136px)}
+ #marketPanel>.chart-wrap-trade{height:calc(100vh - 315px)!important;min-height:360px}
+ #indicatorMode{min-height:100%}
+ #indicatorMode>.desktop-watchlist,#indicatorMode .indicator-market-panel{min-height:calc(100vh - 136px);height:calc(100vh - 136px)}
+ #indicatorMode .indicator-market-panel .chart-wrap-trade{height:calc(100vh - 315px)!important;min-height:360px}
+ .bottom-nav{display:none!important}
+}
