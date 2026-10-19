@@ -647,3 +647,23 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
 
 /* 0.4.92：チャート上部の重複ラベルを非表示 */
 #marketPanel .market-head h2,#marketPanel .market-live,#marketPanel .trade-symbol-row label>span,#indicatorMarketPanel .market-head h2,#indicatorMarketPanel .market-live,#indicatorMarketPanel .indicator-symbol-row label>span{display:none!important}
+
+/* 0.4.93：PCブラウザは横長・全幅の取引ワークスペースとして表示する */
+@media(min-width:1000px){
+ body{min-width:1100px;min-height:100vh;padding:0;background:#061a31}
+ header{box-sizing:border-box;max-width:none;width:100%;margin:0;padding:12px 22px 10px;border:0;border-bottom:1px solid #1d5a8a;border-radius:0;background:linear-gradient(180deg,#082745,#04172c)}
+ main,body[data-app-page="home"] main{box-sizing:border-box;max-width:none;width:100%;min-height:calc(100vh - 74px);margin:0 0 62px;padding:0 14px 14px;border:0;border-radius:0;background:linear-gradient(145deg,#062747,#031429 72%);box-shadow:none}
+ #homePage{grid-template-columns:250px minmax(580px,1fr) 324px;gap:12px;min-height:calc(100vh - 150px)}
+ .desktop-market-ticker{grid-column:1/3;min-width:0;border-top:0;border-radius:0 0 7px 7px}
+ .trade-quickbar{width:324px;border-top:0;border-radius:0 0 7px 7px}
+ #desktopWatchlistGoto{grid-column:1;grid-row:2;min-height:calc(100vh - 190px);height:calc(100vh - 190px);overflow:auto}
+ #marketPanel{grid-column:2/4;grid-row:2;grid-template-columns:minmax(0,1fr) 324px;min-height:calc(100vh - 190px);padding:14px}
+ #marketPanel>.chart-wrap-trade{height:calc(100vh - 365px)!important;min-height:420px;max-height:none}
+ #marketPanel>.order-common-settings{min-height:0}
+ #indicatorMode{grid-template-columns:250px minmax(580px,1fr) 324px;gap:12px;min-height:calc(100vh - 150px)}
+ #indicatorMode>.desktop-watchlist{min-height:calc(100vh - 190px);height:calc(100vh - 190px);overflow:auto}
+ #indicatorMode .indicator-market-panel{grid-column:2/4;min-height:calc(100vh - 190px)}
+ #indicatorMode .indicator-market-panel .chart-wrap-trade{height:calc(100vh - 365px)!important;min-height:420px;max-height:none}
+ .app-page:not(#homePage),.page-panel{max-width:none}
+ .bottom-nav{left:0;right:0;max-width:none;border-radius:0;padding-left:28px;padding-right:28px}
+}
