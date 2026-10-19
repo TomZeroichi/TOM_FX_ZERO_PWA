@@ -6,6 +6,7 @@
   const message=document.getElementById('message');
   let installPrompt=null;
   const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  const desktopWeb=window.matchMedia('(min-width:1000px)').matches&&!standalone;
 
   function showManualInstall(){
     if(!installButton||standalone||installPrompt)return;
@@ -61,9 +62,16 @@
     message.textContent='PWAとしてインストールしました。';
   });
 
-  if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
+  if(desktopWeb&&'serviceWorker' in navigator){
+    // PC Web版は常にネットワークから最新画面を読む。端末内の接続情報は削除しない。
+    window.addEventListener('load',()=>{
+      navigator.serviceWorker.getRegistrations()
+        .then(registrations=>Promise.all(registrations.map(registration=>registration.unregister())))
+        .catch(()=>{});
+    });
+  }else if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
     navigator.serviceWorker.addEventListener('controllerchange',()=>{
-      const reloadKey='tomFxPwaControllerReloaded_0.4.94';
+      const reloadKey='tomFxPwaControllerReloaded_0.4.95';
       if(sessionStorage.getItem(reloadKey)==='done')return;
       sessionStorage.setItem(reloadKey,'done');
       location.reload();
@@ -71,7 +79,7 @@
 
     window.addEventListener('load',async()=>{
       try{
-        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.4.94',{scope:'./'});
+        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.4.95',{scope:'./'});
         await registration.update();
         await navigator.serviceWorker.ready;
         if(navigator.serviceWorker.controller)showManualInstall();
