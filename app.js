@@ -24,6 +24,7 @@ const CHART_TIMEFRAMES=['M1','M5','M15','M30','H1','H4','D1','W1','MN1'];
 let chartTimeframe='M5';
 let indicatorChartTimeframe='M5';
 let chartZoom=1;
+let chartDisplayBars=180;
 let chartLevelDraft=null;
 let chartDrag=null;
 const chartPinches=new Map();
@@ -51,6 +52,7 @@ const LOT_CALCULATOR_KEY='tomFxZeroLotCalculatorV1';
 const INDICATOR_PRESETS_KEY='tomFxZeroIndicatorPresetsV1';
 const LIVE_SNAPSHOT_KEY='tomFxZeroLiveSnapshotV1';
 const THEME_KEY='tomFxZeroThemeV1';
+const CHART_DISPLAY_BARS_KEY='tomFxZeroChartDisplayBarsV1';
 const COMMAND_RESULT_POLL_MS=100;
 const COMMAND_RESULT_MAX_ATTEMPTS=120;
 let lastLiveCacheSavedAt=0;
@@ -926,7 +928,7 @@ function renderChartLevelLabels(canvasId){
 function drawTradingViewChart(canvasId,host,empty,market,timeframe,bars){
  const tv=window.LightweightCharts;
  if(!tv?.createChart||!host)return false;
- const chartBars=normalizedChartBars(bars);
+ const chartBars=normalizedChartBars(bars).slice(-Math.min(chartDisplayBars,bars.length));
  if(chartBars.length<2)return false;
  const rect=host.getBoundingClientRect(),width=Math.max(1,Math.floor(rect.width)),height=Math.max(1,Math.floor(rect.height));
  if(!width||!height)return false;
@@ -1000,7 +1002,8 @@ function drawCanvasChart(canvasId,empty,market,timeframe,bars){
  const ctx=canvas.getContext('2d');if(!ctx)return;
  ctx.setTransform(scale,0,0,scale,0,0);
  const w=rect.width,h=rect.height,priceScaleWidth=chartPriceScaleWidth(market),pad={top:14,right:priceScaleWidth,bottom:20,left:8};
- const visibleCount=Math.max(12,Math.round(bars.length/Math.max(1,chartZoom))),visibleBars=bars.slice(-visibleCount);
+ const availableBars=bars.slice(-Math.min(chartDisplayBars,bars.length));
+ const visibleCount=Math.max(12,Math.round(availableBars.length/Math.max(1,chartZoom))),visibleBars=availableBars.slice(-visibleCount);
  const positions=chartPositionsFor(market);
  const levels=positions.flatMap(position=>[chartPositionLevel(position,'stopLoss'),chartPositionLevel(position,'takeProfit')]).filter(value=>Number.isFinite(value)&&value>0);
  const low=Math.min(...visibleBars.map(bar=>bar.low),...(levels.length?levels:[Infinity])),high=Math.max(...visibleBars.map(bar=>bar.high),...(levels.length?levels:[-Infinity])),extra=Math.max((high-low)*.08,Math.abs(high)*.00002),min=low-extra,max=high+extra,range=max-min||1;
@@ -2594,6 +2597,10 @@ function showStoredKey(){
 }
 
 $('openSync').onclick=()=>{closeMenu();$('syncDialog').showModal();showStoredKey();};
+$('openChartSettings').onclick=()=>{closeMenu();const setting=$('chartBarsSetting');if(setting)setting.value=String(chartDisplayBars);const received=selectedMarket()?.charts?.[chartTimeframe]?.length||0;const status=$('chartBarsStatus');if(status)status.textContent=received?'現在はEAから'+received+'本を受信しています。表示本数はこの範囲内で切り替わります。':'EAからローソク足を受信すると、表示本数を反映します。';$('chartSettingsDialog').showModal();};
+$('closeChartSettings').onclick=()=>$('chartSettingsDialog').close();
+$('chartBarsSetting').onchange=event=>{const count=Number(event.target.value);if(![60,120,180].includes(count))return;chartDisplayBars=count;try{localStorage.setItem(CHART_DISPLAY_BARS_KEY,String(count));}catch{};redrawTradeCharts();};
+$('resetChartView').onclick=()=>{chartZoom=1;redrawTradeCharts();};
 $('closeSyncDialog').onclick=()=>$('syncDialog').close();
 $('manageProfiles').onclick=()=>{closeMenu();$('profileDialog').showModal();updateProfileUi();};
 $('closeProfileDialog').onclick=()=>$('profileDialog').close();
@@ -2631,6 +2638,7 @@ function applyTheme(theme){
 }
 document.querySelectorAll('[data-theme-choice]').forEach(button=>button.onclick=()=>applyTheme(button.dataset.themeChoice));
 try{applyTheme(localStorage.getItem(THEME_KEY)||'default');}catch{applyTheme('default');}
+try{const savedBars=Number(localStorage.getItem(CHART_DISPLAY_BARS_KEY));if([60,120,180].includes(savedBars))chartDisplayBars=savedBars;}catch{}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)pollLive();});
 setInterval(refreshSyncAge,1000);
 restoreCachedLiveSnapshot();
