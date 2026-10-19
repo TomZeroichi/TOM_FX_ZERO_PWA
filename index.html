@@ -10,14 +10,14 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.4.91">
-  <link rel="icon" href="icons/app-icon.svg?v=0.4.91" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.4.91">
-  <link rel="stylesheet" href="style.css?v=0.4.91">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.92">
+  <link rel="icon" href="icons/app-icon.svg?v=0.4.92" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.4.92">
+  <link rel="stylesheet" href="style.css?v=0.4.92">
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.91</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.92</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -245,7 +245,6 @@
       <button id="openSync" type="button" class="menu-item"><span>接続設定</span><small>MT4／MT5 EA・接続キー</small></button>
       <button id="manageProfiles" type="button" class="menu-item"><span>口座を管理</span><small>接続口座を追加・切替</small></button>
       <details class="theme-settings"><summary><span>テーマ</span><small>表示カラーを切替</small></summary><div class="theme-options" role="radiogroup" aria-label="テーマ選択"><button type="button" data-theme-choice="default" aria-pressed="true">標準ネイビー</button><button type="button" data-theme-choice="graphite" aria-pressed="false">グラファイト</button><button type="button" data-theme-choice="emerald" aria-pressed="false">エメラルド</button><button type="button" data-theme-choice="violet" aria-pressed="false">バイオレット</button></div></details>
-      <button id="installPwa" type="button" class="menu-item" disabled>PWA準備中</button>
       <button id="reset" type="button" class="menu-item menu-item-muted">サンプルに戻す</button>
     </div>
     <label class="menu-toggle weekend-btc-test"><input id="weekendBtcTest" type="checkbox"><span><strong>週末BTCテストを有効化</strong><small>BTCUSDはデモ口座でのみテストできます。EA側のBTCテスト許可も必要です。</small></span></label>
@@ -346,9 +345,9 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.4.91"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.4.91"></script>
-  <script src="app.js?v=0.4.91"></script>
-  <script src="pwa.js?v=0.4.91"></script>
+  <script src="calc.js?v=0.4.92"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.92"></script>
+  <script src="app.js?v=0.4.92"></script>
+  <script src="pwa.js?v=0.4.92"></script>
 </body>
 </html>
