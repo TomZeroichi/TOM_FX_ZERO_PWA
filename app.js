@@ -50,6 +50,7 @@ const WEEKEND_BTC_TEST_KEY='tomFxZeroWeekendBtcTestV1';
 const LOT_CALCULATOR_KEY='tomFxZeroLotCalculatorV1';
 const INDICATOR_PRESETS_KEY='tomFxZeroIndicatorPresetsV1';
 const LIVE_SNAPSHOT_KEY='tomFxZeroLiveSnapshotV1';
+const THEME_KEY='tomFxZeroThemeV1';
 const COMMAND_RESULT_POLL_MS=100;
 const COMMAND_RESULT_MAX_ATTEMPTS=120;
 let lastLiveCacheSavedAt=0;
@@ -2023,7 +2024,7 @@ $('weekendBtcTest').onchange=()=>{
 document.querySelectorAll('input[name="indicatorEntryMode"]').forEach(input=>input.onchange=updateIndicatorEntryMode);
 updateIndicatorEntryMode();
 $('tradeSymbol').onchange=()=>{selectedTradeSymbol=$('tradeSymbol').value;updateMarket();};
-$('toggleBalance').onclick=()=>{balanceHidden=!balanceHidden;updateBalance();};
+$('toggleBalance').onclick=event=>{event.preventDefault();event.stopPropagation();balanceHidden=!balanceHidden;updateBalance();};
 setupChartTimeframeControls();
 $('resetMarketChart').onclick=()=>resetChartPosition('marketChart');
 $('resetIndicatorChart').onclick=()=>resetChartPosition('indicatorMarketChart');
@@ -2595,14 +2596,14 @@ $('openSync').onclick=()=>{closeMenu();$('syncDialog').showModal();showStoredKey
 $('closeSyncDialog').onclick=()=>$('syncDialog').close();
 $('manageProfiles').onclick=()=>{closeMenu();$('profileDialog').showModal();updateProfileUi();};
 $('closeProfileDialog').onclick=()=>$('profileDialog').close();
-$('addTitanProfile').onclick=addTitanProfile;
-$('addHfmProfile').onclick=addHfmProfile;
-$('addMt4Profile').onclick=addMt4Profile;
-$('addMt5Profile').onclick=addMt5Profile;
+const addTitanButton=$('addTitanProfile');if(addTitanButton)addTitanButton.onclick=addTitanProfile;
+const addHfmButton=$('addHfmProfile');if(addHfmButton)addHfmButton.onclick=addHfmProfile;
+const addMt4Button=$('addMt4Profile');if(addMt4Button)addMt4Button.onclick=addMt4Profile;
+const addMt5Button=$('addMt5Profile');if(addMt5Button)addMt5Button.onclick=addMt5Profile;
 $('accountProfile').onchange=event=>{saveModeProfile(activeMode,event.target.value);switchProfile(event.target.value);};
 $('copyConnection').onclick=copyKey;
 $('downloadConnection').onclick=downloadKeyFile;
-$('importConnection').onchange=async event=>{
+const importConnection=$('importConnection');if(importConnection)importConnection.onchange=async event=>{
   try{const file=event.target.files[0];if(!file)return;const key=(await file.text()).trim();if(!/^[A-Za-z0-9_-]{40,128}$/.test(key))throw Error('接続キーの形式が正しくありません。');setActiveConnectionKey(key);liveReceivedAt=0;showStoredKey();$('syncMessage').textContent='接続キーを読み込みました。MT4／MT5との接続を開始します。';}catch(err){$('syncMessage').textContent='読み込み失敗：'+err.message;}finally{event.target.value='';}
 };
 $('claimPairing').onclick=claimPairing;
@@ -2618,6 +2619,17 @@ $('createConnection').onclick=()=>{
 $('removeConnection').onclick=()=>{
  if(window.confirm('この端末のリアルタイム接続を解除しますか？'))stopLiveConnection();
 };
+function applyTheme(theme){
+ const selected=['default','graphite','emerald','violet'].includes(theme)?theme:'default';
+ document.body.dataset.theme=selected;
+ try{localStorage.setItem(THEME_KEY,selected);}catch{}
+ document.querySelectorAll('[data-theme-choice]').forEach(button=>{
+  const active=button.dataset.themeChoice===selected;
+  button.setAttribute('aria-pressed',active?'true':'false');
+ });
+}
+document.querySelectorAll('[data-theme-choice]').forEach(button=>button.onclick=()=>applyTheme(button.dataset.themeChoice));
+try{applyTheme(localStorage.getItem(THEME_KEY)||'default');}catch{applyTheme('default');}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)pollLive();});
 setInterval(refreshSyncAge,1000);
 restoreCachedLiveSnapshot();
