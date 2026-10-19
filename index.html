@@ -10,14 +10,14 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.4.87">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.88">
   <link rel="icon" href="icons/app-icon.svg?v=0.4.27" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/app-icon.svg">
-  <link rel="stylesheet" href="style.css?v=0.4.87">
+  <link rel="stylesheet" href="style.css?v=0.4.88">
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.87</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.88</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -32,9 +32,8 @@
     <div class="connection-notice" id="connection" role="alert" hidden>オフラインです。最新データの取得や決済操作はできません。</div>
     <div class="trade-quickbar" aria-label="取引モードと口座残高">
       <div class="account-metrics" id="accountMetrics">
-        <div class="balance-strip" id="balanceStrip" aria-label="口座残高"><span>残高</span><strong id="balanceValue">--</strong><button id="toggleBalance" type="button" aria-pressed="false">非表示</button></div>
-        <details class="equity-details" id="equityDetails">
-          <summary><span>有効証拠金</span><strong id="equityValue">--</strong><small>詳細</small></summary>
+        <details class="equity-details balance-details" id="equityDetails">
+          <summary class="balance-strip" id="balanceStrip" aria-label="口座残高をタップして有効証拠金を表示"><span>残高</span><strong id="balanceValue">--</strong><button id="toggleBalance" type="button" aria-pressed="false">非表示</button><small>⌄</small></summary>
           <div class="equity-body"><div><span>現在の含み損益</span><strong id="equityFloatingValue">--</strong></div><p>残高＋保有ポジションの現在損益</p></div>
         </details>
       </div>
@@ -244,6 +243,7 @@
       <button id="openLotCalculator" type="button" class="menu-item"><span>ロット計算ツール</span><small>注文・ナンピン・指標へ反映</small></button>
       <button id="openSync" type="button" class="menu-item"><span>接続設定</span><small>MT4／MT5 EA・接続キー</small></button>
       <button id="manageProfiles" type="button" class="menu-item"><span>口座を管理</span><small>接続口座を追加・切替</small></button>
+      <details class="theme-settings"><summary><span>テーマ</span><small>表示カラーを切替</small></summary><div class="theme-options" role="radiogroup" aria-label="テーマ選択"><button type="button" data-theme-choice="default" aria-pressed="true">標準ネイビー</button><button type="button" data-theme-choice="graphite" aria-pressed="false">グラファイト</button><button type="button" data-theme-choice="emerald" aria-pressed="false">エメラルド</button><button type="button" data-theme-choice="violet" aria-pressed="false">バイオレット</button></div></details>
       <button id="installPwa" type="button" class="menu-item" disabled>PWA準備中</button>
       <button id="reset" type="button" class="menu-item menu-item-muted">サンプルに戻す</button>
     </div>
@@ -326,48 +326,20 @@
       <button id="downloadConnection" type="button" disabled>接続キー.txtを保存</button>
       <button id="removeConnection" type="button" hidden>接続を解除</button>
     </div>
-    <label class="connection-import">別端末から接続キー.txtを読み込む<input id="importConnection" type="file" accept=".txt,text/plain"></label>
-    <ol class="install-steps">
-      <li>通常はEAの「スマホ再接続」ボタンで6桁コードを発行し、この画面へ入力</li>
-      <li>MT4／MT5のEA設定で EnableRealtimeSync を true にする</li>
-      <li>初回の新規接続も既存口座の再接続も、6桁コード方式ならファイル移送は不要</li>
-      <li>従来の接続キー方式を使う場合だけ、接続キー.txtをMT4は<strong>MQL4\Files</strong>、MT5は<strong>MQL5\Files</strong>へ置く</li>
-      <li>MT4／MT5の「ツール → オプション → エキスパートアドバイザ」で <strong>https://tom-fx-zero.ryuichi512.chatgpt.site</strong> をWebRequest許可URLへ追加</li>
-    </ol>
     <p class="small" id="syncMessage" role="status">接続後、約1秒ごとに手数料込み損益が更新されます。</p>
-    <div class="dialogActions"><button id="closeSyncDialog">閉じる</button></div>
+    <button id="closeSyncDialog" class="dialog-close" type="button" aria-label="接続設定を閉じる">×</button>
   </dialog>
 
   <dialog id="profileDialog" class="profile-dialog" aria-labelledby="profileDialogTitle">
     <h2 id="profileDialogTitle">接続口座を管理</h2>
     <p>接続済み・接続履歴のある口座だけを上部の口座切替へ表示します。未接続の仮枠は非表示です。不要な口座は一覧を長押しして削除できます。</p>
     <div id="profileRows" class="profile-rows"></div>
-    <div class="profile-add">
-      <strong>MT4デモ口座</strong>
-      <p class="small">MT4のチャートにMT4版EAを設定すると、ブローカー名・サーバー名・口座番号を自動取得してPWAへ表示します。MT4を複数起動する場合は口座ごとに追加してください。</p>
-      <button id="addMt4Profile" type="button" class="primary">MT4デモ口座を追加</button>
-    </div>
-    <div class="profile-add">
-      <strong>MT5デモ口座</strong>
-      <p class="small">既存のMT5接続を別口座として登録します。EAチャートの「スマホ再接続」で6桁コードを表示すれば、接続キー.txtなしで登録できます。</p>
-      <button id="addMt5Profile" type="button" class="primary">MT5デモ口座を追加</button>
-    </div>
-    <div class="profile-add">
-      <strong>Titan FX Blade（デモ）</strong>
-      <p class="small">追加後にTitan MT5で最新版EAを起動し、表示された6桁コードでペアリングします。銘柄名はEAが自動検出します。</p>
-      <button id="addTitanProfile" type="button" class="primary">Titan FX Blade デモを追加</button>
-    </div>
-    <div class="profile-add">
-      <strong>HFM MT5（デモ・テスト用）</strong>
-      <p class="small">KATANAはデモ口座がないため、HFMのデモ対応口座で接続・注文・決済を確認します。実口座への送信はできません。</p>
-      <button id="addHfmProfile" type="button" class="primary">HFM MT5デモを追加</button>
-    </div>
-    <div class="dialogActions"><button id="closeProfileDialog" type="button">閉じる</button></div>
+    <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.4.87"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.4.87"></script>
-  <script src="app.js?v=0.4.87"></script>
-  <script src="pwa.js?v=0.4.87"></script>
+  <script src="calc.js?v=0.4.88"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.88"></script>
+  <script src="app.js?v=0.4.88"></script>
+  <script src="pwa.js?v=0.4.88"></script>
 </body>
 </html>
