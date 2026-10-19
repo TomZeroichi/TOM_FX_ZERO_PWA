@@ -10,14 +10,14 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.4.89">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.90">
   <link rel="icon" href="icons/app-icon.svg?v=0.4.27" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/app-icon.svg">
-  <link rel="stylesheet" href="style.css?v=0.4.89">
+  <link rel="stylesheet" href="style.css?v=0.4.90">
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.89</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.90</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -34,7 +34,7 @@
       <div class="account-metrics" id="accountMetrics">
         <details class="equity-details balance-details" id="equityDetails">
           <summary class="balance-strip" id="balanceStrip" aria-label="口座残高をタップして有効証拠金を表示"><span>残高</span><strong id="balanceValue">--</strong><button id="toggleBalance" type="button" aria-pressed="false">非表示</button><small>⌄</small></summary>
-          <div class="equity-body"><div><span>現在の含み損益</span><strong id="equityFloatingValue">--</strong></div><p>残高＋保有ポジションの現在損益</p></div>
+          <div class="equity-body"><div class="equity-summary"><span>有効証拠金</span><strong id="equityValue">--</strong></div><div><span>現在の含み損益</span><strong id="equityFloatingValue">--</strong></div><p>残高＋保有ポジションの現在損益</p></div>
         </details>
       </div>
       <div class="mode-switch" role="tablist" aria-label="取引モード"><button id="modeGoto" type="button" class="is-active" role="tab" aria-selected="true" aria-label="ゴトー日を表示">ゴトー</button><button id="modeIndicator" type="button" role="tab" aria-selected="false" aria-label="指標トレードを表示">指標</button></div>
@@ -241,6 +241,7 @@
     <div class="menu-head"><div><h2 id="menuTitle">メニュー</h2><p>接続・履歴・管理機能</p></div><button id="closeMenu" type="button">閉じる</button></div>
     <div class="menu-actions">
       <button id="openLotCalculator" type="button" class="menu-item"><span>ロット計算ツール</span><small>注文・ナンピン・指標へ反映</small></button>
+      <button id="openChartSettings" type="button" class="menu-item"><span>チャート設定</span><small>表示本数・初期位置</small></button>
       <button id="openSync" type="button" class="menu-item"><span>接続設定</span><small>MT4／MT5 EA・接続キー</small></button>
       <button id="manageProfiles" type="button" class="menu-item"><span>口座を管理</span><small>接続口座を追加・切替</small></button>
       <details class="theme-settings"><summary><span>テーマ</span><small>表示カラーを切替</small></summary><div class="theme-options" role="radiogroup" aria-label="テーマ選択"><button type="button" data-theme-choice="default" aria-pressed="true">標準ネイビー</button><button type="button" data-theme-choice="graphite" aria-pressed="false">グラファイト</button><button type="button" data-theme-choice="emerald" aria-pressed="false">エメラルド</button><button type="button" data-theme-choice="violet" aria-pressed="false">バイオレット</button></div></details>
@@ -262,6 +263,14 @@
     <div class="lot-calculator-fields"><label class="lot-reference-field">口座残高（自動参照）<input id="lotAccountBalance" type="text" value="--" readonly></label><label>リスク率（%）<select id="lotRiskPercent"><option value="0.5">0.5%</option><option value="1">1%</option><option value="2" selected>2%</option><option value="3">3%</option><option value="5">5%</option><option value="8">8%</option><option value="10">10%</option></select></label><label>許容損失額（自動）<input id="lotRiskAmount" type="text" value="--" readonly></label><label>SL幅（pips）<input id="lotStopPips" type="number" inputmode="decimal" min="0.1" step="0.1" value="10"></label><label>1lot・1pip（円）<input id="lotPipValue" type="number" inputmode="decimal" min="0.01" step="1" value="1000"></label></div>
     <div class="lot-calculator-result"><span>推奨ロット</span><strong id="lotCalculatorResult">--</strong><small id="lotCalculatorStatus">口座残高 × リスク率 ÷（SL幅 × 1lot・1pip）で計算します。リスク率を選ぶと自動更新します。</small></div>
     <button id="applyLotCalculator" type="button" class="primary">注文・ナンピン・指標ロットへ反映</button>
+  </dialog>
+
+  <dialog id="chartSettingsDialog" class="chart-settings-dialog" aria-labelledby="chartSettingsTitle">
+    <div class="sectionhead"><div><h2 id="chartSettingsTitle">チャート設定</h2><p>ローソク足の表示本数を変更できます。</p></div></div>
+    <label class="chart-setting-field">表示本数<select id="chartBarsSetting"><option value="60">60本</option><option value="120">120本</option><option value="180">180本（推奨）</option></select></label>
+    <p class="small" id="chartBarsStatus">EAから受信済みのローソク足の範囲内で表示します。</p>
+    <button id="resetChartView" type="button">チャート位置を初期化</button>
+    <button id="closeChartSettings" class="dialog-close" type="button" aria-label="チャート設定を閉じる">×</button>
   </dialog>
 
   <dialog id="confirm">
@@ -337,9 +346,9 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.4.89"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.4.89"></script>
-  <script src="app.js?v=0.4.89"></script>
-  <script src="pwa.js?v=0.4.89"></script>
+  <script src="calc.js?v=0.4.90"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.90"></script>
+  <script src="app.js?v=0.4.90"></script>
+  <script src="pwa.js?v=0.4.90"></script>
 </body>
 </html>
