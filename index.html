@@ -10,14 +10,34 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.4.95">
-  <link rel="icon" href="icons/app-icon.svg?v=0.4.95" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.4.95">
-  <link rel="stylesheet" href="style.css?v=0.4.95">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.96">
+  <link rel="icon" href="icons/app-icon.svg?v=0.4.96" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.4.96">
+  <link rel="stylesheet" href="style.css?v=0.4.96">
+
+  <style id="settings-tabs-style">
+    /* 0.4.96: 参考ツールに合わせた設定タブ・内部スクロール */
+    .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
+    .settings-tab-dialog .menu-head{flex:0 0 auto}
+    .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
+    .settings-tabs::-webkit-scrollbar{display:none}
+    .settings-tab{flex:0 0 auto;min-width:72px;min-height:40px;padding:7px 12px;border:1px solid var(--theme-border,#286293);border-radius:8px;background:var(--theme-panel,#082846);color:var(--theme-text,#e7f4ff);font-size:.78rem;font-weight:750;white-space:nowrap}
+    .settings-tab:hover{border-color:var(--theme-accent,var(--orange,#ff8737))}
+    .settings-tab.is-active{background:var(--theme-accent,var(--orange,#ff8737));border-color:var(--theme-accent,var(--orange,#ff8737));color:#21150d;box-shadow:0 0 14px color-mix(in srgb,var(--theme-accent,var(--orange,#ff8737)) 38%,transparent)}
+    .settings-scroll{display:block!important;flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;padding:12px 14px 20px;background:linear-gradient(180deg,var(--theme-panel-2,#061a30),var(--theme-base,#04162d));overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .settings-panel{display:grid;gap:9px;min-width:0}
+    .settings-panel[hidden]{display:none!important}
+    .settings-panel>.menu-item,.settings-panel>.menu-toggle,.settings-panel>.theme-settings,.settings-panel>.menu-test-note,.settings-panel>.menu-divider,.settings-panel>.vps-panel{width:100%;margin:0}
+    .settings-panel>.menu-test-note{margin:0}
+    .settings-panel>.menu-divider{margin:2px 0}
+    .settings-panel>.vps-panel{margin:0}
+    @media(max-width:600px){.settings-tab-dialog{width:calc(100vw - 20px);height:min(92dvh,760px);max-height:calc(100dvh - 14px)}.settings-tabs{padding-left:10px;padding-right:10px}.settings-scroll{padding:10px 10px 16px}}
+  </style>
+
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.95</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.96</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -237,24 +257,44 @@
     <button type="button" data-app-nav="calendar"><span class="nav-icon" aria-hidden="true">▦</span><span>損益カレンダー</span></button>
   </nav>
 
-  <dialog id="menuDialog" class="menu-dialog" aria-labelledby="menuTitle">
-    <div class="menu-head"><div><h2 id="menuTitle">メニュー</h2><p>接続・履歴・管理機能</p></div><button id="closeMenu" class="dialog-close" type="button" aria-label="メニューを閉じる">×</button></div>
-    <div class="menu-actions">
-      <button id="openLotCalculator" type="button" class="menu-item"><span>ロット計算ツール</span><small>注文・ナンピン・指標へ反映</small></button>
-      <button id="openChartSettings" type="button" class="menu-item"><span>チャート設定</span><small>表示本数・初期位置</small></button>
-      <button id="openSync" type="button" class="menu-item"><span>接続設定</span><small>MT4／MT5 EA・接続キー</small></button>
-      <button id="manageProfiles" type="button" class="menu-item"><span>口座を管理</span><small>接続口座を追加・切替</small></button>
-      <details class="theme-settings"><summary><span>テーマ</span><small>表示カラーを切替</small></summary><div class="theme-options" role="radiogroup" aria-label="テーマ選択"><button type="button" data-theme-choice="default" aria-pressed="true">標準ネイビー</button><button type="button" data-theme-choice="graphite" aria-pressed="false">グラファイト</button><button type="button" data-theme-choice="emerald" aria-pressed="false">エメラルド</button><button type="button" data-theme-choice="violet" aria-pressed="false">バイオレット</button></div></details>
-      <button id="reset" type="button" class="menu-item menu-item-muted">サンプルに戻す</button>
+  <dialog id="menuDialog" class="menu-dialog settings-tab-dialog" aria-labelledby="menuTitle">
+    <div class="menu-head"><div><h2 id="menuTitle">設定</h2><p>取引・チャート・接続・表示・管理</p></div><button id="closeMenu" class="dialog-close" type="button" aria-label="設定を閉じる">×</button></div>
+    <nav class="settings-tabs" role="tablist" aria-label="設定カテゴリ">
+      <button id="settingsTabTrade" class="settings-tab is-active" type="button" role="tab" data-settings-tab="trade" aria-controls="settingsPanelTrade" aria-selected="true">取引</button>
+      <button id="settingsTabChart" class="settings-tab" type="button" role="tab" data-settings-tab="chart" aria-controls="settingsPanelChart" aria-selected="false" tabindex="-1">チャート</button>
+      <button id="settingsTabConnection" class="settings-tab" type="button" role="tab" data-settings-tab="connection" aria-controls="settingsPanelConnection" aria-selected="false" tabindex="-1">接続</button>
+      <button id="settingsTabAccount" class="settings-tab" type="button" role="tab" data-settings-tab="account" aria-controls="settingsPanelAccount" aria-selected="false" tabindex="-1">口座</button>
+      <button id="settingsTabDisplay" class="settings-tab" type="button" role="tab" data-settings-tab="display" aria-controls="settingsPanelDisplay" aria-selected="false" tabindex="-1">表示</button>
+      <button id="settingsTabSystem" class="settings-tab" type="button" role="tab" data-settings-tab="system" aria-controls="settingsPanelSystem" aria-selected="false" tabindex="-1">システム</button>
+    </nav>
+    <div class="menu-actions settings-scroll" id="settingsContent">
+      <section id="settingsPanelTrade" class="settings-panel" data-settings-panel="trade" role="tabpanel" aria-labelledby="settingsTabTrade">
+        <button id="openLotCalculator" type="button" class="menu-item"><span>ロット計算ツール</span><small>注文・ナンピン・指標へ反映</small></button>
+      </section>
+      <section id="settingsPanelChart" class="settings-panel" data-settings-panel="chart" role="tabpanel" aria-labelledby="settingsTabChart" hidden>
+        <button id="openChartSettings" type="button" class="menu-item"><span>チャート設定</span><small>表示本数・初期位置</small></button>
+      </section>
+      <section id="settingsPanelConnection" class="settings-panel" data-settings-panel="connection" role="tabpanel" aria-labelledby="settingsTabConnection" hidden>
+        <button id="openSync" type="button" class="menu-item"><span>接続設定</span><small>MT4／MT5 EA・接続キー</small></button>
+      </section>
+      <section id="settingsPanelAccount" class="settings-panel" data-settings-panel="account" role="tabpanel" aria-labelledby="settingsTabAccount" hidden>
+        <button id="manageProfiles" type="button" class="menu-item"><span>口座を管理</span><small>接続口座を追加・切替</small></button>
+      </section>
+      <section id="settingsPanelDisplay" class="settings-panel" data-settings-panel="display" role="tabpanel" aria-labelledby="settingsTabDisplay" hidden>
+        <details class="theme-settings"><summary><span>テーマ</span><small>表示カラーを切替</small></summary><div class="theme-options" role="radiogroup" aria-label="テーマ選択"><button type="button" data-theme-choice="default" aria-pressed="true">標準ネイビー</button><button type="button" data-theme-choice="graphite" aria-pressed="false">グラファイト</button><button type="button" data-theme-choice="emerald" aria-pressed="false">エメラルド</button><button type="button" data-theme-choice="violet" aria-pressed="false">バイオレット</button></div></details>
+      </section>
+      <section id="settingsPanelSystem" class="settings-panel" data-settings-panel="system" role="tabpanel" aria-labelledby="settingsTabSystem" hidden>
+        <label class="menu-toggle weekend-btc-test"><input id="weekendBtcTest" type="checkbox"><span><strong>週末BTCテストを有効化</strong><small>BTCUSDはデモ口座でのみテストできます。EA側のBTCテスト許可も必要です。</small></span></label>
+        <p class="market-test-note menu-test-note" id="marketTestNote" hidden>BTC週末テスト中です。ゴトー日・ナンピンの本番運用とは分離され、ナンピン自動注文の対象にはなりません。</p>
+        <div class="menu-divider"></div>
+        <section class="vps-panel" id="vpsPanel" aria-labelledby="vpsTitle">
+          <div class="vps-head"><div><h2 id="vpsTitle">Windows VPS管理</h2><p>VPS上の専用エージェントへ再起動を指示します。MT4／MT5とEAは停止し、約30秒後にWindowsを再起動します。</p></div><span>デモ接続時のみ</span></div>
+          <button id="restartVps" type="button" class="vps-restart" disabled>VPSを再起動</button>
+          <p class="small" id="vpsStatus" role="status">MT4／MT5デモ接続後に操作できます。先にダウンロードしたBATでVPS側の設定を行ってください。</p>
+        </section>
+        <button id="reset" type="button" class="menu-item menu-item-muted">サンプルに戻す</button>
+      </section>
     </div>
-    <label class="menu-toggle weekend-btc-test"><input id="weekendBtcTest" type="checkbox"><span><strong>週末BTCテストを有効化</strong><small>BTCUSDはデモ口座でのみテストできます。EA側のBTCテスト許可も必要です。</small></span></label>
-    <p class="market-test-note menu-test-note" id="marketTestNote" hidden>BTC週末テスト中です。ゴトー日・ナンピンの本番運用とは分離され、ナンピン自動注文の対象にはなりません。</p>
-    <div class="menu-divider"></div>
-    <section class="vps-panel" id="vpsPanel" aria-labelledby="vpsTitle">
-      <div class="vps-head"><div><h2 id="vpsTitle">Windows VPS管理</h2><p>VPS上の専用エージェントへ再起動を指示します。MT4／MT5とEAは停止し、約30秒後にWindowsを再起動します。</p></div><span>デモ接続時のみ</span></div>
-      <button id="restartVps" type="button" class="vps-restart" disabled>VPSを再起動</button>
-      <p class="small" id="vpsStatus" role="status">MT4／MT5デモ接続後に操作できます。先にダウンロードしたBATでVPS側の設定を行ってください。</p>
-    </section>
   </dialog>
 
   <dialog id="lotCalculatorDialog" class="lot-calculator-dialog" aria-labelledby="lotCalculatorTitle">
@@ -345,9 +385,54 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.4.95"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.4.95"></script>
-  <script src="app.js?v=0.4.95"></script>
-  <script src="pwa.js?v=0.4.95"></script>
+  <script src="calc.js?v=0.4.96"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.96"></script>
+  <script src="app.js?v=0.4.96"></script>
+  <script src="pwa.js?v=0.4.96"></script>
+
+  <script>
+    (() => {
+      const dialog = document.getElementById('menuDialog');
+      if (!dialog) return;
+      const tabs = [...dialog.querySelectorAll('[data-settings-tab]')];
+      const panels = [...dialog.querySelectorAll('[data-settings-panel]')];
+      if (!tabs.length || !panels.length) return;
+
+      const selectTab = (name, focus = false) => {
+        tabs.forEach((tab) => {
+          const active = tab.dataset.settingsTab === name;
+          tab.classList.toggle('is-active', active);
+          tab.setAttribute('aria-selected', active ? 'true' : 'false');
+          tab.tabIndex = active ? 0 : -1;
+        });
+        panels.forEach((panel) => {
+          const active = panel.dataset.settingsPanel === name;
+          panel.hidden = !active;
+          panel.setAttribute('aria-hidden', active ? 'false' : 'true');
+        });
+        if (focus) tabs.find((tab) => tab.dataset.settingsTab === name)?.focus();
+      };
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => selectTab(tab.dataset.settingsTab));
+        tab.addEventListener('keydown', (event) => {
+          let nextIndex = index;
+          if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+          if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+          if (event.key === 'Home') nextIndex = 0;
+          if (event.key === 'End') nextIndex = tabs.length - 1;
+          if (nextIndex === index) return;
+          event.preventDefault();
+          selectTab(tabs[nextIndex].dataset.settingsTab, true);
+        });
+      });
+
+      document.getElementById('openMenu')?.addEventListener('click', () => {
+        const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true') || tabs[0];
+        selectTab(selected.dataset.settingsTab);
+      });
+      selectTab(tabs[0].dataset.settingsTab);
+    })();
+  </script>
 </body>
 </html>
