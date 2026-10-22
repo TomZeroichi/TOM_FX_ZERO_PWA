@@ -793,3 +793,18 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
  body[data-app-page="home"] #marketPanel>.goto-order-tabs button{min-height:41px!important;font-size:.83rem}
  body[data-app-page="home"] .bottom-nav button{min-height:41px!important;font-size:.6rem}
 }
+
+/* 0.5.00：設定ダイアログ中はホームの固定レイアウトを解除して表示を安定させる */
+@media(max-width:999px){
+  body[data-app-page="home"]:has(#menuDialog[open]){
+    display:block!important;
+    height:auto!important;
+    min-height:100dvh!important;
+    overflow:auto!important;
+  }
+  body[data-app-page="home"]:has(#menuDialog[open]) main{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+}
