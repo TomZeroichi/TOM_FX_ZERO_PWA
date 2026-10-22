@@ -872,8 +872,16 @@ function redrawTradeCharts(){
 function drawChart(){
  drawChartFor('marketChart','chartEmpty',selectedMarket(),chartTimeframe);
 }
+function chartEntryPrice(position){
+ const value=Number(position?.openPrice??position?.entryPrice??position?.open_price);
+ return Number.isFinite(value)&&value>0?value:0;
+}
 function chartPositionsFor(market){
- return data.positions.filter(position=>position.symbol===market.symbol&&(chartPositionLevel(position,'stopLoss')>0||chartPositionLevel(position,'takeProfit')>0));
+ return data.positions.filter(position=>position.symbol===market.symbol&&(
+  chartEntryPrice(position)>0||
+  chartPositionLevel(position,'stopLoss')>0||
+  chartPositionLevel(position,'takeProfit')>0
+ ));
 }
 function chartLevelIsApplied(position,key,value){
  const actual=Number(position?.[key]);
@@ -930,8 +938,11 @@ function renderChartLevelLabels(canvasId){
   const position=data.positions.find(item=>item.id===level.positionId),y=chartLevelCoordinate(layout,level);
   if(!position||!Number.isFinite(y))continue;
   const label=document.createElement('div');
-  label.className='chart-level-label '+(level.key==='stopLoss'?'is-sl':'is-tp');
-  label.textContent=(level.key==='stopLoss'?'SL':'TP')+' '+chartPrice(level.value,layout.market)+' '+chartLevelPipsText(position,level.value,layout.market);
+  const isEntry=level.key==='entry';
+  label.className='chart-level-label '+(isEntry?'is-entry':(level.key==='stopLoss'?'is-sl':'is-tp'));
+  label.textContent=isEntry
+   ?position.side+' Entry '+chartPrice(level.value,layout.market)
+   :(level.key==='stopLoss'?'SL':'TP')+' '+chartPrice(level.value,layout.market)+' '+chartLevelPipsText(position,level.value,layout.market);
   label.style.top=y+'px';
   element.append(label);
  }
@@ -980,6 +991,8 @@ function drawTradingViewChart(canvasId,host,empty,market,timeframe,bars){
   const positions=chartPositionsFor(market),firstTime=chartBars[0].time,lastTime=chartBars[chartBars.length-1].time;
   const values=[];
   positions.forEach(position=>{
+   const entry=chartEntryPrice(position);
+   if(entry>0)values.push({position,key:'entry',color:'#50d47e',label:'Entry',value:entry});
    [['stopLoss','#ff7784','SL'],['takeProfit','#4de1c3','TP']].forEach(([key,color,label])=>{
     const value=chartPositionLevel(position,key);if(Number.isFinite(value)&&value>0)values.push({position,key,color,label,value});
    });
@@ -1016,7 +1029,7 @@ function drawCanvasChart(canvasId,empty,market,timeframe,bars){
  const availableBars=bars.slice(-Math.min(chartDisplayBars,bars.length));
  const visibleCount=Math.max(12,Math.round(availableBars.length/Math.max(1,chartZoom))),visibleBars=availableBars.slice(-visibleCount);
  const positions=chartPositionsFor(market);
- const levels=positions.flatMap(position=>[chartPositionLevel(position,'stopLoss'),chartPositionLevel(position,'takeProfit')]).filter(value=>Number.isFinite(value)&&value>0);
+ const levels=positions.flatMap(position=>[chartEntryPrice(position),chartPositionLevel(position,'stopLoss'),chartPositionLevel(position,'takeProfit')]).filter(value=>Number.isFinite(value)&&value>0);
  const low=Math.min(...visibleBars.map(bar=>bar.low),...(levels.length?levels:[Infinity])),high=Math.max(...visibleBars.map(bar=>bar.high),...(levels.length?levels:[-Infinity])),extra=Math.max((high-low)*.08,Math.abs(high)*.00002),min=low-extra,max=high+extra,range=max-min||1;
  const y=value=>pad.top+(max-value)/range*(h-pad.top-pad.bottom),area=w-pad.left-pad.right;
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#0a1d36';ctx.fillRect(0,0,w,h);
@@ -1032,6 +1045,11 @@ function drawCanvasChart(canvasId,empty,market,timeframe,bars){
  visibleBars.forEach((bar,index)=>{const x=pad.left+visibleStep*(index+.5),up=bar.close>=bar.open,color=up?'#4ed8bd':'#ff8792';ctx.strokeStyle=color;ctx.beginPath();ctx.moveTo(x,y(bar.high));ctx.lineTo(x,y(bar.low));ctx.stroke();const top=Math.min(y(bar.open),y(bar.close)),bh=Math.max(1,Math.abs(y(bar.open)-y(bar.close)));ctx.fillStyle=color;ctx.fillRect(x-visibleBody/2,top,visibleBody,bh);});
  const hitLevels=[];
  positions.forEach(position=>{
+  const entry=chartEntryPrice(position);
+  if(entry>0){
+   const yy=y(entry);chartLine(ctx,pad.left,yy,w-pad.right,yy,'#50d47e',[5,3]);ctx.fillStyle='#50d47e';ctx.fillRect(w-pad.right-3,yy-2,6,4);
+   hitLevels.push({positionId:position.id,key:'entry',value:entry,y:yy});
+  }
   [['stopLoss','#ff7784','SL'],['takeProfit','#4de1c3','TP']].forEach(([key,color,label])=>{
    const value=chartPositionLevel(position,key);if(!value)return;
    const yy=y(value);chartLine(ctx,pad.left,yy,w-pad.right,yy,color,[6,4]);ctx.fillStyle=color;ctx.fillRect(w-pad.right-3,yy-2,6,4);
@@ -1671,7 +1689,11 @@ function setGotoOrderTab(target,{showSettings=true}={}){
 function setupGotoOrderTabs(){
  const buttons=document.querySelectorAll('[data-goto-order-tab]');
  if(!buttons.length)return;
- buttons.forEach(button=>button.onclick=()=>setGotoOrderTab(button.dataset.gotoOrderTab,{showSettings:true}));
+ buttons.forEach(button=>button.onclick=()=>{
+  const stage=$('gotoOrderStage');
+  const sameOpen=button.classList.contains('is-active')&&stage&&!stage.hidden;
+  setGotoOrderTab(button.dataset.gotoOrderTab,{showSettings:!sameOpen});
+ });
  [['market','marketOrderDetails'],['reserve','reserveDetails'],['nanpin','nanpinDetails']].forEach(([key,id])=>{
   const panel=$(id);
   if(!panel)return;
@@ -1833,7 +1855,11 @@ function beginChartDrag(event,canvasId){
  const rect=(layout.host||event.currentTarget).getBoundingClientRect(),pointX=event.clientX-rect.left,pointY=event.clientY-rect.top;
  if(layout.mode==='tradingview'&&pointX>rect.width-(layout.priceScaleWidth||84))return;
  let target=null,distance=Infinity;
- for(const level of layout.levels){const y=chartLevelCoordinate(layout,level);if(!Number.isFinite(y))continue;const gap=Math.abs(y-pointY);if(gap<distance){distance=gap;target=level;}}
+ for(const level of layout.levels){
+  if(level.key==='entry')continue;
+  const y=chartLevelCoordinate(layout,level);if(!Number.isFinite(y))continue;
+  const gap=Math.abs(y-pointY);if(gap<distance){distance=gap;target=level;}
+ }
  const hitTolerance=layout.mode==='tradingview'?30:20;
  if(!target||distance>hitTolerance)return;
  event.preventDefault();event.stopPropagation();chartDrag={canvasId,positionId:target.positionId,key:target.key,changed:false};
