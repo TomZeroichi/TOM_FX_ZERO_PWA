@@ -2673,4 +2673,7 @@ render();
 connection();
 updateProfileUi();
 showStoredKey();
+// 起動・復帰時に設定ダイアログが残らず、常にホームを表示する。
+closeMenu();
+window.addEventListener('pageshow',closeMenu);
 setAppPage('home');
