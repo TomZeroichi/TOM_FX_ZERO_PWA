@@ -301,7 +301,8 @@ function chartPrice(value,market=null){
 }
 function chartPriceScaleWidth(market=null){
  const sample=chartPrice(Number(market?.bid)||Number(market?.ask)||0,market);
- return Math.max(66,Math.min(96,Math.ceil(sample.length*8.1+12)));
+ // 参考ツールと同じく、スマホでも右価格軸を十分な固定幅で確保する。
+ return Math.max(112,Math.min(132,Math.ceil(sample.length*8.6+22)));
 }
 const pipSize=(symbol,market=null)=>{
  const configured=Number(market?.pipSize);
@@ -661,6 +662,10 @@ function updateChartWatermark(elementId,symbol,timeframe){
  const element=$(elementId);
  if(element)element.textContent=(symbol||'--')+' · '+timeframe;
 }
+function updateChartCompactSymbol(elementId,symbol){
+ const element=$(elementId);
+ if(element)element.textContent=String(symbol||'--').replace(/z$/i,'');
+}
 function updateChartTimeframeUi(){
  document.querySelectorAll('[data-timeframe]').forEach(button=>button.classList.toggle('is-active',button.dataset.timeframe===chartTimeframe));
  document.querySelectorAll('[data-indicator-timeframe]').forEach(button=>button.classList.toggle('is-active',button.dataset.indicatorTimeframe===indicatorChartTimeframe));
@@ -760,6 +765,7 @@ function updateMarket(){
  renderMarketOrderLabels(market);
  $('marketLive').textContent=currentPlatform()+'価格';
  updateChartWatermark('marketChartWatermark',market?.symbol||selectedTradeSymbol,chartTimeframe);
+ updateChartCompactSymbol('marketChartSymbolCompact',market?.symbol||selectedTradeSymbol);
  updateChartTimeframeUi();
  $('marketPanel').hidden=false;
  $('tradeSymbol').value=selectedTradeSymbol;
@@ -794,6 +800,7 @@ function updateIndicatorMarket(){
  const panel=$('indicatorMarketPanel'),symbol=$('indicatorSymbol').value,market=marketForSymbol(symbol);
  const liveLabel=$('indicatorMarketLive');if(liveLabel)liveLabel.textContent=currentPlatform()+'価格';
  updateChartWatermark('indicatorChartWatermark',market?.symbol||symbol,indicatorChartTimeframe);
+ updateChartCompactSymbol('indicatorChartSymbolCompact',market?.symbol||symbol);
  updateChartTimeframeUi();
  if(!market&&data.source==='demo'){
   panel.hidden=true;
@@ -946,10 +953,10 @@ function drawTradingViewChart(canvasId,host,empty,market,timeframe,bars){
   try{
    chart=tv.createChart(host,{width,height,
     layout:{background:{type:ColorType.Solid??0,color:'#0a1d36'},textColor:'#96b8d8',fontFamily:'system-ui'},
-    grid:{vertLines:{visible:false},horzLines:{visible:false}},
+    grid:{vertLines:{visible:true,color:'#1b3654'},horzLines:{visible:true,color:'#1b3654'}},
     crosshair:{mode:CrosshairMode.Normal??0,vertLine:{color:'#5a89ac',width:1,style:LineStyle.Dashed??2,labelBackgroundColor:'#2d5d8d'},horzLine:{color:'#5a89ac',width:1,style:LineStyle.Dashed??2,labelBackgroundColor:'#2d5d8d'}},
     rightPriceScale:{visible:true,borderColor:'#47759f',minimumWidth:priceScaleWidth,entireTextOnly:false,alignLabels:true,scaleMargins:{top:.08,bottom:.1}},
-    timeScale:{borderColor:'#47759f',timeVisible:true,secondsVisible:false,rightOffset:4,fixRightEdge:false,barSpacing:9},
+    timeScale:{borderColor:'#47759f',timeVisible:true,secondsVisible:false,rightOffset:4,fixRightEdge:false,barSpacing:7},
     localization:{priceFormatter:value=>chartPrice(value,market)},
     handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:true},
     handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true}
@@ -1012,7 +1019,12 @@ function drawCanvasChart(canvasId,empty,market,timeframe,bars){
  const levels=positions.flatMap(position=>[chartPositionLevel(position,'stopLoss'),chartPositionLevel(position,'takeProfit')]).filter(value=>Number.isFinite(value)&&value>0);
  const low=Math.min(...visibleBars.map(bar=>bar.low),...(levels.length?levels:[Infinity])),high=Math.max(...visibleBars.map(bar=>bar.high),...(levels.length?levels:[-Infinity])),extra=Math.max((high-low)*.08,Math.abs(high)*.00002),min=low-extra,max=high+extra,range=max-min||1;
  const y=value=>pad.top+(max-value)/range*(h-pad.top-pad.bottom),area=w-pad.left-pad.right;
- ctx.clearRect(0,0,w,h);ctx.fillStyle='#0a1d36';ctx.fillRect(0,0,w,h);ctx.font='11px system-ui';ctx.fillStyle='#96b8d8';ctx.lineWidth=1;
+ ctx.clearRect(0,0,w,h);ctx.fillStyle='#0a1d36';ctx.fillRect(0,0,w,h);
+ ctx.save();ctx.strokeStyle='#1b3654';ctx.lineWidth=1;
+ const plotRight=w-pad.right;
+ for(let i=0;i<=4;i++){const xx=pad.left+(plotRight-pad.left)*i/4;ctx.beginPath();ctx.moveTo(xx,pad.top);ctx.lineTo(xx,h-pad.bottom);ctx.stroke();}
+ for(let i=0;i<=5;i++){const yy=pad.top+(h-pad.top-pad.bottom)*i/5;ctx.beginPath();ctx.moveTo(pad.left,yy);ctx.lineTo(plotRight,yy);ctx.stroke();}
+ ctx.restore();ctx.font='11px system-ui';ctx.fillStyle='#96b8d8';ctx.lineWidth=1;
  ctx.textAlign='right';
  for(let i=0;i<4;i++){const value=min+(range*i/3),yy=y(value);ctx.fillText(chartPrice(value,market),w-5,yy+4);}
  ctx.textAlign='left';
