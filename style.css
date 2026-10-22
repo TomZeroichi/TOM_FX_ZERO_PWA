@@ -911,3 +911,37 @@ dialog:not([open]){display:none!important}
     border-top-color:#1e4d76!important;
   }
 }
+
+
+/* 0.5.07：注文タブは閉じず、BUY／SELLの間に共通設定を常時置く */
+@media(max-width:999px){
+ body[data-app-page="home"] #marketPanel>.goto-order-stage{max-height:48dvh!important;overflow-y:auto}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage .order-panel,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage .reserve-panel,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage .nanpin-panel{margin:0!important;padding:0!important;border:0!important}
+ .order-inline-trade{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;align-items:stretch;gap:6px;padding:7px 2px}
+ .order-inline-trade .order-buy,.order-inline-trade .order-sell{min-height:52px;padding:6px 3px;font-size:.7rem;font-weight:850}
+ .order-inline-trade .order-buy strong,.order-inline-trade .order-sell strong{font-size:.76rem;line-height:1.05}
+ .order-inline-trade .order-common-settings{min-width:0;margin:0!important;padding:0!important;border:0!important;background:transparent!important}
+ .order-inline-trade .order-common-head{display:none!important}
+ .order-inline-trade .order-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:0!important}
+ .order-inline-trade .order-fields label{font-size:.58rem;color:#aac4dc}
+ .order-inline-trade .order-fields input{min-height:35px;margin-top:2px;padding:4px 3px;border-color:#356188;background:#07192c;font-size:.72rem;text-align:center}
+ .reserve-panel .reserve-fields{grid-template-columns:1.05fr 1.15fr .65fr;gap:5px;margin:0 2px 2px}
+ .reserve-panel .reserve-fields label{font-size:.62rem}
+ .reserve-panel .reserve-fields input,.reserve-panel .reserve-fields select{min-height:34px;margin-top:2px;padding:4px 3px;font-size:.68rem}
+ .reserve-panel .time-selects{gap:2px}
+ .nanpin-panel .nanpin-body{padding:6px 2px 0}
+ .nanpin-panel .nanpin-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .nanpin-panel .nanpin-toggle{grid-column:1/-1}
+ .nanpin-panel .nanpin-save{min-height:38px;margin-top:7px;padding:7px 10px;font-size:.76rem}
+ .nanpin-panel #nanpinStatus{margin:5px 0 0;font-size:.66rem}
+}
+
+
+/* 0.5.08：ゴトー日ナンピンはON／OFF切替時にEAへ即時反映 */
+@media(max-width:999px){
+ .nanpin-panel .nanpin-toggle-copy small,
+ .nanpin-panel .nanpin-save{display:none!important}
+ .nanpin-panel #nanpinStatus:empty{display:none!important}
+}
