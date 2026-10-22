@@ -709,3 +709,38 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
  .chart-compact-symbol{min-width:55px}
  .chart-compact-price{font-size:.82rem}
 }
+
+
+/* 0.4.98：初期画面はチャート＋注文タブで完結。設定は選択時のみ展開する */
+.chart-wrap-trade{--chart-price-axis-width:64px}
+@media(max-width:999px){
+ body[data-app-page="home"] .trade-quickbar{gap:7px;padding:8px 10px}
+ body[data-app-page="home"] .trade-quickbar .account-metrics{min-width:0}
+ body[data-app-page="home"] .balance-details>.balance-strip{min-height:54px;padding:8px 10px;gap:7px}
+ body[data-app-page="home"] .balance-strip>strong{font-size:1.05rem}
+ body[data-app-page="home"] .balance-strip #toggleBalance{width:36px;min-width:36px;height:36px;min-height:36px}
+ body[data-app-page="home"] .trade-quickbar>.mode-switch{gap:6px}
+ body[data-app-page="home"] .trade-quickbar>.mode-switch button{min-height:54px;padding:6px 10px;font-size:.92rem}
+ body[data-app-page="home"] #marketPanel{gap:7px;padding-top:6px;padding-bottom:4px}
+ body[data-app-page="home"] #marketPanel>.goto-order-tabs{order:20;margin:5px 3px 0!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-tabs button{min-height:46px!important;font-size:.95rem}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage{order:19;margin:0 3px}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage[hidden]{display:none!important}
+ body[data-app-page="home"] #marketPanel>.chart-wrap-trade{order:12;height:clamp(270px,37dvh,355px)!important;min-height:0!important}
+ body[data-app-page="home"] #marketPanel>.chart-line-help{order:13;margin:0 3px;font-size:.67rem;line-height:1.25}
+ body[data-app-page="home"] #marketPanel>.chart-level-action{order:14;margin:0 3px}
+ body[data-app-page="home"] #marketPanel>.market-head{margin-bottom:0}
+ body[data-app-page="home"] #marketPanel .chart-compact-meta{top:7px;left:7px;min-height:30px;padding:3px 8px;font-size:.68rem}
+ body[data-app-page="home"] #marketPanel .chart-compact-price{font-size:.8rem}
+ body[data-app-page="home"] #marketPanel .chart-watermark{right:var(--chart-price-axis-width,64px)!important;max-width:calc(100% - var(--chart-price-axis-width,64px))!important}
+ body[data-app-page="home"] #marketPanel .order-common-settings{margin:0;padding:10px}
+ body[data-app-page="home"] #marketPanel .order-panel,
+ body[data-app-page="home"] #marketPanel .reserve-panel,
+ body[data-app-page="home"] #marketPanel .nanpin-panel{margin:7px 0 0}
+}
+@media(max-width:390px){
+ body[data-app-page="home"] .balance-details>.balance-strip{min-height:49px;padding:7px 8px}
+ body[data-app-page="home"] .trade-quickbar>.mode-switch button{min-height:49px;font-size:.85rem}
+ body[data-app-page="home"] #marketPanel>.chart-wrap-trade{height:clamp(250px,35dvh,315px)!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-tabs button{min-height:43px!important;font-size:.88rem}
+}
