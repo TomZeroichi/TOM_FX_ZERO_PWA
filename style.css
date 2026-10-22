@@ -744,3 +744,33 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
  body[data-app-page="home"] #marketPanel>.chart-wrap-trade{height:clamp(250px,35dvh,315px)!important}
  body[data-app-page="home"] #marketPanel>.goto-order-tabs button{min-height:43px!important;font-size:.88rem}
 }
+
+/* 0.4.99：ホームは注文タブを最下部に固定し、設定時だけチャートを縮小する */
+@media(max-width:999px){
+ body[data-app-page="home"]{height:100dvh;min-height:0;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr)}
+ body[data-app-page="home"] main{box-sizing:border-box;min-height:0;height:100%;margin:0!important;padding:6px 10px calc(76px + env(safe-area-inset-bottom))!important;overflow:hidden}
+ body[data-app-page="home"] #homePage{display:flex!important;flex-direction:column;min-height:0;height:100%;gap:0;overflow:hidden}
+ body[data-app-page="home"] .trade-quickbar{flex:0 0 auto;margin:0 0 5px!important}
+ body[data-app-page="home"] #gotoMode{display:flex!important;flex:1 1 auto;min-height:0;overflow:hidden}
+ body[data-app-page="home"] #marketPanel{display:flex!important;flex:1 1 auto;flex-direction:column;min-height:0;height:100%;margin:0 -10px!important;padding:0 10px!important;gap:0!important;overflow:hidden}
+ body[data-app-page="home"] #marketPanel>.market-head{flex:0 0 auto;min-height:31px;padding:4px 3px 3px!important}
+ body[data-app-page="home"] #marketPanel>.market-head h2,
+ body[data-app-page="home"] #marketPanel>.market-live{display:none!important}
+ body[data-app-page="home"] #marketPanel>.market-head p{margin:0!important;font-size:.75rem;line-height:24px}
+ body[data-app-page="home"] #marketPanel>.chart-wrap-trade{order:12;flex:1 1 auto;min-height:150px!important;height:auto!important;margin-left:-10px!important;margin-right:-10px!important}
+ body[data-app-page="home"] #marketPanel>.chart-line-help,
+ body[data-app-page="home"] #marketPanel>.chart-level-action{display:none!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage{order:19;flex:0 1 auto;max-height:44dvh;margin:0!important;overflow-y:auto;overscroll-behavior:contain}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage[hidden]{display:none!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-tabs{order:20;flex:0 0 57px;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:8px;margin:0!important;padding:4px 3px 0!important;background:#04172d}
+ body[data-app-page="home"] #marketPanel>.goto-order-tabs button{min-height:50px!important;margin:0!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage .order-common-settings{margin:0!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage .order-panel,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage .reserve-panel,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage .nanpin-panel{margin:6px 0 0!important}
+}
+@media(max-width:390px){
+ body[data-app-page="home"] #marketPanel>.goto-order-tabs{flex-basis:52px;padding-top:3px!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-tabs button{min-height:46px!important;font-size:.86rem}
+ body[data-app-page="home"] #marketPanel>.chart-wrap-trade{min-height:130px!important}
+}
