@@ -10,13 +10,13 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.03">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.03" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.03">
-  <link rel="stylesheet" href="style.css?v=0.5.03">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.04">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.04" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.04">
+  <link rel="stylesheet" href="style.css?v=0.5.04">
 
   <style id="settings-tabs-style">
-    /* 0.5.03: 参考ツールに合わせた設定タブ・内部スクロール */
+    /* 0.5.04: 参考ツールに合わせた設定タブ・内部スクロール */
     .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
     .settings-tab-dialog .menu-head{flex:0 0 auto}
     .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
@@ -37,7 +37,7 @@
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.03</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.04</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -386,10 +386,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.03"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.03"></script>
-  <script src="app.js?v=0.5.03"></script>
-  <script src="pwa.js?v=0.5.03"></script>
+  <script src="calc.js?v=0.5.04"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.04"></script>
+  <script src="app.js?v=0.5.04"></script>
+  <script src="pwa.js?v=0.5.04"></script>
 
   <script>
     (() => {
