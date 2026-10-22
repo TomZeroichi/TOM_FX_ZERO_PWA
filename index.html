@@ -10,13 +10,13 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.4.96">
-  <link rel="icon" href="icons/app-icon.svg?v=0.4.96" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.4.96">
-  <link rel="stylesheet" href="style.css?v=0.4.96">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.4.97">
+  <link rel="icon" href="icons/app-icon.svg?v=0.4.97" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.4.97">
+  <link rel="stylesheet" href="style.css?v=0.4.97">
 
   <style id="settings-tabs-style">
-    /* 0.4.96: 参考ツールに合わせた設定タブ・内部スクロール */
+    /* 0.4.97: 参考ツールに合わせた設定タブ・内部スクロール */
     .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
     .settings-tab-dialog .menu-head{flex:0 0 auto}
     .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
@@ -37,7 +37,7 @@
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.96</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.4.97</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -73,9 +73,13 @@
         <div><h2 id="marketTitle"><span id="marketSymbol">USDJPYz</span> チャート</h2><p id="marketQuote">EAから価格を受信すると表示します</p></div>
         <span class="market-live" id="marketLive">EA価格</span>
       </div>
-      <div class="trade-symbol-row"><label><span id="tradeSymbolLabel">ゴトー日 通貨ペア</span><select id="tradeSymbol"><option value="USDJPYz">ドル円（USDJPYz）</option><option value="EURJPYz">ユーロ円（EURJPYz）</option></select></label><div class="current-price-box"><span>現在価格</span><strong id="marketPrice">--</strong></div></div>
       <div class="chart-toolbar"><div class="timeframes" aria-label="チャート時間足"><button type="button" data-timeframe="M1">M1</button><button type="button" data-timeframe="M5" class="is-active">M5</button><button type="button" data-timeframe="M15">M15</button><button type="button" data-timeframe="M30">M30</button><button type="button" data-timeframe="H1">H1</button><button type="button" data-timeframe="H4">H4</button><button type="button" data-timeframe="D1">D1</button><button type="button" data-timeframe="W1">W1</button><button type="button" data-timeframe="MN1">MN1</button></div><button id="resetMarketChart" class="chart-reset" type="button">初期位置</button></div>
-      <div class="chart-wrap chart-wrap-trade" data-chart-surface="market"><canvas id="marketChart" role="img" aria-label="MT4／MT5ローソク足チャート"></canvas><div id="marketChartTradingView" class="tradingview-chart" role="img" aria-label="TradingView形式のMT4／MT5ローソク足チャート" hidden></div><div class="chart-watermark" id="marketChartWatermark" aria-hidden="true"></div><div class="chart-level-labels" id="marketChartLevelLabels" aria-hidden="true"></div><button class="chart-timeframe-tap" id="marketChartTimeframeTap" type="button" aria-label="ゴトーチャートの時間足を変更">M5</button><div class="chart-timeframe-picker" id="marketChartTimeframePicker" role="menu" aria-label="ゴトーチャートの時間足一覧" hidden></div><div class="chart-empty" id="chartEmpty">チャートを準備中です</div><a class="chart-attribution" href="https://www.tradingview.com/" target="_blank" rel="noreferrer" aria-label="TradingView Lightweight Charts">TradingView</a></div><div class="chart-line-help" id="chartLineHelp">チャート内の時間足ボタンをタップ／ピンチで拡大・縮小／SL・TPラインをドラッグ</div>
+      <div class="goto-order-tabs" role="tablist" aria-label="ゴトー日注文メニュー">
+        <button type="button" class="is-active" data-goto-order-tab="market" role="tab" aria-selected="true">成行</button>
+        <button type="button" data-goto-order-tab="reserve" role="tab" aria-selected="false">予約</button>
+        <button type="button" data-goto-order-tab="nanpin" role="tab" aria-selected="false">ナンピン</button>
+      </div>
+      <div class="chart-wrap chart-wrap-trade" data-chart-surface="market"><canvas id="marketChart" role="img" aria-label="MT4／MT5ローソク足チャート"></canvas><div id="marketChartTradingView" class="tradingview-chart" role="img" aria-label="TradingView形式のMT4／MT5ローソク足チャート" hidden></div><div class="chart-watermark" id="marketChartWatermark" aria-hidden="true"></div><div class="chart-level-labels" id="marketChartLevelLabels" aria-hidden="true"></div><div class="chart-compact-meta" id="marketChartCompactMeta"><label class="chart-compact-symbol"><span id="tradeSymbolLabel" class="sr-only">ゴトー日 通貨ペア</span><span id="marketChartSymbolCompact">USDJPY</span><select id="tradeSymbol" aria-label="ゴトー日 通貨ペア"><option value="USDJPYz">ドル円（USDJPYz）</option><option value="EURJPYz">ユーロ円（EURJPYz）</option></select></label><span class="chart-compact-divider" aria-hidden="true">・</span><button class="chart-timeframe-tap" id="marketChartTimeframeTap" type="button" aria-label="ゴトーチャートの時間足を変更">M5</button><strong class="chart-compact-price" id="marketPrice">--</strong></div><div class="chart-timeframe-picker" id="marketChartTimeframePicker" role="menu" aria-label="ゴトーチャートの時間足一覧" hidden></div><div class="chart-empty" id="chartEmpty">チャートを準備中です</div><a class="chart-attribution" href="https://www.tradingview.com/" target="_blank" rel="noreferrer" aria-label="TradingView Lightweight Charts">TradingView</a></div><div class="chart-line-help" id="chartLineHelp">チャート内の時間足ボタンをタップ／ピンチで拡大・縮小／SL・TPラインをドラッグ</div>
       <div class="chart-level-action" id="chartLevelAction" hidden><span id="chartLevelText">SL／TPを変更</span><small>ドラッグ終了時に接続中のEAへ自動反映</small></div>
       <section class="order-common-settings" aria-labelledby="orderCommonTitle">
         <div class="order-common-head"><strong id="orderCommonTitle">注文設定</strong><span>成行・予約 共通</span></div>
@@ -85,11 +89,6 @@
           <label>TP（pips・任意）<input id="orderTakeProfit" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0＝なし"></label>
         </div>
       </section>
-      <div class="goto-order-tabs" role="tablist" aria-label="ゴトー日注文メニュー">
-        <button type="button" class="is-active" data-goto-order-tab="market" role="tab" aria-selected="true">成行</button>
-        <button type="button" data-goto-order-tab="reserve" role="tab" aria-selected="false">予約</button>
-        <button type="button" data-goto-order-tab="nanpin" role="tab" aria-selected="false">ナンピン</button>
-      </div>
       <details class="order-panel" id="marketOrderDetails" aria-labelledby="orderTitle">
         <summary class="order-toggle"><strong id="orderTitle">デモ成行注文</strong><span>デモ限定</span></summary>
         <div class="order-body">
@@ -186,9 +185,8 @@
           <div><h2 id="indicatorMarketTitle"><span id="indicatorMarketSymbol">USDJPYz</span> チャート</h2><p id="indicatorMarketQuote">選択した銘柄のMT4／MT5価格を表示します</p></div>
           <span class="market-live" id="indicatorMarketLive">EA価格</span>
         </div>
-        <div class="trade-symbol-row indicator-symbol-row"><label><span>指標 通貨ペア</span><select id="indicatorSymbol"><option value="USDJPYz">USDJPYz</option><option value="EURJPYz">EURJPYz</option><option value="XAUUSDz">XAUUSDz</option></select></label><div class="current-price-box"><span>現在価格</span><strong id="indicatorMarketPrice">--</strong></div></div>
         <div class="chart-toolbar"><div class="timeframes" aria-label="指標チャート時間足"><button type="button" data-indicator-timeframe="M1">M1</button><button type="button" data-indicator-timeframe="M5" class="is-active">M5</button><button type="button" data-indicator-timeframe="M15">M15</button><button type="button" data-indicator-timeframe="M30">M30</button><button type="button" data-indicator-timeframe="H1">H1</button><button type="button" data-indicator-timeframe="H4">H4</button><button type="button" data-indicator-timeframe="D1">D1</button><button type="button" data-indicator-timeframe="W1">W1</button><button type="button" data-indicator-timeframe="MN1">MN1</button></div><button id="resetIndicatorChart" class="chart-reset" type="button">初期位置</button></div>
-        <div class="chart-wrap chart-wrap-trade" data-chart-surface="indicator"><canvas id="indicatorMarketChart" role="img" aria-label="指標トレード用MT4／MT5ローソク足チャート"></canvas><div id="indicatorMarketChartTradingView" class="tradingview-chart" role="img" aria-label="TradingView形式の指標トレード用MT4／MT5ローソク足チャート" hidden></div><div class="chart-watermark" id="indicatorChartWatermark" aria-hidden="true"></div><div class="chart-level-labels" id="indicatorChartLevelLabels" aria-hidden="true"></div><button class="chart-timeframe-tap" id="indicatorChartTimeframeTap" type="button" aria-label="指標チャートの時間足を変更">M5</button><div class="chart-timeframe-picker" id="indicatorChartTimeframePicker" role="menu" aria-label="指標チャートの時間足一覧" hidden></div><div class="chart-empty" id="indicatorChartEmpty">チャートを準備中です</div><a class="chart-attribution" href="https://www.tradingview.com/" target="_blank" rel="noreferrer" aria-label="TradingView Lightweight Charts">TradingView</a></div><div class="chart-line-help" id="indicatorChartLineHelp">チャート内の時間足ボタンをタップ／ピンチで拡大・縮小／SL・TPラインをドラッグ</div>
+        <div class="chart-wrap chart-wrap-trade" data-chart-surface="indicator"><canvas id="indicatorMarketChart" role="img" aria-label="指標トレード用MT4／MT5ローソク足チャート"></canvas><div id="indicatorMarketChartTradingView" class="tradingview-chart" role="img" aria-label="TradingView形式の指標トレード用MT4／MT5ローソク足チャート" hidden></div><div class="chart-watermark" id="indicatorChartWatermark" aria-hidden="true"></div><div class="chart-level-labels" id="indicatorChartLevelLabels" aria-hidden="true"></div><div class="chart-compact-meta" id="indicatorChartCompactMeta"><label class="chart-compact-symbol"><span class="sr-only">指標 通貨ペア</span><span id="indicatorChartSymbolCompact">USDJPY</span><select id="indicatorSymbol" aria-label="指標 通貨ペア"><option value="USDJPYz">USDJPYz</option><option value="EURJPYz">EURJPYz</option><option value="XAUUSDz">XAUUSDz</option></select></label><span class="chart-compact-divider" aria-hidden="true">・</span><button class="chart-timeframe-tap" id="indicatorChartTimeframeTap" type="button" aria-label="指標チャートの時間足を変更">M5</button><strong class="chart-compact-price" id="indicatorMarketPrice">--</strong></div><div class="chart-timeframe-picker" id="indicatorChartTimeframePicker" role="menu" aria-label="指標チャートの時間足一覧" hidden></div><div class="chart-empty" id="indicatorChartEmpty">チャートを準備中です</div><a class="chart-attribution" href="https://www.tradingview.com/" target="_blank" rel="noreferrer" aria-label="TradingView Lightweight Charts">TradingView</a></div><div class="chart-line-help" id="indicatorChartLineHelp">チャート内の時間足ボタンをタップ／ピンチで拡大・縮小／SL・TPラインをドラッグ</div>
         <div class="chart-level-action" id="indicatorChartLevelAction" hidden><span id="indicatorChartLevelText">SL／TPを変更</span><small>ドラッグ終了時に接続中のEAへ自動反映</small></div>
       </section>
       <section class="indicator-order-panel" aria-labelledby="indicatorOrderTitle"><h2 id="indicatorOrderTitle" class="sr-only">指標トレード注文</h2>
@@ -385,10 +383,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.4.96"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.4.96"></script>
-  <script src="app.js?v=0.4.96"></script>
-  <script src="pwa.js?v=0.4.96"></script>
+  <script src="calc.js?v=0.4.97"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.4.97"></script>
+  <script src="app.js?v=0.4.97"></script>
+  <script src="pwa.js?v=0.4.97"></script>
 
   <script>
     (() => {
