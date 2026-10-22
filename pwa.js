@@ -7,6 +7,13 @@
   let installPrompt=null;
   const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
   const desktopWeb=window.matchMedia('(min-width:1000px)').matches&&!standalone;
+  // Android/PWAのブラウザ領域・システムバーへ黒を明示する。
+  const applyBlackSystemBars=()=>{
+    document.documentElement.style.backgroundColor='#000000';
+    document.body?.style.setProperty('background-color','#000000','important');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(meta=>meta.setAttribute('content','#000000'));
+  };
+  applyBlackSystemBars();
 
   function showManualInstall(){
     if(!installButton||standalone||installPrompt)return;
@@ -71,7 +78,7 @@
     });
   }else if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
     navigator.serviceWorker.addEventListener('controllerchange',()=>{
-      const reloadKey='tomFxPwaControllerReloaded_0.5.05';
+      const reloadKey='tomFxPwaControllerReloaded_0.5.06';
       if(sessionStorage.getItem(reloadKey)==='done')return;
       sessionStorage.setItem(reloadKey,'done');
       location.reload();
@@ -79,7 +86,7 @@
 
     window.addEventListener('load',async()=>{
       try{
-        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.5.05',{scope:'./'});
+        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.5.06',{scope:'./'});
         await registration.update();
         await navigator.serviceWorker.ready;
         if(navigator.serviceWorker.controller)showManualInstall();
