@@ -845,3 +845,47 @@ dialog:not([open]){display:none!important}
   #positionsPage .position-breakdown{margin:0 10px 10px 0;background:#061a2e;color:#d9e9f7}
   #positionsPage .position-breakdown dt{color:#9eb9d1}
 }
+
+/* 0.5.05：ホームの決済バーは注文タブの直下。保有中も注文入口を隠さない。 */
+@media(max-width:999px){
+  html,body{background:#000!important}
+  body[data-app-page="home"] #homeActionFooterSlot{order:21;flex:0 0 auto;min-height:0;background:#04172d}
+  body[data-app-page="home"] #homeActionFooterSlot #actionFooter{
+    position:static;display:flex;align-items:center;gap:8px;min-height:0;margin:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+    background:#071d35;border-top:1px solid #285a88;box-shadow:none;backdrop-filter:none;
+  }
+  body[data-app-page="home"] #homeActionFooterSlot #actionFooter[hidden]{display:none!important}
+  body[data-app-page="home"] #homeActionFooterSlot .action-footer-summary{gap:0;min-width:0}
+  body[data-app-page="home"] #homeActionFooterSlot .action-footer-status{color:#b5cce0;font-size:.61rem}
+  body[data-app-page="home"] #homeActionFooterSlot .action-footer-summary>span:not(.action-footer-status){display:none}
+  body[data-app-page="home"] #homeActionFooterSlot .action-footer-summary strong{font-size:1.05rem;color:#f4f8fc}
+  body[data-app-page="home"] #homeActionFooterSlot .footer-close-actions{margin-left:auto;min-width:0}
+  body[data-app-page="home"] #homeActionFooterSlot #close{min-height:38px;padding:7px 11px;background:#f08342;border-color:#f08342;color:#21150d;font-size:.78rem;font-weight:800}
+  body[data-app-page="home"][data-action-footer="visible"] #marketPanel>.chart-wrap-trade{min-height:110px!important}
+
+  /* 選択機能を残しつつ、ポジションをコンパクトな明細カードへ統一。 */
+  #positionsPage #tradeManagement{width:100%;color:#e7f3ff}
+  #positionsPage .hero,#positionsPage .quick-close,#positionsPage .position-tools{display:none!important}
+  #positionsPage .positions{margin:0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+  #positionsPage .positions>.sectionhead{margin:0 0 8px!important;padding:0 2px!important;color:#e7f3ff}
+  #positionsPage .positions>.sectionhead h2{font-size:1.05rem;color:#e7f3ff}
+  #positionsPage .filters{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:0 0 10px!important;padding:0 2px 2px!important}
+  #positionsPage .filters button{flex:0 0 auto;min-height:32px;padding:5px 9px;border-color:#2b5d87;background:#0d2e4d;color:#d8e9f7;font-size:.7rem}
+  #positionsPage #rows{display:grid!important;gap:8px!important}
+  #positionsPage #rows .row{display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;gap:0!important;overflow:hidden!important;border:1px solid #275a83!important;border-radius:12px!important;background:linear-gradient(135deg,#0f304d,#071d31)!important;box-shadow:0 5px 15px #0005!important}
+  #positionsPage #rows .row.is-selected{border-color:#f08342!important;background:linear-gradient(135deg,#174563,#0b2940)!important}
+  #positionsPage #rows .check-hit{display:grid!important;place-items:center!important;min-height:70px!important;margin:0!important;padding:0!important;background:#081e34!important}
+  #positionsPage #rows .row input{width:20px!important;height:20px!important;accent-color:#f08342}
+  #positionsPage #rows .position-details{min-width:0;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important}
+  #positionsPage #rows .position-summary{display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:70px!important;padding:10px 12px 10px 8px!important;color:#edf7ff!important}
+  #positionsPage #rows .position-main{min-width:0}
+  #positionsPage #rows .identity{font-size:.98rem!important;color:#f1f7fc!important}
+  #positionsPage #rows .side{font-size:.69rem!important}
+  #positionsPage #rows .position-meta{margin-top:3px!important;color:#a9c2d7!important;font-size:.73rem!important}
+  #positionsPage #rows .detail-hint{display:none!important}
+  #positionsPage #rows .position-result{align-items:flex-end!important;gap:2px!important}
+  #positionsPage #rows .money{font-size:1.1rem!important;font-weight:800!important}
+  #positionsPage #rows .status{display:none!important}
+  #positionsPage #rows .position-breakdown{margin:0!important;padding:9px 12px!important;border-top:1px solid #214665!important;border-radius:0!important;background:#06192b!important;color:#d7e8f7!important}
+  #positionsPage #rows .position-breakdown dt{color:#92b1c9!important}
+}
