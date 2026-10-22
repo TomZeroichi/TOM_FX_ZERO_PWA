@@ -889,3 +889,25 @@ dialog:not([open]){display:none!important}
   #positionsPage #rows .position-breakdown{margin:0!important;padding:9px 12px!important;border-top:1px solid #214665!important;border-radius:0!important;background:#06192b!important;color:#d7e8f7!important}
   #positionsPage #rows .position-breakdown dt{color:#92b1c9!important}
 }
+
+
+/* 0.5.06：ホーム決済バーの余白と端末下端を調整 */
+@media(max-width:999px){
+  html{background-color:#000!important;color-scheme:dark}
+  body{background-color:#000!important}
+  body[data-app-page="home"] #homeActionFooterSlot{
+    align-self:center;
+    width:calc(100% - 24px);
+    margin:6px auto 0!important;
+    border-radius:10px 10px 0 0;
+    overflow:hidden;
+  }
+  body[data-app-page="home"] #homeActionFooterSlot #actionFooter{
+    width:100%;
+    border-radius:10px 10px 0 0;
+  }
+  body[data-app-page="home"] .bottom-nav{
+    background:#03101f!important;
+    border-top-color:#1e4d76!important;
+  }
+}
