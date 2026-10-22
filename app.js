@@ -1368,7 +1368,8 @@ function setAppPage(page){
  if(appPage==='symbols')renderCurrencyList();
  if(appPage==='history')renderHistory();
  if(appPage==='calendar'){updateCalendarScopeOptions();renderPnlCalendar();}
- if(appPage==='home'){updateMarket();updateIndicatorMarket();}
+ // ホーム選択時は設定ダイアログを必ず閉じ、ホームだけを表示する。
+ if(appPage==='home'){closeMenu();updateMarket();updateIndicatorMarket();}
 }
 
 function currencyMarkets(){
