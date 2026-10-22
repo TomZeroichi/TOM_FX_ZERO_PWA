@@ -969,7 +969,9 @@ function drawTradingViewChart(canvasId,host,empty,market,timeframe,bars){
     grid:{vertLines:{visible:true,color:'#1b3654'},horzLines:{visible:true,color:'#1b3654'}},
     crosshair:{mode:CrosshairMode.Normal??0,vertLine:{color:'#5a89ac',width:1,style:LineStyle.Dashed??2,labelBackgroundColor:'#2d5d8d'},horzLine:{color:'#5a89ac',width:1,style:LineStyle.Dashed??2,labelBackgroundColor:'#2d5d8d'}},
     rightPriceScale:{visible:true,borderColor:'#47759f',minimumWidth:priceScaleWidth,entireTextOnly:false,alignLabels:true,scaleMargins:{top:.08,bottom:.1}},
-    timeScale:{borderColor:'#47759f',timeVisible:true,secondsVisible:false,rightOffset:4,fixRightEdge:false,barSpacing:7},
+    // TradingView描画では受信済みローソク足の時刻を常時表示する。
+    // M1/M5は秒も表示して、短期足でも時刻を追えるようにする。
+    timeScale:{borderColor:'#47759f',visible:true,timeVisible:true,secondsVisible:['M1','M5'].includes(timeframe),rightOffset:4,fixRightEdge:false,barSpacing:Math.max(7,Math.min(12,Math.round(width/Math.max(chartBars.length,1)*2.5)))},
     localization:{priceFormatter:value=>chartPrice(value,market)},
     handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:true},
     handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true}
