@@ -8,12 +8,12 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f0f2f5",
-  "theme_color": "#14171c",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "categories": ["finance", "utilities"],
   "icons": [
     {
-      "src": "icons/app-icon.svg?v=0.4.95",
+      "src": "icons/app-icon.svg?v=0.5.05",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
