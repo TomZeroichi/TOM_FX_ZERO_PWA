@@ -1664,6 +1664,8 @@ function setGotoOrderTab(target,{showSettings=true}={}){
   button.classList.toggle('is-active',active);
   button.setAttribute('aria-selected',active?'true':'false');
  });
+ // 設定欄の開閉でチャートの残り高さを使い、表示中のローソク足を再描画する。
+ requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
 }
 function setupGotoOrderTabs(){
  const buttons=document.querySelectorAll('[data-goto-order-tab]');
