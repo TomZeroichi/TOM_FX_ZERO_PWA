@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#14171c">
+  <meta name="theme-color" content="#000000">
   <meta name="application-name" content="TOM FX ZERO">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.04">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.04" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.04">
-  <link rel="stylesheet" href="style.css?v=0.5.04">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.05">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.05" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.05">
+  <link rel="stylesheet" href="style.css?v=0.5.05">
 
   <style id="settings-tabs-style">
-    /* 0.5.04: 参考ツールに合わせた設定タブ・内部スクロール */
+    /* 0.5.05: 参考ツールに合わせた設定タブ・内部スクロール */
     .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
     .settings-tab-dialog .menu-head{flex:0 0 auto}
     .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
@@ -37,7 +37,7 @@
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.04</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.05</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -53,7 +53,7 @@
     <div class="trade-quickbar" aria-label="取引モードと口座残高">
       <div class="account-metrics" id="accountMetrics">
         <details class="equity-details balance-details" id="equityDetails">
-          <summary class="balance-strip" id="balanceStrip" aria-label="残高と有効証拠金を切り替える"><span id="balanceLabel">残高</span><strong id="balanceValue">--</strong><button id="toggleBalance" type="button" aria-label="金額を非表示にする" aria-pressed="false"><span class="eye-icon" aria-hidden="true"></span></button></summary>
+          <summary class="balance-strip" id="balanceStrip" aria-label="残高と有効証拠金を切り替える"><span id="balanceLabel">残高</span><strong id="balanceValue">--</strong></summary>
           <div class="equity-body" aria-hidden="true"><div><span>現在の含み損益</span><strong id="equityFloatingValue">--</strong></div></div>
         </details>
       </div>
@@ -100,6 +100,7 @@
         <button type="button" data-goto-order-tab="reserve" role="tab" aria-selected="false">予約</button>
         <button type="button" data-goto-order-tab="nanpin" role="tab" aria-selected="false">ナンピン</button>
       </div>
+      <div id="homeActionFooterSlot" aria-label="選択ポジションの決済"></div>
 
     </section>
 
@@ -242,10 +243,10 @@
     <div id="calendarDayRows" class="calendar-day-rows"></div>
   </dialog>
 
+  <div id="actionFooterDock" aria-hidden="true"></div>
   <footer id="actionFooter" hidden>
     <div class="action-footer-summary"><span id="bottomPositionStatus" class="action-footer-status">保有ポジション 0件</span><span>選択分の純損益</span><strong id="bottomNet"></strong></div>
     <div class="footer-close-actions">
-      <label class="direct-close-option"><input id="closeNoConfirm" type="checkbox">ワンクリック決済</label>
       <button id="close">選択分を一括決済</button>
     </div>
   </footer>
@@ -283,6 +284,8 @@
       </section>
       <section id="settingsPanelDisplay" class="settings-panel" data-settings-panel="display" role="tabpanel" aria-labelledby="settingsTabDisplay" hidden>
         <details class="theme-settings"><summary><span>テーマ</span><small>表示カラーを切替</small></summary><div class="theme-options" role="radiogroup" aria-label="テーマ選択"><button type="button" data-theme-choice="default" aria-pressed="true">標準ネイビー</button><button type="button" data-theme-choice="graphite" aria-pressed="false">グラファイト</button><button type="button" data-theme-choice="emerald" aria-pressed="false">エメラルド</button><button type="button" data-theme-choice="violet" aria-pressed="false">バイオレット</button></div></details>
+        <label class="menu-toggle"><input id="balanceVisibilitySetting" type="checkbox"><span><strong>残高を非表示</strong><small>ホーム上の残高・有効証拠金を伏せて表示します。</small></span></label>
+        <label class="menu-toggle"><input id="closeNoConfirmSetting" type="checkbox"><span><strong>ワンクリック決済</strong><small>選択分の一括決済で確認画面を表示しません。</small></span></label>
       </section>
       <section id="settingsPanelSystem" class="settings-panel" data-settings-panel="system" role="tabpanel" aria-labelledby="settingsTabSystem" hidden>
         <label class="menu-toggle weekend-btc-test"><input id="weekendBtcTest" type="checkbox"><span><strong>週末BTCテストを有効化</strong><small>BTCUSDはデモ口座でのみテストできます。EA側のBTCテスト許可も必要です。</small></span></label>
@@ -386,10 +389,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.04"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.04"></script>
-  <script src="app.js?v=0.5.04"></script>
-  <script src="pwa.js?v=0.5.04"></script>
+  <script src="calc.js?v=0.5.05"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.05"></script>
+  <script src="app.js?v=0.5.05"></script>
+  <script src="pwa.js?v=0.5.05"></script>
 
   <script>
     (() => {
