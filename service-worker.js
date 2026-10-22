@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME='tom-fx-zero-shell-0.5.00';
+const CACHE_NAME='tom-fx-zero-shell-0.5.01';
 const APP_SHELL=[
   './',
   './index.html',
@@ -9,7 +9,7 @@ const APP_SHELL=[
   './app.js',
   './pwa.js',
   './manifest.webmanifest',
-  './icons/app-icon.svg?v=0.5.00'
+  './icons/app-icon.svg?v=0.5.01'
 ];
 
 self.addEventListener('install',event=>{
@@ -30,20 +30,25 @@ self.addEventListener('fetch',event=>{
   if(url.pathname.startsWith('/api/'))return;
 
   event.respondWith((async()=>{
-  // バージョン付きのCSS/JSはURLを完全一致で扱う。これによりPWAでも更新直後の
-  // app.jsが古いキャッシュに置き換わることを防ぐ。
-  const cached=await caches.match(request);
     const refresh=fetch(request).then(response=>{
       if(response.ok)caches.open(CACHE_NAME).then(cache=>cache.put(request,response.clone()));
       return response;
     }).catch(()=>null);
+
+    // 起動画面は必ず最新ファイルを優先。オフライン時だけキャッシュへ戻す。
+    if(request.mode==='navigate'){
+      const network=await refresh;
+      if(network)return network;
+      return caches.match('./index.html');
+    }
+
+    const cached=await caches.match(request);
     if(cached){
       event.waitUntil(refresh);
       return cached;
     }
     const network=await refresh;
     if(network)return network;
-    if(request.mode==='navigate')return caches.match('./index.html');
     return new Response('Offline',{status:503,statusText:'Offline'});
   })());
 });
