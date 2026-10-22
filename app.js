@@ -301,8 +301,8 @@ function chartPrice(value,market=null){
 }
 function chartPriceScaleWidth(market=null){
  const sample=chartPrice(Number(market?.bid)||Number(market?.ask)||0,market);
- // 参考ツールと同じく、スマホでも右価格軸を十分な固定幅で確保する。
- return Math.max(112,Math.min(132,Math.ceil(sample.length*8.6+22)));
+ // 価格の桁数だけに合わせる極細の右価格軸。銘柄ごとに必要な幅だけを使う。
+ return Math.max(54,Math.min(78,Math.ceil(sample.length*7.4+8)));
 }
 const pipSize=(symbol,market=null)=>{
  const configured=Number(market?.pipSize);
@@ -1645,14 +1645,16 @@ function updateNanpinToggleState(){
  input.setAttribute('aria-checked',enabled?'true':'false');
  if(state){state.textContent=enabled?'ON':'OFF';state.classList.toggle('is-on',enabled);}
 }
-function setGotoOrderTab(target){
+function setGotoOrderTab(target,{showSettings=true}={}){
  const panels={market:'marketOrderDetails',reserve:'reserveDetails',nanpin:'nanpinDetails'};
  const targetId=panels[target];
  if(!targetId)return;
+ const stage=$('gotoOrderStage');
+ if(stage)stage.hidden=!showSettings;
  Object.entries(panels).forEach(([key,id])=>{
   const panel=$(id);
   if(panel){
-   const active=key===target;
+   const active=key===target&&showSettings;
    panel.hidden=!active;
    panel.open=active;
   }
@@ -1666,13 +1668,14 @@ function setGotoOrderTab(target){
 function setupGotoOrderTabs(){
  const buttons=document.querySelectorAll('[data-goto-order-tab]');
  if(!buttons.length)return;
- buttons.forEach(button=>button.onclick=()=>setGotoOrderTab(button.dataset.gotoOrderTab));
+ buttons.forEach(button=>button.onclick=()=>setGotoOrderTab(button.dataset.gotoOrderTab,{showSettings:true}));
  [['market','marketOrderDetails'],['reserve','reserveDetails'],['nanpin','nanpinDetails']].forEach(([key,id])=>{
   const panel=$(id);
   if(!panel)return;
-  panel.addEventListener('toggle',()=>{if(panel.open)setGotoOrderTab(key);});
+  panel.addEventListener('toggle',()=>{if(panel.open)setGotoOrderTab(key,{showSettings:true});});
  });
- setGotoOrderTab('market');
+ // 初期画面はチャートと注文タブだけを表示し、タップ後に上側へ設定欄を開く。
+ setGotoOrderTab('market',{showSettings:false});
 }
 function applyNanpinSettings(settings){
  const s={enabled:false,sellOnly:true,widthPips:5,lots:.01,takeProfitPips:2,...settings};
