@@ -24,7 +24,7 @@ const CHART_TIMEFRAMES=['M1','M5','M15','M30','H1','H4','D1','W1','MN1'];
 let chartTimeframe='M5';
 let indicatorChartTimeframe='M5';
 let chartZoom=1;
-let chartDisplayBars=180;
+let chartDisplayBars=Number.MAX_SAFE_INTEGER;
 let balanceView='balance';
 let chartLevelDraft=null;
 let chartDrag=null;
@@ -1661,7 +1661,8 @@ async function sendMarketOrder(){
 function readNanpinSettings(){
  return {
   enabled:Boolean($('nanpinEnabled')?.checked),
-  sellOnly:Boolean($('nanpinSellOnly')?.checked),
+  // SELLのみのUIは廃止しても、既存EAの既定方向は変更しない。
+  sellOnly:$('nanpinSellOnly')?Boolean($('nanpinSellOnly').checked):true,
   widthPips:Number($('nanpinWidth')?.value||0),
   lots:Number($('nanpinLots')?.value||0),
   takeProfitPips:Number($('nanpinTakeProfit')?.value||0)
@@ -1674,43 +1675,33 @@ function updateNanpinToggleState(){
  input.setAttribute('aria-checked',enabled?'true':'false');
  if(state){state.textContent=enabled?'ON':'OFF';state.classList.toggle('is-on',enabled);}
 }
-function setGotoOrderTab(target,{showSettings=true}={}){
+function setGotoOrderTab(target){
  const panels={market:'marketOrderDetails',reserve:'reserveDetails',nanpin:'nanpinDetails'};
- const targetId=panels[target];
- if(!targetId)return;
+ if(!panels[target])return;
  const stage=$('gotoOrderStage');
- if(stage)stage.hidden=!showSettings;
+ if(stage)stage.hidden=false;
+ // 成行／予約は同じ注文設定をBUY・SELLの間へ移動して常時表示する。
+ const settings=$('orderCommonSettings');
+ const controls=$(target==='reserve'?'reserveOrderControls':'marketOrderControls');
+ const sell=$(target==='reserve'?'reserveSell':'orderSell');
+ if(settings&&controls&&sell&&settings.parentElement!==controls)controls.insertBefore(settings,sell);
  Object.entries(panels).forEach(([key,id])=>{
   const panel=$(id);
-  if(panel){
-   const active=key===target&&showSettings;
-   panel.hidden=!active;
-   panel.open=active;
-  }
+  if(panel)panel.hidden=key!==target;
  });
  document.querySelectorAll('[data-goto-order-tab]').forEach(button=>{
   const active=button.dataset.gotoOrderTab===target;
   button.classList.toggle('is-active',active);
   button.setAttribute('aria-selected',active?'true':'false');
  });
- // 設定欄の開閉でチャートの残り高さを使い、表示中のローソク足を再描画する。
  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
 }
 function setupGotoOrderTabs(){
  const buttons=document.querySelectorAll('[data-goto-order-tab]');
  if(!buttons.length)return;
- buttons.forEach(button=>button.onclick=()=>{
-  const stage=$('gotoOrderStage');
-  const sameOpen=button.classList.contains('is-active')&&stage&&!stage.hidden;
-  setGotoOrderTab(button.dataset.gotoOrderTab,{showSettings:!sameOpen});
- });
- [['market','marketOrderDetails'],['reserve','reserveDetails'],['nanpin','nanpinDetails']].forEach(([key,id])=>{
-  const panel=$(id);
-  if(!panel)return;
-  panel.addEventListener('toggle',()=>{if(panel.open)setGotoOrderTab(key,{showSettings:true});});
- });
- // 初期画面はチャートと注文タブだけを表示し、タップ後に上側へ設定欄を開く。
- setGotoOrderTab('market',{showSettings:false});
+ buttons.forEach(button=>button.onclick=()=>setGotoOrderTab(button.dataset.gotoOrderTab));
+ // 初期画面から成行設定を常時表示する。再タップによる閉じる動作は行わない。
+ setGotoOrderTab('market');
 }
 function applyNanpinSettings(settings){
  const s={enabled:false,sellOnly:true,widthPips:5,lots:.01,takeProfitPips:2,...settings};
@@ -2107,8 +2098,12 @@ $('orderVolume').addEventListener('input',saveOrderVolume);
 $('orderVolume').addEventListener('change',saveOrderVolume);
 $('reserveBuy').onclick=()=>openReserveConfirm('BUY');
 $('reserveSell').onclick=()=>openReserveConfirm('SELL');
-$('nanpinSave').onclick=sendNanpinSettings;
-$('nanpinEnabled').onchange=()=>{updateNanpinToggleState();setNanpinStatus('変更内容は未送信です');};
+$('nanpinSave')?.addEventListener('click',sendNanpinSettings);
+$('nanpinEnabled').onchange=()=>{
+ updateNanpinToggleState();
+ // ON／OFF自体をEAへ即時反映する。ナンピンの送信ボタンは使用しない。
+ sendNanpinSettings();
+};
 setupGotoOrderTabs();
 $('modifySelected').onclick=openModifyConfirm;
 $('modifyCancel').onclick=()=>{if(!modifyInFlight){pendingModify=null;$('modifyConfirm').close();}};
@@ -2665,9 +2660,9 @@ function showStoredKey(){
 }
 
 $('openSync').onclick=()=>{closeMenu();$('syncDialog').showModal();showStoredKey();};
-$('openChartSettings').onclick=()=>{closeMenu();const setting=$('chartBarsSetting');if(setting)setting.value=String(chartDisplayBars);const received=selectedMarket()?.charts?.[chartTimeframe]?.length||0;const status=$('chartBarsStatus');if(status)status.textContent=received?'現在はEAから'+received+'本を受信しています。表示本数はこの範囲内で切り替わります。':'EAからローソク足を受信すると、表示本数を反映します。';$('chartSettingsDialog').showModal();};
+$('openChartSettings').onclick=()=>{closeMenu();const setting=$('chartBarsSetting');if(setting)setting.value=chartDisplayBars>=Number.MAX_SAFE_INTEGER?'max':String(chartDisplayBars);const received=selectedMarket()?.charts?.[chartTimeframe]?.length||0;const status=$('chartBarsStatus');if(status)status.textContent=received?'現在はEAから'+received+'本を受信しています。表示本数はこの範囲内で切り替わります。':'EAからローソク足を受信すると、表示本数を反映します。';$('chartSettingsDialog').showModal();};
 $('closeChartSettings').onclick=()=>closeSettingsDialog('chartSettingsDialog');
-$('chartBarsSetting').onchange=event=>{const count=Number(event.target.value);if(![60,120,180].includes(count))return;chartDisplayBars=count;try{localStorage.setItem(CHART_DISPLAY_BARS_KEY,String(count));}catch{};redrawTradeCharts();};
+$('chartBarsSetting').onchange=event=>{const count=event.target.value==='max'?Number.MAX_SAFE_INTEGER:Number(event.target.value);if(![60,120,180,Number.MAX_SAFE_INTEGER].includes(count))return;chartDisplayBars=count;try{localStorage.setItem(CHART_DISPLAY_BARS_KEY,event.target.value==='max'?'max':String(count));}catch{};redrawTradeCharts();};
 $('resetChartView').onclick=()=>{chartZoom=1;redrawTradeCharts();};
 $('closeSyncDialog').onclick=()=>closeSettingsDialog('syncDialog');
 $('manageProfiles').onclick=()=>{closeMenu();$('profileDialog').showModal();updateProfileUi();};
@@ -2706,7 +2701,8 @@ function applyTheme(theme){
 }
 document.querySelectorAll('[data-theme-choice]').forEach(button=>button.onclick=()=>applyTheme(button.dataset.themeChoice));
 try{applyTheme(localStorage.getItem(THEME_KEY)||'default');}catch{applyTheme('default');}
-try{const savedBars=Number(localStorage.getItem(CHART_DISPLAY_BARS_KEY));if([60,120,180].includes(savedBars))chartDisplayBars=savedBars;}catch{}
+try{localStorage.setItem(CHART_DISPLAY_BARS_KEY,'max');}catch{}
+chartDisplayBars=Number.MAX_SAFE_INTEGER;
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)pollLive();});
 setInterval(refreshSyncAge,1000);
 restoreCachedLiveSnapshot();
