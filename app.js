@@ -411,9 +411,11 @@ function updateBalance(){
  const showingEquity=balanceView==='equity';
  const label=$('balanceLabel');
  if(label)label.textContent=showingEquity?'有効証拠金':'残高';
- if(value&&toggle){
+ if(value){
   value.textContent=balanceHidden?'••••••':balanceMoney(showingEquity?equity:data.balance);
   value.classList.toggle('is-hidden',balanceHidden);
+ }
+ if(toggle){
   toggle.setAttribute('aria-label',balanceHidden?'金額を表示する':'金額を非表示にする');
   toggle.setAttribute('aria-pressed',balanceHidden?'true':'false');
  }
@@ -1082,9 +1084,15 @@ function updateQuickClose(){
  setPipsValue($('quickCurrentPips'),closeTargets('all'));
 }
 
+function placeActionFooter(){
+ const footer=$('actionFooter');
+ const target=appPage==='home'?$('homeActionFooterSlot'):$('actionFooterDock');
+ if(footer&&target&&footer.parentElement!==target)target.append(footer);
+}
 function updateActionFooter(){
  const footer=$('actionFooter');
  if(!footer)return;
+ placeActionFooter();
  const count=Array.isArray(data?.positions)?data.positions.length:0;
  // ホームではサンプルの保有一覧を出さず、EAから受信した実際の保有分だけを表示する。
  // ポジション画面とホームで同じ件数を使うことで、受信直後にも判定がずれないようにする。
@@ -2075,8 +2083,19 @@ $('weekendBtcTest').onchange=()=>{
 document.querySelectorAll('input[name="indicatorEntryMode"]').forEach(input=>input.onchange=updateIndicatorEntryMode);
 updateIndicatorEntryMode();
 $('tradeSymbol').onchange=()=>{selectedTradeSymbol=$('tradeSymbol').value;updateMarket();};
-$('toggleBalance').onclick=event=>{event.preventDefault();event.stopPropagation();balanceHidden=!balanceHidden;updateBalance();};
-$('balanceStrip').onclick=event=>{if(event.target.closest('#toggleBalance'))return;event.preventDefault();balanceView=balanceView==='balance'?'equity':'balance';updateBalance();};
+$('balanceStrip').onclick=event=>{event.preventDefault();balanceView=balanceView==='balance'?'equity':'balance';updateBalance();};
+const balanceVisibilitySetting=$('balanceVisibilitySetting');
+const closeNoConfirmSetting=$('closeNoConfirmSetting');
+try{balanceHidden=localStorage.getItem('tomFxZeroBalanceHiddenV1')==='1';}catch{}
+try{closeNoConfirm=localStorage.getItem('tomFxZeroCloseNoConfirmV1')==='1';}catch{}
+if(balanceVisibilitySetting){
+ balanceVisibilitySetting.checked=balanceHidden;
+ balanceVisibilitySetting.onchange=()=>{balanceHidden=balanceVisibilitySetting.checked;try{localStorage.setItem('tomFxZeroBalanceHiddenV1',balanceHidden?'1':'0');}catch{}updateBalance();};
+}
+if(closeNoConfirmSetting){
+ closeNoConfirmSetting.checked=closeNoConfirm;
+ closeNoConfirmSetting.onchange=()=>{closeNoConfirm=closeNoConfirmSetting.checked;try{localStorage.setItem('tomFxZeroCloseNoConfirmV1',closeNoConfirm?'1':'0');}catch{}};
+}
 setupChartTimeframeControls();
 $('resetMarketChart').onclick=()=>resetChartPosition('marketChart');
 $('resetIndicatorChart').onclick=()=>resetChartPosition('indicatorMarketChart');
@@ -2181,10 +2200,8 @@ $('file').onchange=async event=>{
   event.target.value='';
  }
 };
-$('closeNoConfirm').onchange=()=>{closeNoConfirm=$('closeNoConfirm').checked;};
 $('close').onclick=()=>{
-  const skipConfirm=Boolean($('closeNoConfirm')?.checked);
-  closeNoConfirm=skipConfirm;
+  const skipConfirm=closeNoConfirm;
   const items=chosen();
   if(skipConfirm){
    if(!canClose(items))return;
