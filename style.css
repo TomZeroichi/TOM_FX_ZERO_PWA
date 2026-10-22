@@ -812,3 +812,36 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
 
 /* 0.5.03：閉じている設定・各種ダイアログをホーム上に表示しない */
 dialog:not([open]){display:none!important}
+
+
+/* 0.5.04：エントリーラインとポジション一覧の視認性 */
+.chart-level-label.is-entry{
+  left:auto;
+  right:calc(var(--chart-price-axis-width, 60px) + 4px);
+  max-width:calc(100% - var(--chart-price-axis-width, 60px) - 12px);
+  background:#50d47e;
+  color:#062518;
+}
+@media(max-width:999px){
+  #positionsPage #rows{display:grid;gap:9px}
+  #positionsPage .row{
+    grid-template-columns:38px minmax(0,1fr);
+    gap:0;
+    overflow:hidden;
+    border:1px solid #24557c;
+    border-radius:13px;
+    background:linear-gradient(135deg,#0d2d4c,#092137);
+    box-shadow:0 6px 18px #0002;
+  }
+  #positionsPage .row.is-selected{border-color:#ef863e;background:linear-gradient(135deg,#173b58,#0b2941)}
+  #positionsPage .check-hit{min-height:68px;padding:22px 0 10px;background:#0a243c}
+  #positionsPage .row input{width:20px;height:20px}
+  #positionsPage .position-summary{min-height:68px;padding:10px 12px 10px 5px}
+  #positionsPage .row .identity{font-size:.96rem}
+  #positionsPage .position-meta{margin-top:2px;font-size:.74rem}
+  #positionsPage .row .money{font-size:1.12rem}
+  #positionsPage .row .status{display:none}
+  #positionsPage .detail-hint{font-size:.73rem}
+  #positionsPage .position-breakdown{margin:0 10px 10px 0;background:#061a2e;color:#d9e9f7}
+  #positionsPage .position-breakdown dt{color:#9eb9d1}
+}
