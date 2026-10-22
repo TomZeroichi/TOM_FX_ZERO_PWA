@@ -10,13 +10,13 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.06">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.06" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.06">
-  <link rel="stylesheet" href="style.css?v=0.5.06">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.08">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.08" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.08">
+  <link rel="stylesheet" href="style.css?v=0.5.08">
 
   <style id="settings-tabs-style">
-    /* 0.5.06: 参考ツールに合わせた設定タブ・内部スクロール */
+    /* 0.5.08: 参考ツールに合わせた設定タブ・内部スクロール */
     .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
     .settings-tab-dialog .menu-head{flex:0 0 auto}
     .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
@@ -37,7 +37,7 @@
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.06</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.08</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -76,24 +76,27 @@
       <div class="chart-toolbar"><div class="timeframes" aria-label="チャート時間足"><button type="button" data-timeframe="M1">M1</button><button type="button" data-timeframe="M5" class="is-active">M5</button><button type="button" data-timeframe="M15">M15</button><button type="button" data-timeframe="M30">M30</button><button type="button" data-timeframe="H1">H1</button><button type="button" data-timeframe="H4">H4</button><button type="button" data-timeframe="D1">D1</button><button type="button" data-timeframe="W1">W1</button><button type="button" data-timeframe="MN1">MN1</button></div><button id="resetMarketChart" class="chart-reset" type="button">初期位置</button></div>
       <div class="chart-wrap chart-wrap-trade" data-chart-surface="market"><canvas id="marketChart" role="img" aria-label="MT4／MT5ローソク足チャート"></canvas><div id="marketChartTradingView" class="tradingview-chart" role="img" aria-label="TradingView形式のMT4／MT5ローソク足チャート" hidden></div><div class="chart-watermark" id="marketChartWatermark" aria-hidden="true"></div><div class="chart-level-labels" id="marketChartLevelLabels" aria-hidden="true"></div><div class="chart-compact-meta" id="marketChartCompactMeta"><label class="chart-compact-symbol"><span id="tradeSymbolLabel" class="sr-only">ゴトー日 通貨ペア</span><span id="marketChartSymbolCompact">USDJPY</span><select id="tradeSymbol" aria-label="ゴトー日 通貨ペア"><option value="USDJPYz">ドル円（USDJPYz）</option><option value="EURJPYz">ユーロ円（EURJPYz）</option></select></label><span class="chart-compact-divider" aria-hidden="true">・</span><button class="chart-timeframe-tap" id="marketChartTimeframeTap" type="button" aria-label="ゴトーチャートの時間足を変更">M5</button><strong class="chart-compact-price" id="marketPrice">--</strong></div><div class="chart-timeframe-picker" id="marketChartTimeframePicker" role="menu" aria-label="ゴトーチャートの時間足一覧" hidden></div><div class="chart-empty" id="chartEmpty">チャートを準備中です</div><a class="chart-attribution" href="https://www.tradingview.com/" target="_blank" rel="noreferrer" aria-label="TradingView Lightweight Charts">TradingView</a></div><div class="chart-line-help" id="chartLineHelp">チャート内の時間足ボタンをタップ／ピンチで拡大・縮小／SL・TPラインをドラッグ</div>
       <div class="chart-level-action" id="chartLevelAction" hidden><span id="chartLevelText">SL／TPを変更</span><small>ドラッグ終了時に接続中のEAへ自動反映</small></div>
-      <section class="goto-order-stage" id="gotoOrderStage" aria-live="polite" hidden>
-      <section class="order-common-settings" aria-labelledby="orderCommonTitle">
-        <div class="order-common-head"><strong id="orderCommonTitle">注文設定</strong><span>成行・予約 共通</span></div>
-        <div class="order-fields">
-          <label>ロット<input id="orderVolume" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.01"></label>
-          <label>SL（pips・任意）<input id="orderStopLoss" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0＝なし"></label>
-          <label>TP（pips・任意）<input id="orderTakeProfit" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0＝なし"></label>
-        </div>
-      </section>
-      <details class="order-panel" id="marketOrderDetails" aria-labelledby="orderTitle">
-        <summary class="order-toggle"><strong id="orderTitle">デモ成行注文</strong><span>デモ限定</span></summary>
-        <div class="order-body">
-        <div class="order-actions"><button id="orderBuy" type="button" class="order-buy">成行 BUY</button><button id="orderSell" type="button" class="order-sell">成行 SELL</button></div>
-        <p class="small">接続中のMT4／MT5の現在価格・銘柄を使います。送信前に内容を確認してからデモ口座へ指示します。</p>
-        </div>
-      </details>
-      <details id="reserveDetails" class="reserve-panel order-independent-panel"><summary class="reserve-toggle"><strong>ゴトー日 予約エントリー</strong><span>設定を開く</span></summary><div class="reserve-body"><div class="reserve-fields"><label>注文日<input id="reserveDate" type="date"></label><label class="time-select-field">目標時刻<div class="time-selects" aria-label="目標時刻"><select id="reserveHour" aria-label="目標時刻・時"></select><span>:</span><select id="reserveMinute" aria-label="目標時刻・分"></select><span>:</span><select id="reserveSecond" aria-label="目標時刻・秒"></select></div></label><label>先行実行（秒）<input id="reserveLead" type="number" min="0" max="10" step="1" value="3"></label></div><div class="order-actions"><button id="reserveBuy" type="button" class="order-buy">BUYを予約</button><button id="reserveSell" type="button" class="order-sell">SELLを予約</button></div><p class="small">時・分・秒を選んで日本時間の目標時刻を設定します。初期設定では9:54:56にEAが実行します。SL／TPはpips距離で指定します。</p></div></details>
-      <details id="nanpinDetails" class="nanpin-panel order-independent-panel"><summary class="reserve-toggle"><strong>ゴトー日 ナンピン設定</strong><span>アプリから設定</span></summary><div class="nanpin-body"><div class="nanpin-fields"><label class="nanpin-toggle"><span class="nanpin-toggle-copy"><strong>ゴトー日ナンピン</strong><small>タップでON／OFF</small></span><input id="nanpinEnabled" type="checkbox" role="switch" aria-label="ゴトー日ナンピン"><span id="nanpinEnabledState" class="nanpin-state" aria-live="polite">OFF</span></label><label class="nanpin-check"><input id="nanpinSellOnly" type="checkbox" checked> SELLのみ</label><label>ナンピン幅（pips）<input id="nanpinWidth" type="number" min="0.1" step="0.1" value="5"></label><label>ナンピンLot（最大5.00）<input id="nanpinLots" type="number" min="0.01" max="5" step="0.01" value="0.01"></label><label>ナンピン後 一括利確（pips）<input id="nanpinTakeProfit" type="number" min="0" step="0.1" value="2"></label></div><button id="nanpinSave" type="button" class="nanpin-save">設定をEAへ送信</button><p class="small" id="nanpinStatus" aria-live="polite">未送信です</p><p class="small">設定はこの端末に保存し、EAへ送信後はPWAを閉じてもMT4／MT5側で動作します。EAのAllowDemoClose=trueが必要です。</p></div></details>
+      <section class="goto-order-stage" id="gotoOrderStage" aria-live="polite">
+        <section class="order-panel" id="marketOrderDetails" aria-label="成行注文">
+          <div class="order-inline-trade" id="marketOrderControls">
+            <button id="orderBuy" type="button" class="order-buy">BUY</button>
+            <section class="order-common-settings" id="orderCommonSettings" aria-label="注文設定">
+              <div class="order-fields">
+                <label>Lot<input id="orderVolume" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.01"></label>
+                <label>SL<input id="orderStopLoss" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"></label>
+                <label>TP<input id="orderTakeProfit" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"></label>
+              </div>
+            </section>
+            <button id="orderSell" type="button" class="order-sell">SELL</button>
+          </div>
+        </section>
+        <section id="reserveDetails" class="reserve-panel order-independent-panel" hidden aria-label="予約注文">
+          <div class="reserve-fields"><label>注文日<input id="reserveDate" type="date"></label><label class="time-select-field">目標時刻<div class="time-selects" aria-label="目標時刻"><select id="reserveHour" aria-label="目標時刻・時"></select><span>:</span><select id="reserveMinute" aria-label="目標時刻・分"></select><span>:</span><select id="reserveSecond" aria-label="目標時刻・秒"></select></div></label><label>先行秒<input id="reserveLead" type="number" min="0" max="10" step="1" value="3"></label></div>
+          <div class="order-inline-trade" id="reserveOrderControls"><button id="reserveBuy" type="button" class="order-buy">BUY</button><button id="reserveSell" type="button" class="order-sell">SELL</button></div>
+        </section>
+        <section id="nanpinDetails" class="nanpin-panel order-independent-panel" hidden aria-label="ゴトー日ナンピン">
+          <div class="nanpin-body"><div class="nanpin-fields"><label class="nanpin-toggle"><span class="nanpin-toggle-copy"><strong>ゴトー日ナンピン</strong></span><input id="nanpinEnabled" type="checkbox" role="switch" aria-label="ゴトー日ナンピン"><span id="nanpinEnabledState" class="nanpin-state" aria-live="polite">OFF</span></label><label>ナンピン幅（pips）<input id="nanpinWidth" type="number" min="0.1" step="0.1" value="5"></label><label>ナンピンLot（最大5.00）<input id="nanpinLots" type="number" min="0.01" max="5" step="0.01" value="0.01"></label><label>ナンピン後 一括利確（pips）<input id="nanpinTakeProfit" type="number" min="0" step="0.1" value="2"></label></div><p class="small" id="nanpinStatus" aria-live="polite"></p></div>
+        </section>
       </section>
       <div class="goto-order-tabs" role="tablist" aria-label="ゴトー日注文メニュー">
         <button type="button" class="is-active" data-goto-order-tab="market" role="tab" aria-selected="true">成行</button>
@@ -310,7 +313,7 @@
 
   <dialog id="chartSettingsDialog" class="chart-settings-dialog" aria-labelledby="chartSettingsTitle">
     <div class="sectionhead"><div><h2 id="chartSettingsTitle">チャート設定</h2><p>ローソク足の表示本数を変更できます。</p></div></div>
-    <label class="chart-setting-field">表示本数<select id="chartBarsSetting"><option value="60">60本</option><option value="120">120本</option><option value="180">180本（推奨）</option></select></label>
+    <label class="chart-setting-field">表示本数<select id="chartBarsSetting"><option value="max">最大（EA受信分すべて）</option><option value="60">60本</option><option value="120">120本</option><option value="180">180本</option></select></label>
     <p class="small" id="chartBarsStatus">EAから受信済みのローソク足の範囲内で表示します。</p>
     <button id="resetChartView" type="button">チャート位置を初期化</button>
     <button id="closeChartSettings" class="dialog-close" type="button" aria-label="チャート設定を閉じる">×</button>
@@ -389,10 +392,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.06"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.06"></script>
-  <script src="app.js?v=0.5.06"></script>
-  <script src="pwa.js?v=0.5.06"></script>
+  <script src="calc.js?v=0.5.08"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.08"></script>
+  <script src="app.js?v=0.5.08"></script>
+  <script src="pwa.js?v=0.5.08"></script>
 
   <script>
     (() => {
