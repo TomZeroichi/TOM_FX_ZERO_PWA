@@ -808,3 +808,7 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
     overflow:visible!important;
   }
 }
+
+
+/* 0.5.03：閉じている設定・各種ダイアログをホーム上に表示しない */
+dialog:not([open]){display:none!important}
