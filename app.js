@@ -507,10 +507,14 @@ function setNanpinStatus(text){
 function setModifyBusy(busy){
  modifyInFlight=busy;
  const button=$('modifySelected');
- if(!button)return;
- button.disabled=busy||!canCreateCloseCommand(chosen());
- button.setAttribute('aria-busy',busy?'true':'false');
- button.textContent=busy?'SL／TPを送信中…':'選択分のSL／TPを設定';
+ const buttons=[button,...document.querySelectorAll('[data-position-modify]')].filter(Boolean);
+ if(!buttons.length)return;
+ buttons.forEach(item=>{
+  const position=item.dataset.positionId?data.positions.find(position=>String(position.id)===item.dataset.positionId):null;
+  item.disabled=busy||!(position?canCreateCloseCommand([position]):canCreateCloseCommand(chosen()));
+  item.setAttribute('aria-busy',busy?'true':'false');
+  item.textContent=busy?'SL／TPを送信中…':position?'TP／SLを設定':'選択分のSL／TPを設定';
+ });
 }
 
 async function fetchJsonWithTimeout(url,options={},timeoutMs=6000){
@@ -1558,6 +1562,29 @@ function render(){
    breakdown.append(term,definition);
   }
   details.append(breakdown);
+
+  const levelEditor=document.createElement('div');
+  levelEditor.className='position-level-editor';
+  const levelHead=document.createElement('div');
+  levelHead.className='position-level-head';
+  const levelTitle=document.createElement('strong');levelTitle.textContent='TP／SLを追加・変更';
+  const levelNote=document.createElement('small');levelNote.textContent='pips距離・0で解除';
+  levelHead.append(levelTitle,levelNote);
+  const levelFields=document.createElement('div');levelFields.className='position-level-fields';
+  const levelMarket=marketForSymbol(p.symbol);
+  const createLevelInput=(key,label)=>{
+   const field=document.createElement('label');field.textContent=label;
+   const input=document.createElement('input');input.type='number';input.inputMode='decimal';input.min='0';input.step='0.1';input.placeholder='0＝解除';input.setAttribute('aria-label',p.symbol+' '+p.side+' '+label);
+   const current=Number(p[key])>0?pipsForChartLevel(p,Number(p[key]),key,levelMarket):null;
+   if(Number.isFinite(current)&&current>0)input.value=current.toFixed(1);
+   field.append(input);levelFields.append(field);return input;
+  };
+  const levelStopLoss=createLevelInput('stopLoss','SL（pips）');
+  const levelTakeProfit=createLevelInput('takeProfit','TP（pips）');
+  const levelButton=document.createElement('button');levelButton.type='button';levelButton.className='position-level-submit';levelButton.dataset.positionModify='true';levelButton.dataset.positionId=String(p.id);levelButton.textContent='TP／SLを設定';
+  levelButton.onclick=event=>{event.preventDefault();event.stopPropagation();openPositionModifyConfirm(p,levelStopLoss,levelTakeProfit);};
+  levelEditor.append(levelHead,levelFields,levelButton);
+  details.append(levelEditor);
   row.append(hit,details);
   container.append(row);
  }
@@ -1808,17 +1835,35 @@ async function sendNanpinSettings(){
  }catch(err){setNanpinBusy(false);setNanpinStatus('送信失敗');$('message').textContent=err.name==='AbortError'?'ナンピン設定を送信できません：通信がタイムアウトしました':commandSendErrorMessage(err.message,'ナンピン設定');}
 }
 
+function modifyTargetPositions(){
+ if(Array.isArray(pendingModify?.positionIds))return data.positions.filter(position=>pendingModify.positionIds.includes(position.id));
+ return chosen();
+}
+function readPositionLevelPips(input){
+ const value=String(input?.value??'').trim();
+ return value===''?0:Number(value);
+}
+function openPositionModifyConfirm(position,stopLossInput,takeProfitInput){
+ if(modifyInFlight||!canCreateCloseCommand([position])){ $('message').textContent=currentPlatform()+'デモ口座へ接続し、最新ポジションを受信してから設定してください。';return; }
+ const stopLossPips=readPositionLevelPips(stopLossInput),takeProfitPips=readPositionLevelPips(takeProfitInput);
+ if(!Number.isFinite(stopLossPips)||stopLossPips<0||!Number.isFinite(takeProfitPips)||takeProfitPips<0){$('message').textContent='SL／TPのpips距離を確認してください。';return;}
+ if(!position.ticket){$('message').textContent=currentPlatform()+'ポジション情報を更新してから、もう一度お試しください。';return;}
+ pendingModify={tickets:[position.ticket],positionIds:[position.id],stopLossPips,takeProfitPips};
+ $('modifyConfirmText').textContent=position.symbol+' '+position.side+' に SL '+stopLossPips.toFixed(1)+' pips / TP '+takeProfitPips.toFixed(1)+' pips を設定します。';
+ $('modifyConfirm').showModal();
+}
 function openModifyConfirm(){
  if(modifyInFlight||!canCreateCloseCommand(chosen()))return;
  const items=chosen(),stopLossPips=Number($('selectedStopLoss').value||0),takeProfitPips=Number($('selectedTakeProfit').value||0);
  if(!Number.isFinite(stopLossPips)||stopLossPips<0||!Number.isFinite(takeProfitPips)||takeProfitPips<0){$('message').textContent='SL／TPのpips距離を確認してください。';return;}
- pendingModify={tickets:items.map(p=>p.ticket).filter(Boolean),stopLossPips,takeProfitPips};
+ pendingModify={tickets:items.map(p=>p.ticket).filter(Boolean),positionIds:items.map(p=>p.id),stopLossPips,takeProfitPips};
  if(pendingModify.tickets.length!==items.length){$('message').textContent=currentPlatform()+'ポジション情報を更新してから、もう一度選択してください。';pendingModify=null;return;}
  $('modifyConfirmText').textContent=items.length+'件に SL '+stopLossPips+' pips / TP '+takeProfitPips+' pips を設定します。';
  $('modifyConfirm').showModal();
 }
 async function sendModifyLevels(){
- if(modifyInFlight||!pendingModify||!canCreateCloseCommand(chosen()))return;
+ const targets=modifyTargetPositions();
+ if(modifyInFlight||!pendingModify||!canCreateCloseCommand(targets))return;
  const key=connectionKey();
  setModifyBusy(true);$('modifyConfirm').close();$('message').textContent='SL／TP変更を'+currentPlatform()+'へ送信中です。';
  try{
@@ -1934,7 +1979,7 @@ function applyChartLevels(automatic=false){
  if(!Number.isFinite(stopLossPips)||!Number.isFinite(takeProfitPips)){ $('message').textContent='SL／TPラインの位置を確認してください。';return; }
  if(!position.ticket){$('message').textContent=currentPlatform()+'ポジション情報を更新してから、もう一度お試しください。';return;}
  selected.add(position.id);
- pendingModify={tickets:[position.ticket],stopLossPips,takeProfitPips};
+ pendingModify={tickets:[position.ticket],positionIds:[position.id],stopLossPips,takeProfitPips};
  if(automatic){
   $('message').textContent=position.symbol+'のSL／TPをライン移動後に自動反映しています。';
   sendModifyLevels();
