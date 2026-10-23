@@ -1729,9 +1729,20 @@ function updateNanpinToggleState(){
  input.setAttribute('aria-checked',enabled?'true':'false');
  if(state){state.textContent=enabled?'ON':'OFF';state.classList.toggle('is-on',enabled);}
 }
+/* v0.5.17 固定仕様（変更禁止）
+ * ホームの成行／予約／ナンピンは、設定パネル・チャート・一括決済バーの高さに関係なく
+ * 常に下部メニューの直上に置く。同じタブの再タップ時だけ設定を閉じ、タブ自体は移動しない。
+ */
+function syncHomeFixedOrderTabsOffset(){
+ const nav=$('bottomNav');
+ if(document.body?.dataset.appPage!=='home'||!nav)return;
+ const height=Math.ceil(nav.getBoundingClientRect().height||0);
+ if(height>0)document.body.style.setProperty('--tom-bottom-nav-live-height',height+'px');
+}
 function setGotoOrderTab(target,{closeIfActive=false}={}){
  const panels={market:'marketOrderDetails',reserve:'reserveDetails',nanpin:'nanpinDetails'};
  if(!panels[target])return;
+ syncHomeFixedOrderTabsOffset();
  const stage=$('gotoOrderStage');
  const targetButton=document.querySelector('[data-goto-order-tab="'+target+'"]');
  const wasActive=Boolean(targetButton?.classList.contains('is-active'));
@@ -1757,7 +1768,7 @@ function setGotoOrderTab(target,{closeIfActive=false}={}){
   button.classList.toggle('is-active',active);
   button.setAttribute('aria-selected',active?'true':'false');
  });
- requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+ requestAnimationFrame(()=>{syncHomeFixedOrderTabsOffset();window.dispatchEvent(new Event('resize'));});
 }
 function setupOrderFieldSteppers(){
  document.querySelectorAll('[data-step-input]').forEach(button=>{
@@ -2212,7 +2223,7 @@ $('vpsRestartExecute').onclick=sendVpsRestart;
 setupChartInteractions();
 $('orderCancel').onclick=()=>{if(!orderInFlight){pendingOrder=null;$('orderConfirm').close();}};
 $('orderExecute').onclick=sendMarketOrder;
-window.addEventListener('resize',()=>{if(!$('marketPanel').hidden)drawChart();if(!$('indicatorMarketPanel').hidden)updateIndicatorMarket();});
+window.addEventListener('resize',()=>{syncHomeFixedOrderTabsOffset();if(!$('marketPanel').hidden)drawChart();if(!$('indicatorMarketPanel').hidden)updateIndicatorMarket();});
 function setMode(mode){
  activeMode=mode;
  const goto=mode==='goto';
