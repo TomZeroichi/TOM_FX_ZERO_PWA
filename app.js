@@ -1675,12 +1675,21 @@ function updateNanpinToggleState(){
  input.setAttribute('aria-checked',enabled?'true':'false');
  if(state){state.textContent=enabled?'ON':'OFF';state.classList.toggle('is-on',enabled);}
 }
-function setGotoOrderTab(target){
+function setGotoOrderTab(target,{closeIfActive=false}={}){
  const panels={market:'marketOrderDetails',reserve:'reserveDetails',nanpin:'nanpinDetails'};
  if(!panels[target])return;
  const stage=$('gotoOrderStage');
+ const targetButton=document.querySelector('[data-goto-order-tab="'+target+'"]');
+ const wasActive=Boolean(targetButton?.classList.contains('is-active'));
+ const wasOpen=Boolean(stage&&!stage.hidden);
+ // 同じタブをもう一度押した時だけ、注文設定全体を閉じる。
+ if(closeIfActive&&wasActive&&wasOpen){
+  stage.hidden=true;
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+  return;
+ }
  if(stage)stage.hidden=false;
- // 成行／予約は同じ注文設定をBUY・SELLの間へ移動して常時表示する。
+ // 成行／予約は同じ注文設定をBUY・SELLの間へ移動して表示する。
  const settings=$('orderCommonSettings');
  const controls=$(target==='reserve'?'reserveOrderControls':'marketOrderControls');
  const sell=$(target==='reserve'?'reserveSell':'orderSell');
@@ -1699,9 +1708,10 @@ function setGotoOrderTab(target){
 function setupGotoOrderTabs(){
  const buttons=document.querySelectorAll('[data-goto-order-tab]');
  if(!buttons.length)return;
- buttons.forEach(button=>button.onclick=()=>setGotoOrderTab(button.dataset.gotoOrderTab));
- // 初期画面から成行設定を常時表示する。再タップによる閉じる動作は行わない。
+ buttons.forEach(button=>button.onclick=()=>setGotoOrderTab(button.dataset.gotoOrderTab,{closeIfActive:true}));
+ // 初期画面はチャートとタブのみ。成行タブで注文設定を開く。
  setGotoOrderTab('market');
+ setGotoOrderTab('market',{closeIfActive:true});
 }
 function applyNanpinSettings(settings){
  const s={enabled:false,sellOnly:true,widthPips:5,lots:.01,takeProfitPips:2,...settings};
