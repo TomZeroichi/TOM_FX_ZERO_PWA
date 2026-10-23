@@ -1709,7 +1709,7 @@ function setupOrderFieldSteppers(){
  document.querySelectorAll('[data-step-input]').forEach(button=>{
   button.onclick=()=>{
    const input=$(button.dataset.stepInput);if(!input)return;
-   const step=Number(input.step)||1,minimum=Number(input.min),maximum=Number(input.max);
+   const step=Number(input.step)||1,minimum=input.min===''?-Infinity:Number(input.min),maximum=input.max===''?Infinity:Number(input.max);
    let next=Number(input.value||0)+(button.dataset.stepDirection==='-1'?-step:step);
    if(Number.isFinite(minimum))next=Math.max(minimum,next);
    if(Number.isFinite(maximum))next=Math.min(maximum,next);
