@@ -1116,3 +1116,19 @@ dialog:not([open]){display:none!important}
   }
   body[data-app-page="home"] #marketPanel>.goto-order-tabs button{min-height:46px!important}
 }
+
+
+/* v0.5.12: 固定注文タブを下部メニューへ密着させる */
+@media (max-width:999px){
+  body[data-app-page="home"]{
+    --tom-bottom-nav-height:52px;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs{
+    bottom:calc(var(--tom-bottom-nav-height) + env(safe-area-inset-bottom))!important;
+  }
+}
+@media (max-width:390px){
+  body[data-app-page="home"]{
+    --tom-bottom-nav-height:49px;
+  }
+}
