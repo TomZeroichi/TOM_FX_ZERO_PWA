@@ -10,13 +10,13 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.09">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.09" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.09">
-  <link rel="stylesheet" href="style.css?v=0.5.09">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.10">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.10" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.10">
+  <link rel="stylesheet" href="style.css?v=0.5.10">
 
   <style id="settings-tabs-style">
-    /* 0.5.09: 参考ツールに合わせた設定タブ・内部スクロール */
+    /* 0.5.10: 参考ツールに合わせた設定タブ・内部スクロール */
     .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
     .settings-tab-dialog .menu-head{flex:0 0 auto}
     .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
@@ -37,7 +37,7 @@
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.09</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.10</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -82,20 +82,20 @@
             <button id="orderBuy" type="button" class="order-buy">BUY</button>
             <section class="order-common-settings" id="orderCommonSettings" aria-label="注文設定">
               <div class="order-fields">
-                <label>Lot<input id="orderVolume" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.01"></label>
-                <label>SL<input id="orderStopLoss" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"></label>
-                <label>TP<input id="orderTakeProfit" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"></label>
+                <label class="order-field order-field-volume">Lot<span class="step-input"><button type="button" class="stepper" data-step-input="orderVolume" data-step-direction="-1" aria-label="ロットを減らす">−</button><input id="orderVolume" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.01"><button type="button" class="stepper" data-step-input="orderVolume" data-step-direction="1" aria-label="ロットを増やす">＋</button></span></label>
+                <label class="order-field">SL<span class="step-input"><button type="button" class="stepper" data-step-input="orderStopLoss" data-step-direction="-1" aria-label="SLを減らす">−</button><input id="orderStopLoss" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"><button type="button" class="stepper" data-step-input="orderStopLoss" data-step-direction="1" aria-label="SLを増やす">＋</button></span></label>
+                <label class="order-field">TP<span class="step-input"><button type="button" class="stepper" data-step-input="orderTakeProfit" data-step-direction="-1" aria-label="TPを減らす">−</button><input id="orderTakeProfit" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"><button type="button" class="stepper" data-step-input="orderTakeProfit" data-step-direction="1" aria-label="TPを増やす">＋</button></span></label>
               </div>
             </section>
             <button id="orderSell" type="button" class="order-sell">SELL</button>
           </div>
         </section>
         <section id="reserveDetails" class="reserve-panel order-independent-panel" hidden aria-label="予約注文">
-          <div class="reserve-fields"><label>注文日<input id="reserveDate" type="date"></label><label class="time-select-field">目標時刻<div class="time-selects" aria-label="目標時刻"><select id="reserveHour" aria-label="目標時刻・時"></select><span>:</span><select id="reserveMinute" aria-label="目標時刻・分"></select><span>:</span><select id="reserveSecond" aria-label="目標時刻・秒"></select></div></label><label>先行秒<input id="reserveLead" type="number" min="0" max="10" step="1" value="3"></label></div>
+          <div class="reserve-fields"><label class="time-select-field">予約時間<div class="time-selects" aria-label="予約時間"><select id="reserveHour" aria-label="予約時間・時"></select><span>:</span><select id="reserveMinute" aria-label="予約時間・分"></select><span>:</span><select id="reserveSecond" aria-label="予約時間・秒"></select></div></label><label class="reserve-lag-field">タイムラグ<input id="reserveLead" type="number" min="0" max="10" step="1" value="3"></label></div>
           <div class="order-inline-trade" id="reserveOrderControls"><button id="reserveBuy" type="button" class="order-buy">BUY</button><button id="reserveSell" type="button" class="order-sell">SELL</button></div>
         </section>
         <section id="nanpinDetails" class="nanpin-panel order-independent-panel" hidden aria-label="ゴトー日ナンピン">
-          <div class="nanpin-body"><div class="nanpin-fields"><label class="nanpin-toggle"><span class="nanpin-toggle-copy"><strong>ゴトー日ナンピン</strong></span><input id="nanpinEnabled" type="checkbox" role="switch" aria-label="ゴトー日ナンピン"><span id="nanpinEnabledState" class="nanpin-state" aria-live="polite">OFF</span></label><label>ナンピン幅（pips）<input id="nanpinWidth" type="number" min="0.1" step="0.1" value="5"></label><label>ナンピンLot（最大5.00）<input id="nanpinLots" type="number" min="0.01" max="5" step="0.01" value="0.01"></label><label>ナンピン後 一括利確（pips）<input id="nanpinTakeProfit" type="number" min="0" step="0.1" value="2"></label></div><p class="small" id="nanpinStatus" aria-live="polite"></p></div>
+          <div class="nanpin-body"><div class="nanpin-fields"><label class="nanpin-toggle"><span class="nanpin-toggle-copy"><strong>ゴトー日ナンピン</strong></span><input id="nanpinEnabled" type="checkbox" role="switch" aria-label="ゴトー日ナンピン"><span id="nanpinEnabledState" class="nanpin-state" aria-live="polite">OFF</span></label><label>ナンピン幅（pips）<input id="nanpinWidth" type="number" min="0.1" step="0.1" value="5"></label><label>ナンピンLot<input id="nanpinLots" type="number" min="0.01" max="5" step="0.01" value="0.01"></label><label>ナンピン合計利確（pips）<input id="nanpinTakeProfit" type="number" min="0" step="0.1" value="2"></label></div><p class="small" id="nanpinStatus" aria-live="polite"></p></div>
         </section>
       </section>
       <div class="goto-order-tabs" role="tablist" aria-label="ゴトー日注文メニュー">
@@ -392,10 +392,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.09"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.09"></script>
-  <script src="app.js?v=0.5.09"></script>
-  <script src="pwa.js?v=0.5.09"></script>
+  <script src="calc.js?v=0.5.10"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.10"></script>
+  <script src="app.js?v=0.5.10"></script>
+  <script src="pwa.js?v=0.5.10"></script>
 
   <script>
     (() => {
