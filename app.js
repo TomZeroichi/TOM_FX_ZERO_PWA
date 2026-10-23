@@ -20,6 +20,7 @@ let modifyInFlight=false;
 let vpsRestartInFlight=false;
 let pendingOrder=null;
 let pendingModify=null;
+const positionLevelDrafts=new Map();
 const CHART_TIMEFRAMES=['M1','M5','M15','M30','H1','H4','D1','W1','MN1'];
 let chartTimeframe='M5';
 let indicatorChartTimeframe='M5';
@@ -595,7 +596,9 @@ async function waitForCommandResult(commandId,key,kind='close'){
      setNanpinStatus('EA反映済み：幅 '+settings.widthPips+' pips / '+settings.lots.toFixed(2)+' lot / 利確 '+settings.takeProfitPips+' pips');
     }else if(kind==='nanpin')setNanpinStatus('EAへの反映に失敗');
     if(kind==='modify'){
+     const modifiedPositionIds=Array.isArray(pendingModify?.positionIds)?[...pendingModify.positionIds]:[];
      modifyInFlight=false;
+     if(result.status==='completed')clearPositionLevelDrafts(modifiedPositionIds);
      pendingModify=null;
      const status=$('modifyStatus');
      if(status)status.textContent=result.status==='completed'?'EA反映済み：SL／TPを更新しました':'EAへの反映に失敗しました';
@@ -1477,9 +1480,24 @@ function renderDesktopWatchlists(){
  }
 }
 
+function positionLevelDraftKey(positionId,key){return String(positionId)+'|'+key;}
+function capturePositionLevelDrafts(container){
+ if(!container)return;
+ container.querySelectorAll('input[data-position-level]').forEach(input=>{
+  const positionId=input.dataset.positionId,key=input.dataset.positionLevel;
+  if(positionId&&key)positionLevelDrafts.set(positionLevelDraftKey(positionId,key),input.value);
+ });
+}
+function clearPositionLevelDrafts(positionIds=[]){
+ for(const positionId of positionIds){
+  positionLevelDrafts.delete(positionLevelDraftKey(positionId,'stopLoss'));
+  positionLevelDrafts.delete(positionLevelDraftKey(positionId,'takeProfit'));
+ }
+}
 function render(){
  const container=$('rows');
  const opened=new Set([...container.querySelectorAll('details[open]')].map(el=>el.dataset.position));
+ capturePositionLevelDrafts(container);
  container.replaceChildren();
  $('count').textContent=data.positions.length+'件';
 
@@ -1575,8 +1593,14 @@ function render(){
   const createLevelInput=(key,label)=>{
    const field=document.createElement('label');field.textContent=label;
    const input=document.createElement('input');input.type='number';input.inputMode='decimal';input.min='0';input.step='0.1';input.placeholder='0＝解除';input.setAttribute('aria-label',p.symbol+' '+p.side+' '+label);
+   const draftKey=positionLevelDraftKey(p.id,key);
+   input.dataset.positionId=String(p.id);
+   input.dataset.positionLevel=key;
+   const draft=positionLevelDrafts.get(draftKey);
    const current=Number(p[key])>0?pipsForChartLevel(p,Number(p[key]),key,levelMarket):null;
-   if(Number.isFinite(current)&&current>0)input.value=current.toFixed(1);
+   if(draft!==undefined)input.value=draft;
+   else if(Number.isFinite(current)&&current>0)input.value=current.toFixed(1);
+   input.addEventListener('input',()=>positionLevelDrafts.set(draftKey,input.value));
    field.append(input);levelFields.append(field);return input;
   };
   const levelStopLoss=createLevelInput('stopLoss','SL（pips）');
@@ -1650,7 +1674,7 @@ function openOrderConfirm(side){
  pendingOrder={side,volume,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit,slPips,tpPips,symbol:market.symbol};
  $('orderConfirmTitle').textContent='デモ口座の成行 '+side;
  $('orderConfirmText').textContent=market.symbol+' / '+volume+' lot / 現在 '+(side==='BUY'?'Ask ':'Bid ')+marketPrice(side==='BUY'?market.ask:market.bid,market)+' / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
- $('orderConfirmNote').textContent='実口座・コンテスト口座では発注できません。'+currentPlatform()+'側で価格と注文条件を再確認してからデモ発注します。';
+ $('orderConfirmNote').textContent='実口座・コンテスト口座では発注できません。'+currentPlatform()+'側で価格と注文条件を再確認してからデモ発注します。SL／TPは約定価格基準で自動設定され、到達時に自動決済されます。';
  $('orderExecute').textContent='注文指示を送信';
  $('orderConfirm').showModal();
 }
@@ -1669,7 +1693,7 @@ function openReserveConfirm(side){
  pendingOrder={side,volume,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit,slPips,tpPips,scheduled:true,executeAt,targetAt:Math.floor(target.getTime()/1000),lead,symbol:market.symbol};
  $('orderConfirmTitle').textContent='ゴトー日 予約エントリー '+side;
  $('orderConfirmText').textContent=market.symbol+' / '+volume+' lot / 目標 '+target.toLocaleString('ja-JP')+' / EA実行 '+new Date(executeAt*1000).toLocaleTimeString('ja-JP')+'（タイムラグ '+lead+'秒） / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
- $('orderConfirmNote').textContent='予約をEAへ登録します。指定時刻に'+currentPlatform()+'側でデモ成行注文を実行します。';
+ $('orderConfirmNote').textContent='予約をEAへ登録します。指定時刻に'+currentPlatform()+'側でデモ成行注文を実行します。約定価格基準でSL／TPを自動設定し、到達時に自動決済します。';
  $('orderExecute').textContent='予約を登録';
  $('orderConfirm').showModal();
 }
@@ -1677,9 +1701,12 @@ function openReserveConfirm(side){
 async function sendMarketOrder(){
  if(orderInFlight||!pendingOrder||!canCreateOrder())return;
  const key=connectionKey(),order=pendingOrder,market=selectedMarket();
- setOrderBusy(true);$('orderConfirm').close();$('message').textContent='デモ成行注文を'+currentPlatform()+'へ送信中です。画面はそのままお待ちください。';
+ const stopLossPips=Number.isFinite(Number(order.slPips))?Math.max(0,Number(order.slPips)):0;
+ const takeProfitPips=Number.isFinite(Number(order.tpPips))?Math.max(0,Number(order.tpPips)):0;
+ setOrderBusy(true);$('orderConfirm').close();$('message').textContent='デモ成行注文を'+currentPlatform()+'へ送信中です。SL／TPは約定価格基準で自動設定されます。画面はそのままお待ちください。';
  try{
-  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:order.scheduled?'schedule_market_order':'market_order',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:order.symbol||market.symbol,side:order.side,volume:order.volume,stopLoss:0,takeProfit:0,stopLossPips:order.slPips||0,takeProfitPips:order.tpPips||0,executeAt:order.scheduled?order.executeAt:0})},6000);
+  // 既存のEAプロトコルどおり、pips距離を渡して約定後の価格からSL／TPを自動設定する。
+  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:order.scheduled?'schedule_market_order':'market_order',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:order.symbol||market.symbol,side:order.side,volume:order.volume,stopLoss:0,takeProfit:0,stopLossPips,takeProfitPips,executeAt:order.scheduled?order.executeAt:0})},6000);
   pendingOrder=null;$('message').textContent='デモ成行注文を'+currentPlatform()+'へ送信しました。EAの処理結果を待っています。';
   waitForCommandResult(body.commandId,key,'order');
  }catch(err){setOrderBusy(false);$('message').textContent=err.name==='AbortError'?'注文指示を送信できません：通信がタイムアウトしました':commandSendErrorMessage(err.message,'注文');}
