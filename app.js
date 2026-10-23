@@ -1630,10 +1630,10 @@ function openOrderConfirm(side){
 
 function openReserveConfirm(side){
  if(orderInFlight||!canCreateOrder())return;
- const date=$('reserveDate').value,time=selectedClockTime('reserve'),lead=Number($('reserveLead').value);
+ const nowDate=new Date(),date=[nowDate.getFullYear(),String(nowDate.getMonth()+1).padStart(2,'0'),String(nowDate.getDate()).padStart(2,'0')].join('-'),time=selectedClockTime('reserve'),lead=Number($('reserveLead').value);
  const volume=Number($('orderVolume').value),slPips=Number($('orderStopLoss').value||0),tpPips=Number($('orderTakeProfit').value||0);
  const target=new Date(date+'T'+time);
- if(!date||!/^\d{2}:\d{2}:\d{2}$/.test(time)||!Number.isFinite(target.getTime())||!Number.isInteger(lead)||lead<0||lead>10){$('message').textContent='予約日・目標時刻・先行実行秒数を確認してください。';return;}
+ if(!/^\d{2}:\d{2}:\d{2}$/.test(time)||!Number.isFinite(target.getTime())||!Number.isInteger(lead)||lead<0||lead>10){$('message').textContent='予約時間・タイムラグを確認してください。';return;}
  const executeAt=Math.floor(target.getTime()/1000)-lead,now=Math.floor(Date.now()/1000);
  if(executeAt<=now){$('message').textContent='予約時刻は現在より後に設定してください。';return;}
  const market=selectedMarket();
@@ -1641,7 +1641,7 @@ function openReserveConfirm(side){
  const levels=levelsFromPips(side,slPips,tpPips,market);
  pendingOrder={side,volume,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit,slPips,tpPips,scheduled:true,executeAt,targetAt:Math.floor(target.getTime()/1000),lead,symbol:market.symbol};
  $('orderConfirmTitle').textContent='ゴトー日 予約エントリー '+side;
- $('orderConfirmText').textContent=market.symbol+' / '+volume+' lot / 目標 '+target.toLocaleString('ja-JP')+' / EA実行 '+new Date(executeAt*1000).toLocaleTimeString('ja-JP')+'（'+lead+'秒前） / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
+ $('orderConfirmText').textContent=market.symbol+' / '+volume+' lot / 目標 '+target.toLocaleString('ja-JP')+' / EA実行 '+new Date(executeAt*1000).toLocaleTimeString('ja-JP')+'（タイムラグ '+lead+'秒） / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
  $('orderConfirmNote').textContent='予約をEAへ登録します。指定時刻に'+currentPlatform()+'側でデモ成行注文を実行します。';
  $('orderExecute').textContent='予約を登録';
  $('orderConfirm').showModal();
@@ -1705,10 +1705,26 @@ function setGotoOrderTab(target,{closeIfActive=false}={}){
  });
  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
 }
+function setupOrderFieldSteppers(){
+ document.querySelectorAll('[data-step-input]').forEach(button=>{
+  button.onclick=()=>{
+   const input=$(button.dataset.stepInput);if(!input)return;
+   const step=Number(input.step)||1,minimum=Number(input.min),maximum=Number(input.max);
+   let next=Number(input.value||0)+(button.dataset.stepDirection==='-1'?-step:step);
+   if(Number.isFinite(minimum))next=Math.max(minimum,next);
+   if(Number.isFinite(maximum))next=Math.min(maximum,next);
+   const decimals=(String(step).split('.')[1]||'').length;
+   input.value=next.toFixed(decimals);
+   input.dispatchEvent(new Event('input',{bubbles:true}));
+   input.dispatchEvent(new Event('change',{bubbles:true}));
+  };
+ });
+}
 function setupGotoOrderTabs(){
  const buttons=document.querySelectorAll('[data-goto-order-tab]');
  if(!buttons.length)return;
  buttons.forEach(button=>button.onclick=()=>setGotoOrderTab(button.dataset.gotoOrderTab,{closeIfActive:true}));
+ setupOrderFieldSteppers();
  // 初期画面はチャートとタブのみ。成行タブで注文設定を開く。
  setGotoOrderTab('market');
  setGotoOrderTab('market',{closeIfActive:true});
@@ -2155,7 +2171,7 @@ $('calendarScope').onchange=renderPnlCalendar;
 $('calendarMonth').onchange=renderPnlCalendar;
 $('closeCalendarDay').onclick=()=>$('calendarDayDialog').close();
 const today=new Date(),todayText=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
-$('reserveDate').value=todayText;
+const reserveDate=$('reserveDate');if(reserveDate)reserveDate.value=todayText;
 $('indicatorDate').value=todayText;
 setupClockSelects('reserve',9,54,59);
 setupClockSelects('indicator',today.getHours(),today.getMinutes(),today.getSeconds());
