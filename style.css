@@ -892,7 +892,7 @@ dialog:not([open]){display:none!important}
   #positionsPage #rows .position-breakdown dt{color:#92b1c9!important}
   #positionsPage #rows .position-level-editor{margin:0!important;padding:9px 12px!important;border-top:1px solid #214665!important;border-right:0!important;border-bottom:0!important;border-left:0!important;border-radius:0!important;background:#06192b!important;color:#d7e8f7!important}
   #positionsPage #rows .position-level-head small,#positionsPage #rows .position-level-fields label{color:#92b1c9!important}
-  #positionsPage #rows .position-level-fields input{height:38px!important;border-color:#2e6292!important;background:#04182e!important;color:#f2f8ff!important}
+  #positionsPage #rows .position-level-fields input{width:100%!important;box-sizing:border-box;height:38px!important;border-color:#2e6292!important;background:#04182e!important;color:#f2f8ff!important}
   #positionsPage #rows .position-level-submit{border-color:#2f6594!important;background:#151f2a!important;color:#f4f8fc!important}
 }
 
