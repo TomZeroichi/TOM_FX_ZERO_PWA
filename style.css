@@ -945,3 +945,30 @@ dialog:not([open]){display:none!important}
  .nanpin-panel .nanpin-save{display:none!important}
  .nanpin-panel #nanpinStatus:empty{display:none!important}
 }
+
+
+/* 0.5.09：建値ラベルと注文操作の視認性をスマホ幅へ最適化 */
+.chart-level-label.is-entry{
+  left:10px!important;
+  right:auto!important;
+  max-width:calc(100% - var(--chart-price-axis-width,60px) - 22px)!important;
+}
+@media(max-width:999px){
+  .order-inline-trade{grid-template-columns:46px minmax(0,1fr) 46px!important;align-items:center!important;gap:5px!important;padding:5px 2px!important}
+  .order-inline-trade .order-buy,.order-inline-trade .order-sell{display:grid!important;grid-template-rows:auto auto!important;place-content:center!important;align-self:center!important;min-height:68px!important;height:68px!important;padding:5px 2px!important;line-height:1!important;overflow:hidden}
+  .order-inline-trade .order-buy span,.order-inline-trade .order-sell span{display:block!important;font-size:.62rem!important;line-height:1.1!important;white-space:nowrap}
+  .order-inline-trade .order-buy strong,.order-inline-trade .order-sell strong{display:block!important;max-width:42px!important;font-size:.64rem!important;line-height:1.06!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-all!important}
+  .order-inline-trade .order-fields{gap:3px!important}
+  .order-inline-trade .order-fields label{font-size:.54rem!important}
+  .order-inline-trade .order-fields input{min-height:30px!important;height:30px!important;padding:3px 2px!important;font-size:.68rem!important}
+  .reserve-panel .reserve-fields{gap:4px!important;margin:0 2px!important}
+  .reserve-panel .reserve-fields input,.reserve-panel .reserve-fields select{min-height:30px!important;height:30px!important;padding:3px 2px!important;font-size:.64rem!important}
+  .nanpin-panel{width:calc(100% - 34px)!important;margin:4px auto!important}
+  .nanpin-panel .nanpin-body{padding:4px 0 0!important}
+  .nanpin-panel .nanpin-fields{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}
+  .nanpin-panel .nanpin-toggle{grid-column:1/-1!important;min-height:42px!important;padding:5px 9px!important}
+  .nanpin-panel .nanpin-toggle-copy strong{font-size:.86rem!important}
+  .nanpin-panel .nanpin-fields label:not(.nanpin-toggle){font-size:.56rem!important}
+  .nanpin-panel .nanpin-fields input[type=number]{min-height:30px!important;height:30px!important;margin-top:2px!important;padding:3px!important;font-size:.67rem!important}
+  .nanpin-panel #nanpinStatus{margin:3px 1px 0!important;font-size:.6rem!important}
+}
