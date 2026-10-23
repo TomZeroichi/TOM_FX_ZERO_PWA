@@ -947,7 +947,7 @@ dialog:not([open]){display:none!important}
 }
 
 
-/* 0.5.10：建値ラベルと注文操作の視認性をスマホ幅へ最適化 */
+/* 0.5.11：建値ラベルと注文操作の視認性をスマホ幅へ最適化 */
 .chart-level-label.is-entry{
   left:10px!important;
   right:auto!important;
@@ -974,7 +974,7 @@ dialog:not([open]){display:none!important}
 }
 
 
-/* v0.5.10: centred trade controls and same-day reservation */
+/* v0.5.11: centred trade controls and same-day reservation */
 @media (max-width:999px){
   .order-inline-trade{
     grid-template-columns:72px minmax(0,1fr) 72px!important;
@@ -1077,4 +1077,42 @@ dialog:not([open]){display:none!important}
     padding-inline:6px!important;
     text-align:center!important;
   }
+}
+
+
+/* v0.5.11: 注文タブは常に下部ナビゲーション直上へ固定 */
+@media (max-width:999px){
+  body[data-app-page="home"] #marketPanel{
+    padding-bottom:58px!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs{
+    position:fixed!important;
+    z-index:80!important;
+    left:10px!important;
+    right:10px!important;
+    bottom:calc(64px + env(safe-area-inset-bottom))!important;
+    height:56px!important;
+    min-height:56px!important;
+    margin:0!important;
+    padding:4px 3px 0!important;
+    background:#04172d!important;
+    border-top:1px solid #1e4d76!important;
+    box-shadow:0 -6px 16px rgba(1,11,25,.72)!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs button{
+    min-height:50px!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-stage{
+    max-height:calc(100dvh - 370px)!important;
+    padding-bottom:4px!important;
+  }
+}
+@media (max-width:390px){
+  body[data-app-page="home"] #marketPanel{padding-bottom:53px!important}
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs{
+    bottom:calc(60px + env(safe-area-inset-bottom))!important;
+    height:52px!important;
+    min-height:52px!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs button{min-height:46px!important}
 }
