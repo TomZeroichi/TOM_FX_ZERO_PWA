@@ -1132,3 +1132,28 @@ dialog:not([open]){display:none!important}
     --tom-bottom-nav-height:49px;
   }
 }
+
+
+/* v0.5.13: PC幅で注文設定ステージを右側の注文列へ固定 */
+@media (min-width:1000px){
+  body[data-app-page="home"] #marketPanel>.goto-order-stage{
+    grid-column:2!important;
+    grid-row:3!important;
+    align-self:start!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-height:calc(100vh - 220px)!important;
+    overflow-y:auto!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs{
+    grid-column:2!important;
+    grid-row:4!important;
+    align-self:end!important;
+    margin:0 0 8px!important;
+  }
+  body[data-app-page="home"] #marketPanel>#homeActionFooterSlot{
+    grid-column:2!important;
+    grid-row:5!important;
+    min-width:0!important;
+  }
+}
