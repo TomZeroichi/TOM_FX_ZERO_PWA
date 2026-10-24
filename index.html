@@ -10,13 +10,13 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.18">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.18" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.18">
-  <link rel="stylesheet" href="style.css?v=0.5.18">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.19">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.19" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.19">
+  <link rel="stylesheet" href="style.css?v=0.5.19">
 
   <style id="settings-tabs-style">
-    /* 0.5.18: 参考ツールに合わせた設定タブ・内部スクロール */
+    /* 0.5.19: 参考ツールに合わせた設定タブ・内部スクロール */
     .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
     .settings-tab-dialog .menu-head{flex:0 0 auto}
     .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
@@ -37,7 +37,7 @@
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.18</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
+    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.19</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
     <div class="account-select-wrap">
       <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
       <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -196,7 +196,7 @@
         <div class="chart-wrap chart-wrap-trade" data-chart-surface="indicator"><canvas id="indicatorMarketChart" role="img" aria-label="指標トレード用MT4／MT5ローソク足チャート"></canvas><div id="indicatorMarketChartTradingView" class="tradingview-chart" role="img" aria-label="TradingView形式の指標トレード用MT4／MT5ローソク足チャート" hidden></div><div class="chart-watermark" id="indicatorChartWatermark" aria-hidden="true"></div><div class="chart-level-labels" id="indicatorChartLevelLabels" aria-hidden="true"></div><div class="chart-compact-meta" id="indicatorChartCompactMeta"><label class="chart-compact-symbol"><span class="sr-only">指標 通貨ペア</span><span id="indicatorChartSymbolCompact">USDJPY</span><select id="indicatorSymbol" aria-label="指標 通貨ペア"><option value="USDJPYz">USDJPYz</option><option value="EURJPYz">EURJPYz</option><option value="XAUUSDz">XAUUSDz</option></select></label><span class="chart-compact-divider" aria-hidden="true">・</span><button class="chart-timeframe-tap" id="indicatorChartTimeframeTap" type="button" aria-label="指標チャートの時間足を変更">M5</button><strong class="chart-compact-price" id="indicatorMarketPrice">--</strong></div><div class="chart-timeframe-picker" id="indicatorChartTimeframePicker" role="menu" aria-label="指標チャートの時間足一覧" hidden></div><div class="chart-empty" id="indicatorChartEmpty">チャートを準備中です</div><a class="chart-attribution" href="https://www.tradingview.com/" target="_blank" rel="noreferrer" aria-label="TradingView Lightweight Charts">TradingView</a></div><div class="chart-line-help" id="indicatorChartLineHelp">チャート内の時間足ボタンをタップ／ピンチで拡大・縮小／SL・TPラインをドラッグ</div>
         <div class="chart-level-action" id="indicatorChartLevelAction" hidden><span id="indicatorChartLevelText">SL／TPを変更</span><small>ドラッグ終了時に接続中のEAへ自動反映</small></div>
       </section>
-      <section class="indicator-order-panel" aria-labelledby="indicatorOrderTitle"><h2 id="indicatorOrderTitle" class="sr-only">指標トレード注文</h2>
+      <div id="indicatorOrderPanelSlot"><section id="indicatorOrderPanel" class="indicator-order-panel" aria-labelledby="indicatorOrderTitle"><h2 id="indicatorOrderTitle" class="sr-only">指標トレード注文</h2>
       <div class="indicator-entry-modes" role="radiogroup" aria-label="指標トレードのエントリーモード">
         <label><input type="radio" name="indicatorEntryMode" value="scheduled" checked><span><strong>予約モード</strong><small>指定時刻に上下逆指値</small></span></label>
         <label><input type="radio" name="indicatorEntryMode" value="immediate"><span><strong>即時モード</strong><small>すぐ上下逆指値</small></span></label>
@@ -217,6 +217,7 @@
         <div class="indicator-preset-body"><label><span>プリセット</span><select id="indicatorPreset" aria-label="指標プリセット"></select></label><div class="indicator-preset-actions"><button id="indicatorPresetSave" type="button">保存／更新</button><button id="indicatorPresetDuplicate" type="button">複製</button><button id="indicatorPresetDelete" type="button">削除</button></div><p id="indicatorPresetStatus" class="small" aria-live="polite">「＋ 新規プリセット」で米CPIなどの設定を保存できます。</p></div>
       </details>
       </section>
+      </div>
     </section>
     </section>
 
@@ -392,10 +393,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.18"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.18"></script>
-  <script src="app.js?v=0.5.18"></script>
-  <script src="pwa.js?v=0.5.18"></script>
+  <script src="calc.js?v=0.5.19"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.19"></script>
+  <script src="app.js?v=0.5.19"></script>
+  <script src="pwa.js?v=0.5.19"></script>
 
   <script>
     (() => {
