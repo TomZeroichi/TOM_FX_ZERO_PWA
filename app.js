@@ -2109,6 +2109,7 @@ $('symbol').onchange=()=>{selected.clear();render();};
 function selectedIndicatorEntryMode(){return document.querySelector('input[name="indicatorEntryMode"]:checked')?.value||'scheduled';}
 function updateIndicatorEntryMode(){
  const mode=selectedIndicatorEntryMode(),scheduled=mode==='scheduled',market=mode==='market';
+ const panel=$('indicatorOrderPanel');if(panel)panel.dataset.entryMode=mode;
  $('indicatorTimeField').hidden=!scheduled;
  $('indicatorMarginField').hidden=market;
  $('indicatorCancel').hidden=market;
