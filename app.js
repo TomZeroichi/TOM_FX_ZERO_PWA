@@ -1815,6 +1815,8 @@ function setIndicatorOrderTab(target,{closeIfActive=false}={}){
  const button=document.querySelector('[data-indicator-order-tab="'+target+'"]');
  const wasActive=Boolean(button?.classList.contains('is-active'));
  if(closeIfActive&&wasActive&&stage&&!stage.hidden){stage.hidden=true;return;}
+ // 指標タブではゴトー日側の設定を残さず、指標設定だけを同じ上側ステージへ出す。
+ ['marketOrderDetails','reserveDetails','nanpinDetails'].forEach(id=>{const panel=$(id);if(panel)panel.hidden=true;});
  placeIndicatorOrderPanel(true);
  if(stage)stage.hidden=false;
  const radio=document.querySelector('input[name="indicatorEntryMode"][value="'+target+'"]');
