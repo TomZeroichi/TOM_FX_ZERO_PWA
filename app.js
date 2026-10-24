@@ -1785,11 +1785,56 @@ function setupOrderFieldSteppers(){
   };
  });
 }
-function setupGotoOrderTabs(){
- const buttons=document.querySelectorAll('[data-goto-order-tab]');
+/* v0.5.18 固定仕様：下部の3ボタンはモード別の既存注文方式を表示する。
+ * ゴトー日＝成行／予約／ナンピン、指標＝予約／即時／成行。
+ * ボタンの固定座標・EAアクション・入力値は変更しない。
+ */
+function setIndicatorOrderTab(target,{closeIfActive=false}={}){
+ const modes={scheduled:'予約',immediate:'即時',market:'成行'};
+ if(!modes[target])return;
+ const stage=$('gotoOrderStage');
+ const button=document.querySelector('[data-indicator-order-tab="'+target+'"]');
+ const wasActive=Boolean(button?.classList.contains('is-active'));
+ if(closeIfActive&&wasActive&&stage&&!stage.hidden){stage.hidden=true;return;}
+ if(stage)stage.hidden=true;
+ const radio=document.querySelector('input[name="indicatorEntryMode"][value="'+target+'"]');
+ if(radio)radio.checked=true;
+ updateIndicatorEntryMode();
+ document.querySelectorAll('[data-indicator-order-tab]').forEach(item=>{
+  const active=item.dataset.indicatorOrderTab===target;
+  item.classList.toggle('is-active',active);
+  item.setAttribute('aria-selected',active?'true':'false');
+ });
+}
+function configureHomeOrderTabs(mode){
+ const buttons=[...document.querySelectorAll('.goto-order-tabs button')];
  if(!buttons.length)return;
- buttons.forEach(button=>button.onclick=()=>setGotoOrderTab(button.dataset.gotoOrderTab,{closeIfActive:true}));
+ const indicator=mode==='indicator';
+ const config=indicator
+  ?[{key:'scheduled',label:'予約'},{key:'immediate',label:'即時'},{key:'market',label:'成行'}]
+  :[{key:'market',label:'成行'},{key:'reserve',label:'予約'},{key:'nanpin',label:'ナンピン'}];
+ const tabs=document.querySelector('.goto-order-tabs');
+ if(tabs)tabs.setAttribute('aria-label',indicator?'指標注文メニュー':'ゴトー日注文メニュー');
+ buttons.forEach((button,index)=>{
+  const item=config[index];if(!item)return;
+  button.textContent=item.label;
+  button.classList.remove('is-active');
+  if(indicator){
+   delete button.dataset.gotoOrderTab;
+   button.dataset.indicatorOrderTab=item.key;
+   button.onclick=()=>setIndicatorOrderTab(item.key,{closeIfActive:true});
+  }else{
+   delete button.dataset.indicatorOrderTab;
+   button.dataset.gotoOrderTab=item.key;
+   button.onclick=()=>setGotoOrderTab(item.key,{closeIfActive:true});
+  }
+ });
+ if(indicator)setIndicatorOrderTab(selectedIndicatorEntryMode());
+}
+function setupGotoOrderTabs(){
+ if(!document.querySelector('.goto-order-tabs'))return;
  setupOrderFieldSteppers();
+ configureHomeOrderTabs('goto');
  // 初期画面はチャートとタブのみ。成行タブで注文設定を開く。
  setGotoOrderTab('market');
  setGotoOrderTab('market',{closeIfActive:true});
@@ -2228,6 +2273,7 @@ function setMode(mode){
  activeMode=mode;
  const goto=mode==='goto';
  $('gotoMode').hidden=!goto;$('indicatorMode').hidden=goto;$('modeGoto').classList.toggle('is-active',goto);$('modeIndicator').classList.toggle('is-active',!goto);$('modeGoto').setAttribute('aria-selected',goto?'true':'false');$('modeIndicator').setAttribute('aria-selected',goto?'false':'true');
+ configureHomeOrderTabs(mode);
  updateChartLevelAction();
  moveBalanceStrip();
  updateProfileUi();
