@@ -1188,3 +1188,28 @@ dialog:not([open]){display:none!important}
     overscroll-behavior:contain;
   }
 }
+
+
+/* v0.5.19 固定仕様：指標もゴトー日と同じメインチャート・上側展開。 */
+@media (max-width:999px){
+  body[data-app-page="home"] #indicatorMode{display:none!important;}
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs{
+    /* 下部メニューと接触しない最小の間隔。タブの固定座標は維持する。 */
+    bottom:calc(var(--tom-bottom-nav-live-height) + env(safe-area-inset-bottom) + 3px)!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel{
+    display:block!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-entry-modes{
+    display:none!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-fields{
+    margin-top:0!important;
+  }
+}
