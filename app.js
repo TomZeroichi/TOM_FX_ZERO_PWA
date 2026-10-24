@@ -1789,6 +1789,25 @@ function setupOrderFieldSteppers(){
  * ゴトー日＝成行／予約／ナンピン、指標＝予約／即時／成行。
  * ボタンの固定座標・EAアクション・入力値は変更しない。
  */
+/* v0.5.19 固定仕様：スマホの指標はゴトー日と同じメインチャート・固定3ボタンを使う。
+ * 指標設定だけをタブの上側へ展開し、EA送信内容・入力値・チャート通信は変更しない。
+ */
+function placeIndicatorOrderPanel(inStage){
+ const panel=$('indicatorOrderPanel'),slot=$('indicatorOrderPanelSlot'),stage=$('gotoOrderStage');
+ const target=inStage?stage:slot;
+ if(panel&&target&&panel.parentElement!==target)target.append(panel);
+}
+function syncIndicatorOrderTabActive(target=selectedIndicatorEntryMode()){
+ document.querySelectorAll('[data-indicator-order-tab]').forEach(item=>{
+  const active=item.dataset.indicatorOrderTab===target;
+  item.classList.toggle('is-active',active);
+  item.setAttribute('aria-selected',active?'true':'false');
+ });
+}
+function syncIndicatorSymbolToHomeChart(){
+ const indicator=$('indicatorSymbol'),trade=$('tradeSymbol');
+ if(indicator&&trade&&[...indicator.options].some(option=>option.value===trade.value))indicator.value=trade.value;
+}
 function setIndicatorOrderTab(target,{closeIfActive=false}={}){
  const modes={scheduled:'予約',immediate:'即時',market:'成行'};
  if(!modes[target])return;
@@ -1796,15 +1815,13 @@ function setIndicatorOrderTab(target,{closeIfActive=false}={}){
  const button=document.querySelector('[data-indicator-order-tab="'+target+'"]');
  const wasActive=Boolean(button?.classList.contains('is-active'));
  if(closeIfActive&&wasActive&&stage&&!stage.hidden){stage.hidden=true;return;}
- if(stage)stage.hidden=true;
+ placeIndicatorOrderPanel(true);
+ if(stage)stage.hidden=false;
  const radio=document.querySelector('input[name="indicatorEntryMode"][value="'+target+'"]');
  if(radio)radio.checked=true;
  updateIndicatorEntryMode();
- document.querySelectorAll('[data-indicator-order-tab]').forEach(item=>{
-  const active=item.dataset.indicatorOrderTab===target;
-  item.classList.toggle('is-active',active);
-  item.setAttribute('aria-selected',active?'true':'false');
- });
+ syncIndicatorOrderTabActive(target);
+ requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
 }
 function configureHomeOrderTabs(mode){
  const buttons=[...document.querySelectorAll('.goto-order-tabs button')];
@@ -1829,7 +1846,8 @@ function configureHomeOrderTabs(mode){
    button.onclick=()=>setGotoOrderTab(item.key,{closeIfActive:true});
   }
  });
- if(indicator)setIndicatorOrderTab(selectedIndicatorEntryMode());
+ if(indicator)syncIndicatorOrderTabActive();
+ else placeIndicatorOrderPanel(false);
 }
 function setupGotoOrderTabs(){
  if(!document.querySelector('.goto-order-tabs'))return;
@@ -2229,7 +2247,7 @@ $('weekendBtcTest').onchange=()=>{
 };
 document.querySelectorAll('input[name="indicatorEntryMode"]').forEach(input=>input.onchange=updateIndicatorEntryMode);
 updateIndicatorEntryMode();
-$('tradeSymbol').onchange=()=>{selectedTradeSymbol=$('tradeSymbol').value;updateMarket();};
+$('tradeSymbol').onchange=()=>{selectedTradeSymbol=$('tradeSymbol').value;if(activeMode==='indicator')syncIndicatorSymbolToHomeChart();updateMarket();};
 $('balanceStrip').onclick=event=>{event.preventDefault();balanceView=balanceView==='balance'?'equity':'balance';updateBalance();};
 const balanceVisibilitySetting=$('balanceVisibilitySetting');
 const closeNoConfirmSetting=$('closeNoConfirmSetting');
@@ -2272,7 +2290,10 @@ window.addEventListener('resize',()=>{syncHomeFixedOrderTabsOffset();if(!$('mark
 function setMode(mode){
  activeMode=mode;
  const goto=mode==='goto';
- $('gotoMode').hidden=!goto;$('indicatorMode').hidden=goto;$('modeGoto').classList.toggle('is-active',goto);$('modeIndicator').classList.toggle('is-active',!goto);$('modeGoto').setAttribute('aria-selected',goto?'true':'false');$('modeIndicator').setAttribute('aria-selected',goto?'false':'true');
+ // スマホでは指標もゴトー日と同じメインチャートを使い、設定だけを固定タブの上へ開く。
+ $('gotoMode').hidden=false;$('indicatorMode').hidden=true;$('modeGoto').classList.toggle('is-active',goto);$('modeIndicator').classList.toggle('is-active',!goto);$('modeGoto').setAttribute('aria-selected',goto?'true':'false');$('modeIndicator').setAttribute('aria-selected',goto?'false':'true');
+ if(!goto){syncIndicatorSymbolToHomeChart();resetChartPosition('marketChart');}
+ else {$('gotoOrderStage').hidden=true;placeIndicatorOrderPanel(false);}
  configureHomeOrderTabs(mode);
  updateChartLevelAction();
  moveBalanceStrip();
