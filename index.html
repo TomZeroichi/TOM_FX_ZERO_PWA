@@ -10,13 +10,13 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.21">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.21" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.21">
-  <link rel="stylesheet" href="style.css?v=0.5.21">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.22">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.22" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.22">
+  <link rel="stylesheet" href="style.css?v=0.5.22">
 
   <style id="settings-tabs-style">
-    /* 0.5.21: 参考ツールに合わせた設定タブ・内部スクロール */
+    /* 0.5.22: 参考ツールに合わせた設定タブ・内部スクロール */
     .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
     .settings-tab-dialog .menu-head{flex:0 0 auto}
     .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
@@ -37,13 +37,16 @@
 </head>
 <body>
   <header>
-    <div class="header-row"><a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a><div class="header-actions"><span class="version">検証版 0.5.21</span><button id="openMenu" class="menu-button" type="button" aria-label="メニューを開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></div></div>
-    <div class="account-select-wrap">
-      <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
-      <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
-        <span id="accountConnectionLamp" class="account-connection-lamp" aria-hidden="true"></span>
-        <span id="accountConnectionAge">0秒</span>
-      </span>
+    <div class="header-row">
+      <a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a>
+      <div class="account-select-wrap">
+        <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
+        <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
+          <span id="accountConnectionLamp" class="account-connection-lamp" aria-hidden="true"></span>
+          <span id="accountConnectionAge">0秒</span>
+        </span>
+      </div>
+      <div class="header-actions"><span class="version">検証版 0.5.22</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
     </div>
   </header>
 
@@ -202,13 +205,37 @@
         <label><input type="radio" name="indicatorEntryMode" value="immediate"><span><strong>即時モード</strong><small>すぐ上下逆指値</small></span></label>
         <label><input type="radio" name="indicatorEntryMode" value="market"><span><strong>成行モード</strong><small>TP／SL付き両建て</small></span></label>
       </div>
-      <div class="indicator-fields">
+      <div id="indicatorOrderStyle" class="indicator-order-style" role="tablist" aria-label="予約注文方式">
+        <button type="button" class="is-active" data-indicator-order-style="trend" role="tab" aria-selected="true">順張り予約注文</button>
+        <button type="button" data-indicator-order-style="reverse" role="tab" aria-selected="false">逆張り4ライン</button>
+      </div>
+      <div id="indicatorTrendSettings" class="indicator-fields">
         <label><span>ロット</span><input id="indicatorVolume" type="number" min="0.01" step="0.01" value="0.10"></label>
         <label id="indicatorMarginField"><span>マージン（pips）</span><input id="indicatorMargin" type="number" min="0.1" step="0.1" value="10"></label>
         <label><span>SL（pips）</span><input id="indicatorSL" type="number" min="0" step="0.1" value="10"></label>
         <label><span>TP（pips）</span><input id="indicatorTP" type="number" min="0" step="0.1" value="20"></label>
         <div class="indicator-time indicator-reserve-fields" id="indicatorTimeField"><label>注文日<input id="indicatorDate" type="date" aria-label="注文日"></label><label class="time-select-field">目標時刻<div class="time-selects" aria-label="目標時刻（時・分・秒）"><select id="indicatorHour" aria-label="目標時刻・時"></select><span>:</span><select id="indicatorMinute" aria-label="目標時刻・分"></select><span>:</span><select id="indicatorSecond" aria-label="目標時刻・秒"></select></div></label></div>
       </div>
+      <section id="indicatorReverseSettings" class="indicator-reverse-settings" hidden aria-label="逆張り4ライン予約設定">
+        <div class="reverse-schedule"><label class="time-select-field">予約時間<div class="time-selects" aria-label="逆張り4ライン予約時間（時・分・秒）"><select id="reverseHour" aria-label="逆張り予約時間・時"></select><span>:</span><select id="reverseMinute" aria-label="逆張り予約時間・分"></select><span>:</span><select id="reverseSecond" aria-label="逆張り予約時間・秒"></select></div></label><label>タイムラグ<span class="step-input"><button type="button" class="stepper" data-step-input="reverseLag" data-step-direction="-1" aria-label="タイムラグを減らす">−</button><input id="reverseLag" type="number" inputmode="numeric" min="0" max="10" step="1" value="3"><button type="button" class="stepper" data-step-input="reverseLag" data-step-direction="1" aria-label="タイムラグを増やす">＋</button></span><small>秒</small></label></div>
+        <div class="reverse-fields">
+          <label>内側距離（S1・B1）<span class="step-input"><button type="button" class="stepper" data-step-input="reverseInnerDistance" data-step-direction="-1" aria-label="内側距離を減らす">−</button><input id="reverseInnerDistance" type="number" inputmode="decimal" min="0.1" step="0.1" value="20"><button type="button" class="stepper" data-step-input="reverseInnerDistance" data-step-direction="1" aria-label="内側距離を増やす">＋</button></span><small>pips</small></label>
+          <label>外側距離（S2・B2）<span class="step-input"><button type="button" class="stepper" data-step-input="reverseOuterDistance" data-step-direction="-1" aria-label="外側距離を減らす">−</button><input id="reverseOuterDistance" type="number" inputmode="decimal" min="0.1" step="0.1" value="40"><button type="button" class="stepper" data-step-input="reverseOuterDistance" data-step-direction="1" aria-label="外側距離を増やす">＋</button></span><small>pips</small></label>
+          <label>内側ロット（S1・B1）<span class="step-input"><button type="button" class="stepper" data-step-input="reverseInnerLots" data-step-direction="-1" aria-label="内側ロットを減らす">−</button><input id="reverseInnerLots" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"><button type="button" class="stepper" data-step-input="reverseInnerLots" data-step-direction="1" aria-label="内側ロットを増やす">＋</button></span><small>lot</small></label>
+          <label>外側ロット（S2・B2）<span class="step-input"><button type="button" class="stepper" data-step-input="reverseOuterLots" data-step-direction="-1" aria-label="外側ロットを減らす">−</button><input id="reverseOuterLots" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.20"><button type="button" class="stepper" data-step-input="reverseOuterLots" data-step-direction="1" aria-label="外側ロットを増やす">＋</button></span><small>lot</small></label>
+        </div>
+        <label class="reverse-individual-toggle"><span>個別ロット設定（S2 / S1 / B1 / B2）</span><input id="reverseIndividualLots" type="checkbox" role="switch" aria-label="個別ロット設定"></label>
+        <div id="reverseIndividualLotFields" class="reverse-individual-fields" hidden>
+          <label>S2 lot<input id="reverseLotS2" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.20"></label><label>S1 lot<input id="reverseLotS1" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"></label><label>B1 lot<input id="reverseLotB1" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"></label><label>B2 lot<input id="reverseLotB2" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.20"></label>
+        </div>
+        <div class="reverse-fields reverse-tp-sl">
+          <label>利確幅（TP）<span class="step-input"><button type="button" class="stepper" data-step-input="reverseTP" data-step-direction="-1" aria-label="TPを減らす">−</button><input id="reverseTP" type="number" inputmode="decimal" min="0" step="0.1" value="15"><button type="button" class="stepper" data-step-input="reverseTP" data-step-direction="1" aria-label="TPを増やす">＋</button></span><small>pips</small></label>
+          <label>損切幅（SL）<span class="step-input"><button type="button" class="stepper" data-step-input="reverseSL" data-step-direction="-1" aria-label="SLを減らす">−</button><input id="reverseSL" type="number" inputmode="decimal" min="0" step="0.1" value="20"><button type="button" class="stepper" data-step-input="reverseSL" data-step-direction="1" aria-label="SLを増やす">＋</button></span><small>pips</small></label>
+        </div>
+        <p class="reverse-note">S2／S1／B1／B2を同一サイクルで管理します。</p>
+        <button id="reverseReserve" type="button" class="primary">4ライン予約注文を設定</button>
+        <p class="small" id="reverseStatus" aria-live="polite"></p>
+      </section>
       <button id="indicatorReserve" type="button" class="primary">上下逆指値を予約</button>
       <button id="indicatorCancel" type="button" class="indicator-cancel">この銘柄の指標注文をキャンセル</button>
       <p class="small" id="indicatorStatus" aria-live="polite">未予約</p>
@@ -393,10 +420,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.21"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.21"></script>
-  <script src="app.js?v=0.5.21"></script>
-  <script src="pwa.js?v=0.5.21"></script>
+  <script src="calc.js?v=0.5.22"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.22"></script>
+  <script src="app.js?v=0.5.22"></script>
+  <script src="pwa.js?v=0.5.22"></script>
 
   <script>
     (() => {
