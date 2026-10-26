@@ -78,7 +78,7 @@
     });
   }else if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
     navigator.serviceWorker.addEventListener('controllerchange',()=>{
-      const reloadKey='tomFxPwaControllerReloaded_0.5.25';
+      const reloadKey='tomFxPwaControllerReloaded_0.5.26';
       if(sessionStorage.getItem(reloadKey)==='done')return;
       sessionStorage.setItem(reloadKey,'done');
       location.reload();
@@ -86,7 +86,7 @@
 
     window.addEventListener('load',async()=>{
       try{
-        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.5.25',{scope:'./'});
+        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.5.26',{scope:'./'});
         await registration.update();
         await navigator.serviceWorker.ready;
         if(navigator.serviceWorker.controller)showManualInstall();
