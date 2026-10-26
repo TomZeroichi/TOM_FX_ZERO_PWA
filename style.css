@@ -1465,3 +1465,12 @@ dialog:not([open]){display:none!important}
  header .header-row .account-select-wrap{width:100%;justify-self:stretch}
  .indicator-reverse-settings{padding-top:4px}
 }
+
+/* v0.5.23 最終優先：指標モードの切替時に非表示項目を再表示しない。 */
+@media(max-width:999px){
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorTrendSettings[hidden],
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorTimeField[hidden],
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorMarginField[hidden],
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorOrderStyle[hidden],
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorReverseSettings[hidden]{display:none!important}
+}
