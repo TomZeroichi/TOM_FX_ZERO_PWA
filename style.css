@@ -1215,7 +1215,7 @@ dialog:not([open]){display:none!important}
 }
 
 
-/* v0.5.27：指標設定はゴトー日設定と同じ暗色・中央揃え・コンパクトな操作面に統一。 */
+/* v0.5.28：指標設定はゴトー日設定と同じ暗色・中央揃え・コンパクトな操作面に統一。 */
 @media (max-width:999px){
   body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel{
     color:#dcecff!important;
@@ -1325,7 +1325,7 @@ dialog:not([open]){display:none!important}
 }
 
 
-/* v0.5.27：指標予約設定の±操作・予約時刻表示を統一。既存の注文展開・固定3ボタン・EA通信は保持する。 */
+/* v0.5.28：指標予約設定の±操作・予約時刻表示を統一。既存の注文展開・固定3ボタン・EA通信は保持する。 */
 .indicator-order-style{display:flex;gap:6px;margin:10px 0 0;padding:3px;border:1px solid #285e90;border-radius:10px;background:#061a30}
 .indicator-order-style[hidden],.indicator-reverse-settings[hidden]{display:none!important}
 .indicator-order-style button{flex:1;min-height:38px;padding:6px 8px;border:1px solid transparent;border-radius:8px;background:transparent;color:#dcecff;font-size:.78rem;font-weight:800}
@@ -1476,7 +1476,7 @@ dialog:not([open]){display:none!important}
  .indicator-reverse-settings{padding-top:4px}
 }
 
-/* v0.5.27 最終優先：指標モードの切替時に非表示項目を再表示しない。 */
+/* v0.5.28 最終優先：指標モードの切替時に非表示項目を再表示しない。 */
 @media(max-width:999px){
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorTrendSettings[hidden],
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorTimeField[hidden],
@@ -1495,3 +1495,9 @@ dialog:not([open]){display:none!important}
 #indicatorTimeField{grid-template-columns:1fr!important}
 #indicatorTimeField>label:first-child{display:none!important}
 #indicatorTimeField>.time-select-field{grid-column:1!important}
+#indicatorTimeField .time-selects,
+#indicatorReverseSettings .time-selects{grid-template-columns:48px 9px 48px 9px 48px!important;justify-content:center!important;gap:0!important;min-height:33px!important}
+#indicatorTimeField .time-selects select,
+#indicatorReverseSettings .time-selects select{width:48px!important;min-width:48px!important;height:33px!important;min-height:33px!important;padding:2px 0!important;text-align:center!important;font-size:.78rem!important}
+#indicatorTimeField .time-selects span,
+#indicatorReverseSettings .time-selects span{font-size:.78rem!important;text-align:center!important}
