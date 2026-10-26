@@ -545,6 +545,7 @@ function commandResultMessage(result){
   return `${platform}が注文を拒否しました`+(retcode?'（コード '+retcode+'）':'')+(description?'：'+description:`。${platform}側の結果を確認してください。`);
  }
  if(text.includes('type=indicator_order'))return result.status==='completed'?`${platform}にBuy Stop／Sell Stopを設置しました。片方が約定すると反対側を自動キャンセルします。`:'指標トレードの逆指値設置に失敗しました。'+(reason?'理由：'+reason:`${platform}の結果を確認してください。`);
+ if(text.includes('type=indicator_reverse_4line'))return result.status==='completed'?`${platform}にS2／S1／B1／B2の4ライン予約注文を設置しました。約定方向に応じて反対側を自動キャンセルします。`:'逆張り4ライン予約注文の設置に失敗しました。'+(reason?'理由：'+reason:`${platform}の結果を確認してください。`);
  if(text.includes('10027')||text.includes('auto trading disabled'))return `${platform}が決済を拒否しました：自動売買を有効にしてください。`;
  if(text.includes('succeeded=0'))return `${platform}は指示を受信しましたが、決済は0件でした。${platform}側の結果を確認してください。`;
  return result.status==='completed'?`${platform}で決済処理が完了しました。次の更新で結果を確認できます。`:`${platform}が決済指示を拒否しました。`;
@@ -557,6 +558,7 @@ function indicatorResultMessage(result){
  if(result.status==='completed'){
   if(text.includes('type=indicator_market_hedge'))return `${platform}でBUY／SELLの両建て成行注文が完了しました。ポジション一覧で損益とpipsを確認できます。`;
   if(text.includes('type=indicator_order'))return `${platform}にBuy Stop／Sell Stopを設置しました。片方が約定すると反対側を自動キャンセルします。`;
+  if(text.includes('type=indicator_reverse_4line'))return `${platform}にS2／S1／B1／B2の4ライン予約注文を設置しました。`;
   return '指標予約の処理が完了しました。次の更新で逆指値を確認できます。';
  }
  return `指標注文を${platform}が拒否しました。`+(reason?'理由：'+reason:'EA側の結果を確認してください。');
@@ -614,6 +616,7 @@ async function waitForCommandResult(commandId,key,kind='close'){
      if(status)status.textContent=result.status==='completed'?'再起動指示を受け付けました。VPSの復旧とMT4／MT5・EAの自動起動を待っています。':'VPS再起動の実行に失敗しました。VPS側のエージェントを確認してください。';
     }
     if(kind==='indicator')$('indicatorStatus').textContent=indicatorResultMessage(result);
+    else if(kind==='reverseIndicator')$('reverseStatus').textContent=indicatorResultMessage(result);
     else if(kind==='indicatorCancel')$('indicatorStatus').textContent=indicatorCancelResultMessage(result);
     else if(kind==='order')setOrderBusy(false);else if(kind==='nanpin')setNanpinBusy(false);else if(kind==='modify')setModifyBusy(false);else if(kind!=='vps')setCloseBusy(false);
     pollLive();
@@ -626,6 +629,7 @@ async function waitForCommandResult(commandId,key,kind='close'){
  }
  $('message').textContent=currentPlatform()+'の処理結果を確認できません。'+currentPlatform()+'のチャートと結果ファイルを確認してください。';
  if(kind==='indicator')$('indicatorStatus').textContent=currentPlatform()+'の処理結果を確認できません。EAの稼働状態を確認してください。';
+ else if(kind==='reverseIndicator')$('reverseStatus').textContent=currentPlatform()+'の4ライン設置結果を確認できません。EAの稼働状態を確認してください。';
  else if(kind==='order')setOrderBusy(false);else if(kind==='nanpin')setNanpinBusy(false);else if(kind==='vps'){vpsRestartInFlight=false;const status=$('vpsStatus');if(status)status.textContent='再起動指示の結果を確認できません。VPS側のエージェントとWindowsの状態を確認してください。';updateVpsUi();}else setCloseBusy(false);
 }
 
@@ -893,6 +897,21 @@ function chartPositionsFor(market){
   chartPositionLevel(position,'takeProfit')>0
  ));
 }
+function reverseChartLevelsForMarket(market){
+ const mode=selectedIndicatorEntryMode();
+ if(activeMode!=='indicator'||!market||selectedIndicatorOrderStyle()!=='reverse'||(mode!=='scheduled'&&mode!=='immediate')||String($('indicatorSymbol')?.value||'')!==String(market.symbol||''))return [];
+ const pip=pipSize(market.symbol,market),bid=Number(market.bid),ask=Number(market.ask);
+ const inner=Number($('reverseInnerDistance')?.value),outer=Number($('reverseOuterDistance')?.value);
+ if(!Number.isFinite(pip)||pip<=0||!Number.isFinite(bid)||!Number.isFinite(ask)||!Number.isFinite(inner)||inner<=0||!Number.isFinite(outer)||outer<=inner)return [];
+ const base=(bid+ask)/2;
+ return [
+  {reverse:true,key:'S2',side:'SELL',label:'S2 SELL LIMIT',color:'#3b82f6',value:base+outer*pip},
+  {reverse:true,key:'S1',side:'SELL',label:'S1 SELL LIMIT',color:'#3b82f6',value:base+inner*pip},
+  {reverse:true,key:'基準価格',side:'BASE',label:'基準価格',color:'#d7e5f3',value:base},
+  {reverse:true,key:'B1',side:'BUY',label:'B1 BUY LIMIT',color:'#ef4444',value:base-inner*pip},
+  {reverse:true,key:'B2',side:'BUY',label:'B2 BUY LIMIT',color:'#ef4444',value:base-outer*pip}
+ ].filter(level=>Number.isFinite(level.value)&&level.value>0);
+}
 function chartLevelIsApplied(position,key,value){
  const actual=Number(position?.[key]);
  return Number.isFinite(actual)&&Number.isFinite(value)&&Math.abs(actual-value)<=Math.max(pipSize(position?.symbol)*.05,0.00000001);
@@ -945,6 +964,10 @@ function renderChartLevelLabels(canvasId){
  const layout=chartLayouts.get(canvasId);
  if(!layout)return;
  for(const level of layout.levels||[]){
+  if(level.reverse){
+   const y=chartLevelCoordinate(layout,level);if(!Number.isFinite(y))continue;
+   const label=document.createElement('div');label.className='chart-level-label is-reverse '+(level.side==='SELL'?'is-reverse-sell':level.side==='BUY'?'is-reverse-buy':'is-reverse-base');label.textContent=level.label+' '+chartPrice(level.value,layout.market);label.style.top=y+'px';element.append(label);continue;
+  }
   const position=data.positions.find(item=>item.id===level.positionId),y=chartLevelCoordinate(layout,level);
   if(!position||!Number.isFinite(y))continue;
   const label=document.createElement('div');
@@ -1009,6 +1032,7 @@ function drawTradingViewChart(canvasId,host,empty,market,timeframe,bars){
     const value=chartPositionLevel(position,key);if(Number.isFinite(value)&&value>0)values.push({position,key,color,label,value});
    });
   });
+  values.push(...reverseChartLevelsForMarket(market));
   for(const level of values){
    const scaleSeries=addTradingViewLine(layout.chart,tv,{color:'rgba(0,0,0,0)',lineWidth:1,lineVisible:true,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false,priceFormat:{type:'price',precision:marketDigits(market),minMove:Math.pow(10,-marketDigits(market))}});
    if(scaleSeries){scaleSeries.setData([{time:firstTime,value:level.value},{time:lastTime,value:level.value}]);layout.scaleSeries.push(scaleSeries);}
@@ -1023,7 +1047,7 @@ function drawTradingViewChart(canvasId,host,empty,market,timeframe,bars){
    let priceLine=null;
    try{priceLine=layout.series.createPriceLine({price:level.value,color:level.color,lineWidth:2,lineStyle:LineStyle.Dashed??2,lineVisible:true,axisLabelVisible:false,title:''});}catch{}
    const y=layout.series.priceToCoordinate(level.value);
-   if(priceLine)layout.levels.push({positionId:level.position.id,key:level.key,value:level.value,y:Number.isFinite(y)?y:null,priceLine});
+   if(priceLine)layout.levels.push(level.reverse?{reverse:true,key:level.key,side:level.side,label:level.label,color:level.color,value:level.value,y:Number.isFinite(y)?y:null,priceLine}:{positionId:level.position.id,key:level.key,value:level.value,y:Number.isFinite(y)?y:null,priceLine});
   }
   empty.hidden=true;
   return true;
@@ -1041,7 +1065,7 @@ function drawCanvasChart(canvasId,empty,market,timeframe,bars){
  const availableBars=bars.slice(-Math.min(chartDisplayBars,bars.length));
  const visibleCount=Math.max(12,Math.round(availableBars.length/Math.max(1,chartZoom))),visibleBars=availableBars.slice(-visibleCount);
  const positions=chartPositionsFor(market);
- const levels=positions.flatMap(position=>[chartEntryPrice(position),chartPositionLevel(position,'stopLoss'),chartPositionLevel(position,'takeProfit')]).filter(value=>Number.isFinite(value)&&value>0);
+ const reverseLevels=reverseChartLevelsForMarket(market),levels=positions.flatMap(position=>[chartEntryPrice(position),chartPositionLevel(position,'stopLoss'),chartPositionLevel(position,'takeProfit')]).concat(reverseLevels.map(level=>level.value)).filter(value=>Number.isFinite(value)&&value>0);
  const low=Math.min(...visibleBars.map(bar=>bar.low),...(levels.length?levels:[Infinity])),high=Math.max(...visibleBars.map(bar=>bar.high),...(levels.length?levels:[-Infinity])),extra=Math.max((high-low)*.08,Math.abs(high)*.00002),min=low-extra,max=high+extra,range=max-min||1;
  const y=value=>pad.top+(max-value)/range*(h-pad.top-pad.bottom),area=w-pad.left-pad.right;
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#0a1d36';ctx.fillRect(0,0,w,h);
@@ -1068,6 +1092,7 @@ function drawCanvasChart(canvasId,empty,market,timeframe,bars){
    hitLevels.push({positionId:position.id,key,value,y:yy});
   });
  });
+ reverseLevels.forEach(level=>{const yy=y(level.value);chartLine(ctx,pad.left,yy,w-pad.right,yy,level.color,[6,4]);ctx.fillStyle=level.color;ctx.fillRect(w-pad.right-3,yy-2,6,4);hitLevels.push({...level,y:yy});});
  const last=visibleBars[visibleBars.length-1];chartLine(ctx,pad.left,y(last.close),w-pad.right,y(last.close),'#a5ddff',[4,3]);ctx.fillStyle='#c4ddf4';ctx.fillText(new Date(last.time*1000).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),pad.left,h-5);empty.hidden=true;
  canvas.style.setProperty('--chart-price-axis-width',priceScaleWidth+'px');
  chartLayouts.set(canvasId,{mode:'canvas',market,timeframe,canvasId,host:canvas,pad,w,h,min,max,range,y,valueAtY:yy=>max-(yy-pad.top)/(h-pad.top-pad.bottom)*range,levels:hitLevels,priceScaleWidth});
@@ -2032,7 +2057,7 @@ function beginChartDrag(event,canvasId){
  if(layout.mode==='tradingview'&&pointX>rect.width-(layout.priceScaleWidth||84))return;
  let target=null,distance=Infinity;
  for(const level of layout.levels){
-  if(level.key==='entry')continue;
+  if(level.reverse||level.key==='entry')continue;
   const y=chartLevelCoordinate(layout,level);if(!Number.isFinite(y))continue;
   const gap=Math.abs(y-pointY);if(gap<distance){distance=gap;target=level;}
  }
@@ -2118,6 +2143,7 @@ function saveReverseIndicatorSettings(){
  const values={...readReverseIndicatorSettings(),style:selectedIndicatorOrderStyle(),individualLots:Boolean($('reverseIndividualLots')?.checked)};
  reverseIndicatorSettingIds().forEach(id=>{const input=$(id);if(input)values[id]=input.value;});
  try{localStorage.setItem(profileSettingKey(INDICATOR_REVERSE_SETTINGS_KEY),JSON.stringify(values));}catch{}
+ if(typeof activeMode!=='undefined'&&activeMode==='indicator'){drawChart();if(!$('indicatorMarketPanel')?.hidden)updateIndicatorMarket();}
  return values;
 }
 function updateReverseIndividualLotFields(){
@@ -2147,10 +2173,7 @@ function setupReverseIndicatorSettings(){
  document.querySelectorAll('[data-indicator-order-style]').forEach(button=>button.onclick=()=>setIndicatorOrderStyle(button.dataset.indicatorOrderStyle));
  reverseIndicatorSettingIds().forEach(id=>$(id)?.addEventListener('input',saveReverseIndicatorSettings));
  $('reverseIndividualLots')?.addEventListener('change',()=>{updateReverseIndividualLotFields();saveReverseIndicatorSettings();});
- $('reverseReserve')?.addEventListener('click',()=>{
-  saveReverseIndicatorSettings();
-  $('reverseStatus').textContent='4ライン設定を端末に保存しました。実注文の送信はEA／API側の4ライン対応後に有効化します。';
- });
+ $('reverseReserve')?.addEventListener('click',reserveReverseIndicator);
 }
 function updateIndicatorEntryMode(){
  const mode=selectedIndicatorEntryMode(),scheduled=mode==='scheduled',immediate=mode==='immediate',market=mode==='market',orderMode=scheduled||immediate,reverse=orderMode&&selectedIndicatorOrderStyle()==='reverse';
@@ -2165,6 +2188,7 @@ function updateIndicatorEntryMode(){
  $('indicatorCancel').hidden=market;
  $('indicatorReserve').hidden=reverse;
  if(reverse){
+  $('reverseReserve').textContent=scheduled?'4ライン予約注文を登録':'4ライン予約注文を即時設置';
   $('indicatorStatus').textContent=scheduled?'逆張り4ラインの設定を確認してください。':'逆張り4ラインの設定を確認してください。即時モードでは予約時刻を使用しません。';
   return;
  }
@@ -2175,6 +2199,11 @@ function indicatorScheduledTime(){
  const date=$('indicatorDate').value,time=selectedClockTime('indicator');
  if(!date||!time)return null;
  const at=date+'T'+time,executeAt=Math.floor(new Date(at).getTime()/1000);
+ return Number.isFinite(executeAt)?{at,executeAt}:null;
+}
+function reverseScheduledTime(){
+ const time=selectedClockTime('reverse');if(!time)return null;
+ const today=new Date(),date=[today.getFullYear(),twoDigits(today.getMonth()+1),twoDigits(today.getDate())].join('-'),at=date+'T'+time,executeAt=Math.floor(new Date(at).getTime()/1000);
  return Number.isFinite(executeAt)?{at,executeAt}:null;
 }
 function readIndicatorPresets(){
@@ -2246,6 +2275,29 @@ function deleteIndicatorPreset(){
  if(!preset||!window.confirm('「'+preset.name+'」を削除しますか？'))return;
  writeIndicatorPresets(readIndicatorPresets().filter(item=>item.id!==preset.id));renderIndicatorPresets();
  $('indicatorPresetStatus').textContent='「'+preset.name+'」を削除しました。';
+}
+function reserveReverseIndicator(){
+ const mode=selectedIndicatorEntryMode(),scheduledAt=mode==='scheduled'?reverseScheduledTime():null,executeAt=scheduledAt?.executeAt||0;
+ const symbol=$('indicatorSymbol').value,innerDistance=Number($('reverseInnerDistance').value),outerDistance=Number($('reverseOuterDistance').value),innerLots=Number($('reverseInnerLots').value),outerLots=Number($('reverseOuterLots').value),individualLots=Boolean($('reverseIndividualLots').checked),lotS2=Number($('reverseLotS2').value),lotS1=Number($('reverseLotS1').value),lotB1=Number($('reverseLotB1').value),lotB2=Number($('reverseLotB2').value),takeProfitPips=Number($('reverseTP').value),stopLossPips=Number($('reverseSL').value);
+ const lots=individualLots?[lotS2,lotS1,lotB1,lotB2]:[innerLots,outerLots];
+ const validLot=value=>Number.isFinite(value)&&value>0&&value<=5;
+ if(!canSendLiveCommand()){ $('reverseStatus').textContent=currentPlatform()+'デモ口座へ接続してから注文してください。';return; }
+ if(!Number.isFinite(executeAt)||((mode==='scheduled')&&(executeAt<=Math.floor(Date.now()/1000)))||!Number.isFinite(innerDistance)||innerDistance<=0||!Number.isFinite(outerDistance)||outerDistance<=innerDistance||outerDistance>10000||!lots.every(validLot)||!Number.isFinite(takeProfitPips)||takeProfitPips<0||takeProfitPips>10000||!Number.isFinite(stopLossPips)||stopLossPips<0||stopLossPips>10000){
+  $('reverseStatus').textContent=mode==='scheduled'?'銘柄・距離・ロット・TP／SL・予約時刻を確認してください。':'銘柄・距離・ロット・TP／SLを確認してください。';return;
+ }
+ saveReverseIndicatorSettings();
+ const button=$('reverseReserve'),cycleId='r4'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+ button.disabled=true;button.textContent='注文を送信中…';$('reverseStatus').textContent=currentPlatform()+'へ4ライン注文を送信中…';
+ const payload={action:'indicator_reverse_4line',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume:innerLots,executeAt,cycleId,reverseInnerDistancePips:innerDistance,reverseOuterDistancePips:outerDistance,reverseInnerLots:innerLots,reverseOuterLots:outerLots,reverseIndividualLots:individualLots,reverseLotS2:lotS2,reverseLotS1:lotS1,reverseLotB1:lotB1,reverseLotB2:lotB2,reverseTP:takeProfitPips,reverseSL:stopLossPips};
+ fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+connectionKey(),'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(body=>{
+  if(mode==='scheduled'){
+   $('reverseStatus').textContent='4ライン予約をEAへ登録しました。'+scheduledAt.at.replace('T',' ')+' にS2／S1／B1／B2を設置します。';
+   if(executeAt-Math.floor(Date.now()/1000)<=30)waitForCommandResult(body.commandId,connectionKey(),'reverseIndicator');
+  }else{
+   $('reverseStatus').textContent='4ライン予約を'+currentPlatform()+'へ送信しました。結果を待っています。';
+   waitForCommandResult(body.commandId,connectionKey(),'reverseIndicator');
+  }
+ }).catch(err=>{$('reverseStatus').textContent='注文失敗：'+commandSendErrorMessage(err.message,'逆張り4ライン');}).finally(()=>{button.disabled=false;updateIndicatorEntryMode();});
 }
 function reserveIndicator(){
  const mode=selectedIndicatorEntryMode(),scheduledAt=mode==='scheduled'?indicatorScheduledTime():null,at=scheduledAt?.at||'',executeAt=scheduledAt?.executeAt,volume=Number($('indicatorVolume').value),marginPips=Number($('indicatorMargin').value),slPips=Number($('indicatorSL').value||0),tpPips=Number($('indicatorTP').value||0),symbol=$('indicatorSymbol').value;
