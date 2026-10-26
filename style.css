@@ -328,6 +328,10 @@ body[data-app-page="positions"][data-action-footer="visible"] main{margin-bottom
 .chart-level-label{position:absolute;left:8px;max-width:calc(100% - 16px);padding:3px 8px;border-radius:4px;color:#09203b;font-size:.75rem;font-weight:750;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 4px #06142555;transform:translateY(-50%)}
 .chart-level-label.is-sl{background:#ff7784}
 .chart-level-label.is-tp{background:#4de1c3}
+.chart-level-label.is-reverse{border:1px solid currentColor;background:#061a30;color:#fff;box-shadow:0 1px 5px #020a14aa;font-size:.68rem}
+.chart-level-label.is-reverse-sell{border-color:#3b82f6;color:#dbeafe}
+.chart-level-label.is-reverse-buy{border-color:#ef4444;color:#fee2e2}
+.chart-level-label.is-reverse-base{border-color:#d7e5f3;color:#061a30;background:#d7e5f3}
 .chart-timeframe-tap{position:absolute;top:8px;left:8px;z-index:6;min-width:42px;min-height:32px;padding:4px 9px;border:1px solid #6e9bc5;border-radius:7px;background:#102d50dd;color:#e2f0ff;font-size:.75rem;font-weight:800;line-height:1;backdrop-filter:blur(4px)}
 .chart-timeframe-tap:hover,.chart-timeframe-tap[aria-expanded="true"]{background:#f08a4b;border-color:#f08a4b;color:#1f160f}
 .chart-timeframe-picker{position:absolute;top:47px;left:8px;z-index:7;display:grid;grid-template-columns:repeat(3,minmax(48px,1fr));gap:5px;width:min(190px,calc(100% - 16px));padding:7px;border:1px solid #4779a6;border-radius:9px;background:#102d50ee;box-shadow:0 8px 18px #06142566;backdrop-filter:blur(7px)}
