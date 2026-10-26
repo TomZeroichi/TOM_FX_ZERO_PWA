@@ -1215,7 +1215,7 @@ dialog:not([open]){display:none!important}
 }
 
 
-/* v0.5.26：指標設定はゴトー日設定と同じ暗色・中央揃え・コンパクトな操作面に統一。 */
+/* v0.5.27：指標設定はゴトー日設定と同じ暗色・中央揃え・コンパクトな操作面に統一。 */
 @media (max-width:999px){
   body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel{
     color:#dcecff!important;
@@ -1325,7 +1325,7 @@ dialog:not([open]){display:none!important}
 }
 
 
-/* v0.5.26：指標予約設定の±操作・予約時刻表示を統一。既存の注文展開・固定3ボタン・EA通信は保持する。 */
+/* v0.5.27：指標予約設定の±操作・予約時刻表示を統一。既存の注文展開・固定3ボタン・EA通信は保持する。 */
 .indicator-order-style{display:flex;gap:6px;margin:10px 0 0;padding:3px;border:1px solid #285e90;border-radius:10px;background:#061a30}
 .indicator-order-style[hidden],.indicator-reverse-settings[hidden]{display:none!important}
 .indicator-order-style button{flex:1;min-height:38px;padding:6px 8px;border:1px solid transparent;border-radius:8px;background:transparent;color:#dcecff;font-size:.78rem;font-weight:800}
@@ -1349,6 +1349,11 @@ dialog:not([open]){display:none!important}
 .reverse-individual-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 .reverse-individual-fields label{display:grid;gap:3px;color:#aac4dc;font-size:.63rem;font-weight:700;text-align:center}
 .reverse-individual-fields input{width:100%;height:34px;min-width:0;padding:3px;border:1px solid #356188;border-radius:8px;background:#07192c;color:#e8f4ff;text-align:center;font-size:.72rem}
+.reverse-individual-fields .step-input{display:grid;grid-template-columns:22px minmax(0,1fr) 22px;align-items:stretch;height:33px;border:1px solid #356188;border-radius:8px;overflow:hidden;background:#07192c}
+.reverse-individual-fields .step-input .stepper{min-width:22px;min-height:31px;height:31px;padding:0;border:0;border-radius:0;background:#153b65;color:#e8f4ff;font-size:15px;font-weight:800;line-height:1}
+.reverse-individual-fields .step-input input{width:100%;min-width:0;height:31px;margin:0;padding:0 1px;border:0;border-radius:0;background:transparent;color:#e8f4ff;text-align:center;font-size:.72rem;font-variant-numeric:tabular-nums}
+.reverse-individual-fields .step-input .stepper:first-child{border-right:1px solid #356188}
+.reverse-individual-fields .step-input .stepper:last-child{border-left:1px solid #356188}
 .reverse-note{margin:0;color:#aac4dc;font-size:.62rem;line-height:1.35;text-align:center}
 #indicatorOrderPanel #reverseReserve{border-color:#18c7ff;background:linear-gradient(135deg,#1066e9,#118edc);box-shadow:0 0 13px #18c7ff55;color:#fff}
 #reverseStatus{min-height:1.2em;margin:0;color:#aac4dc;font-size:.62rem;line-height:1.35;text-align:center}
@@ -1366,7 +1371,8 @@ dialog:not([open]){display:none!important}
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-schedule{grid-template-columns:1fr!important;gap:5px!important;margin-top:0!important}
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-schedule>label{grid-column:1!important}
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-fields .step-input,
- body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input{
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-individual-fields .step-input{
    display:grid!important;
    grid-template-columns:22px minmax(0,1fr) 22px!important;
    align-items:stretch!important;
@@ -1378,7 +1384,8 @@ dialog:not([open]){display:none!important}
    background:#07192c!important;
  }
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-fields .step-input .stepper,
- body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input .stepper{
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input .stepper,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-individual-fields .step-input .stepper{
    min-width:22px!important;
    width:22px!important;
    min-height:31px!important;
@@ -1392,7 +1399,8 @@ dialog:not([open]){display:none!important}
    line-height:1!important;
  }
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-fields .step-input input,
- body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input input{
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input input,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-individual-fields .step-input input{
    width:100%!important;
    min-width:0!important;
    min-height:31px!important;
@@ -1408,9 +1416,11 @@ dialog:not([open]){display:none!important}
    font-variant-numeric:tabular-nums;
  }
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-fields .step-input .stepper:first-child,
- body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input .stepper:first-child{border-right:1px solid #356188!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input .stepper:first-child,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-individual-fields .step-input .stepper:first-child{border-right:1px solid #356188!important}
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-fields .step-input .stepper:last-child,
- body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input .stepper:last-child{border-left:1px solid #356188!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-fields .step-input .stepper:last-child,
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .reverse-individual-fields .step-input .stepper:last-child{border-left:1px solid #356188!important}
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .time-selects{
    grid-template-columns:48px 9px 48px 9px 48px!important;
    justify-content:center!important;
@@ -1466,7 +1476,7 @@ dialog:not([open]){display:none!important}
  .indicator-reverse-settings{padding-top:4px}
 }
 
-/* v0.5.26 最終優先：指標モードの切替時に非表示項目を再表示しない。 */
+/* v0.5.27 最終優先：指標モードの切替時に非表示項目を再表示しない。 */
 @media(max-width:999px){
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorTrendSettings[hidden],
  body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel #indicatorTimeField[hidden],
