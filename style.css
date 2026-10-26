@@ -1215,7 +1215,7 @@ dialog:not([open]){display:none!important}
 }
 
 
-/* v0.5.21：指標設定はゴトー日設定と同じ暗色・中央揃え・コンパクトな操作面に統一。 */
+/* v0.5.22：指標設定はゴトー日設定と同じ暗色・中央揃え・コンパクトな操作面に統一。 */
 @media (max-width:999px){
   body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel{
     color:#dcecff!important;
@@ -1322,4 +1322,66 @@ dialog:not([open]){display:none!important}
   body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-presets small{
     display:none!important;
   }
+}
+
+
+/* v0.5.22：指標4ライン予約 UI。既存の注文展開・固定3ボタン・EA通信は保持する。 */
+.indicator-order-style{display:flex;gap:6px;margin:10px 0 0;padding:3px;border:1px solid #285e90;border-radius:10px;background:#061a30}
+.indicator-order-style[hidden],.indicator-reverse-settings[hidden]{display:none!important}
+.indicator-order-style button{flex:1;min-height:38px;padding:6px 8px;border:1px solid transparent;border-radius:8px;background:transparent;color:#dcecff;font-size:.78rem;font-weight:800}
+.indicator-order-style button.is-active{border-color:#18c7ff;background:linear-gradient(135deg,#1066e9,#118edc);box-shadow:0 0 12px #18c7ff66;color:#fff}
+.indicator-reverse-settings{display:grid;gap:8px;margin-top:8px}
+.reverse-schedule,.reverse-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.reverse-schedule>label,.reverse-fields>label{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px;align-items:end;min-width:0;color:#aac4dc;font-size:.69rem;font-weight:750;text-align:center}
+.reverse-schedule>label:first-child{grid-column:1/-1}
+.reverse-schedule small,.reverse-fields small{grid-column:2;align-self:center;color:#aac4dc;font-size:.65rem}
+.reverse-schedule .time-selects{justify-content:center}
+.reverse-schedule .step-input,.reverse-fields .step-input{grid-column:1;display:flex;align-items:center;min-width:0;height:36px;border:1px solid #356188;border-radius:9px;overflow:hidden;background:#07192c}
+.reverse-schedule .step-input input,.reverse-fields .step-input input{min-width:0;flex:1;height:100%;padding:2px;border:0;background:transparent;color:#e8f4ff;text-align:center;font-size:.82rem;font-variant-numeric:tabular-nums}
+.reverse-schedule .stepper,.reverse-fields .stepper{flex:0 0 33px;width:33px;min-width:33px;min-height:34px;height:34px;padding:0;border:0;border-radius:0;background:#153b65;color:#e8f4ff;font-size:1.05rem;font-weight:800}
+.reverse-schedule .stepper:first-child,.reverse-fields .stepper:first-child{border-right:1px solid #356188}
+.reverse-schedule .stepper:last-child,.reverse-fields .stepper:last-child{border-left:1px solid #356188}
+.reverse-individual-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px;padding:6px 9px;border:1px solid #285e90;border-radius:9px;background:#082746;color:#dcecff;font-size:.7rem;font-weight:750}
+.reverse-individual-toggle input{accent-color:#19c7ff}
+.reverse-individual-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.reverse-individual-fields label{display:grid;gap:3px;color:#aac4dc;font-size:.63rem;font-weight:700;text-align:center}
+.reverse-individual-fields input{width:100%;height:34px;min-width:0;padding:3px;border:1px solid #356188;border-radius:8px;background:#07192c;color:#e8f4ff;text-align:center;font-size:.72rem}
+.reverse-note{margin:0;color:#aac4dc;font-size:.62rem;line-height:1.35;text-align:center}
+#indicatorOrderPanel #reverseReserve{border-color:#18c7ff;background:linear-gradient(135deg,#1066e9,#118edc);box-shadow:0 0 13px #18c7ff55;color:#fff}
+#reverseStatus{min-height:1.2em;margin:0;color:#aac4dc;font-size:.62rem;line-height:1.35;text-align:center}
+
+@media(max-width:999px){
+ body[data-app-page="home"] header{max-width:none;margin:0;padding:10px 14px 9px;border-color:#1d76ad;background:linear-gradient(115deg,#06162c,#0b2747)}
+ body[data-app-page="home"] header .header-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px}
+ body[data-app-page="home"] .brand{font-size:1.23rem;color:#f4f9ff;letter-spacing:-.7px}
+ body[data-app-page="home"] .brand b{color:#21bdf4;text-shadow:0 0 9px #19c7ff55}
+ body[data-app-page="home"] .brand span{font-size:.61rem;letter-spacing:1.5px}
+ body[data-app-page="home"] .header-row .account-select-wrap{width:100%;min-width:0}
+ body[data-app-page="home"] .header-account{height:38px;min-height:38px;padding:6px 60px 6px 8px;border-color:#2876ad;border-radius:9px;background:#0a213c;color:#eaf5ff;font-size:.69rem}
+ body[data-app-page="home"] .account-connection-status{right:23px;color:#dcecff;font-size:.62rem}
+ body[data-app-page="home"] .account-connection-lamp{width:10px;height:10px}
+ body[data-app-page="home"] .header-actions .version{display:none}
+ body[data-app-page="home"] .menu-button{width:38px;height:38px;min-height:38px;border-color:#2876ad;border-radius:9px;background:#0b2948}
+ body[data-app-page="home"] .menu-button span{width:19px;background:#dcecff}
+ body[data-app-page="home"] .trade-quickbar{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:7px;margin:10px 0 8px}
+ body[data-app-page="home"] .account-metrics{grid-column:1}
+ body[data-app-page="home"] .mode-switch{grid-column:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0}
+ body[data-app-page="home"] .equity-details{border-color:#28699b;border-radius:10px;background:#09213b}
+ body[data-app-page="home"] .equity-details>summary{min-height:42px;padding:6px 9px;color:#a9c5de;font-size:.68rem}
+ body[data-app-page="home"] .equity-details>summary strong{color:#f2f8ff;font-size:.94rem}
+ body[data-app-page="home"] .mode-switch button{min-height:42px;padding:6px 4px;border-color:#28699b;border-radius:10px;background:#09213b;color:#dcecff;font-size:.72rem;font-weight:800}
+ body[data-app-page="home"] .mode-switch button.is-active{border-color:#18c7ff;background:linear-gradient(135deg,#1066e9,#118edc);box-shadow:0 0 12px #18c7ff55;color:#fff}
+ body[data-app-page="home"] #marketPanel>.goto-order-tabs button.is-active{border-color:#18c7ff!important;background:linear-gradient(135deg,#1066e9,#118edc)!important;box-shadow:0 0 11px #18c7ff55;color:#fff!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel{padding:0!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-order-style{margin:0 0 7px!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-reverse-settings{margin:0!important;padding:0!important;background:transparent!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-reverse-settings .primary{border-color:#18c7ff!important;background:linear-gradient(135deg,#1066e9,#118edc)!important;color:#fff!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel .indicator-presets{display:none!important}
+ body[data-app-page="home"] #marketPanel>.goto-order-stage>.indicator-order-panel[data-order-style="reverse"] #indicatorStatus{display:none!important}
+}
+@media(min-width:1000px){
+ header{display:block;max-width:1440px}
+ header .header-row{display:grid;grid-template-columns:auto minmax(300px,430px) auto;justify-content:stretch}
+ header .header-row .account-select-wrap{width:100%;justify-self:stretch}
+ .indicator-reverse-settings{padding-top:4px}
 }
