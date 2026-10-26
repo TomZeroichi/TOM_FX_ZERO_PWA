@@ -10,13 +10,13 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.26">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.26" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.26">
-  <link rel="stylesheet" href="style.css?v=0.5.26">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.27">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.27" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.27">
+  <link rel="stylesheet" href="style.css?v=0.5.27">
 
   <style id="settings-tabs-style">
-    /* 0.5.26: 指標予約設定の±操作・予約時刻表示を統一 */
+    /* 0.5.27: 指標予約設定の±操作・予約時刻表示を統一 */
     .settings-tab-dialog{width:min(94vw,760px);max-width:760px;height:min(90dvh,720px);max-height:calc(100dvh - 24px);padding:0;overflow:hidden;display:flex;flex-direction:column}
     .settings-tab-dialog .menu-head{flex:0 0 auto}
     .settings-tabs{display:flex;flex:0 0 auto;gap:6px;overflow-x:auto;padding:10px 14px 8px;border-bottom:1px solid var(--theme-border,#245985);background:var(--theme-panel-2,#061a30);scrollbar-width:none;overscroll-behavior-x:contain}
@@ -46,7 +46,7 @@
           <span id="accountConnectionAge">0秒</span>
         </span>
       </div>
-      <div class="header-actions"><span class="version">検証版 0.5.26</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
+      <div class="header-actions"><span class="version">検証版 0.5.27</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
     </div>
   </header>
 
@@ -225,7 +225,7 @@
         </div>
         <label class="reverse-individual-toggle"><span>個別ロット設定（S2 / S1 / B1 / B2）</span><input id="reverseIndividualLots" type="checkbox" role="switch" aria-label="個別ロット設定"></label>
         <div id="reverseIndividualLotFields" class="reverse-individual-fields" hidden>
-          <label>S2 lot<input id="reverseLotS2" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.20"></label><label>S1 lot<input id="reverseLotS1" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"></label><label>B1 lot<input id="reverseLotB1" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"></label><label>B2 lot<input id="reverseLotB2" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.20"></label>
+          <label>S2 lot<span class="step-input"><button type="button" class="stepper" data-step-input="reverseLotS2" data-step-direction="-1" aria-label="S2ロットを減らす">−</button><input id="reverseLotS2" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.20"><button type="button" class="stepper" data-step-input="reverseLotS2" data-step-direction="1" aria-label="S2ロットを増やす">＋</button></span></label><label>S1 lot<span class="step-input"><button type="button" class="stepper" data-step-input="reverseLotS1" data-step-direction="-1" aria-label="S1ロットを減らす">−</button><input id="reverseLotS1" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"><button type="button" class="stepper" data-step-input="reverseLotS1" data-step-direction="1" aria-label="S1ロットを増やす">＋</button></span></label><label>B1 lot<span class="step-input"><button type="button" class="stepper" data-step-input="reverseLotB1" data-step-direction="-1" aria-label="B1ロットを減らす">−</button><input id="reverseLotB1" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"><button type="button" class="stepper" data-step-input="reverseLotB1" data-step-direction="1" aria-label="B1ロットを増やす">＋</button></span></label><label>B2 lot<span class="step-input"><button type="button" class="stepper" data-step-input="reverseLotB2" data-step-direction="-1" aria-label="B2ロットを減らす">−</button><input id="reverseLotB2" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.20"><button type="button" class="stepper" data-step-input="reverseLotB2" data-step-direction="1" aria-label="B2ロットを増やす">＋</button></span></label>
         </div>
         <div class="reverse-fields reverse-tp-sl">
           <label>利確幅（TP）<span class="step-input"><button type="button" class="stepper" data-step-input="reverseTP" data-step-direction="-1" aria-label="TPを減らす">−</button><input id="reverseTP" type="number" inputmode="decimal" min="0" step="0.1" value="15"><button type="button" class="stepper" data-step-input="reverseTP" data-step-direction="1" aria-label="TPを増やす">＋</button></span><small>pips</small></label>
@@ -420,10 +420,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.26"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.26"></script>
-  <script src="app.js?v=0.5.26"></script>
-  <script src="pwa.js?v=0.5.26"></script>
+  <script src="calc.js?v=0.5.27"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.27"></script>
+  <script src="app.js?v=0.5.27"></script>
+  <script src="pwa.js?v=0.5.27"></script>
 
   <script>
     (() => {
