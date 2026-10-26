@@ -2112,9 +2112,10 @@ function selectedIndicatorOrderStyle(){return document.querySelector('[data-indi
 function readReverseIndicatorSettings(){
  try{const stored=JSON.parse(localStorage.getItem(profileSettingKey(INDICATOR_REVERSE_SETTINGS_KEY))||'{}');return stored&&typeof stored==='object'?stored:{};}catch{return {};}
 }
-function reverseIndicatorSettingIds(){return ['reverseLag','reverseInnerDistance','reverseOuterDistance','reverseInnerLots','reverseOuterLots','reverseTP','reverseSL','reverseLotS2','reverseLotS1','reverseLotB1','reverseLotB2'];}
+function reverseIndicatorSettingIds(){return ['reverseInnerDistance','reverseOuterDistance','reverseInnerLots','reverseOuterLots','reverseTP','reverseSL','reverseLotS2','reverseLotS1','reverseLotB1','reverseLotB2'];}
 function saveReverseIndicatorSettings(){
- const values={style:selectedIndicatorOrderStyle(),individualLots:Boolean($('reverseIndividualLots')?.checked)};
+ // 旧版で保存済みのreverseLagは消さずに保持するが、現在のUI・注文設定では使用しない。
+ const values={...readReverseIndicatorSettings(),style:selectedIndicatorOrderStyle(),individualLots:Boolean($('reverseIndividualLots')?.checked)};
  reverseIndicatorSettingIds().forEach(id=>{const input=$(id);if(input)values[id]=input.value;});
  try{localStorage.setItem(profileSettingKey(INDICATOR_REVERSE_SETTINGS_KEY),JSON.stringify(values));}catch{}
  return values;
