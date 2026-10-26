@@ -1682,18 +1682,18 @@ function openOrderConfirm(side){
 
 function openReserveConfirm(side){
  if(orderInFlight||!canCreateOrder())return;
- const nowDate=new Date(),date=[nowDate.getFullYear(),String(nowDate.getMonth()+1).padStart(2,'0'),String(nowDate.getDate()).padStart(2,'0')].join('-'),time=selectedClockTime('reserve'),lead=Number($('reserveLead').value);
+ const nowDate=new Date(),date=[nowDate.getFullYear(),String(nowDate.getMonth()+1).padStart(2,'0'),String(nowDate.getDate()).padStart(2,'0')].join('-'),time=selectedClockTime('reserve'),lead=0;
  const volume=Number($('orderVolume').value),slPips=Number($('orderStopLoss').value||0),tpPips=Number($('orderTakeProfit').value||0);
  const target=new Date(date+'T'+time);
- if(!/^\d{2}:\d{2}:\d{2}$/.test(time)||!Number.isFinite(target.getTime())||!Number.isInteger(lead)||lead<0||lead>10){$('message').textContent='予約時間・タイムラグを確認してください。';return;}
- const executeAt=Math.floor(target.getTime()/1000)-lead,now=Math.floor(Date.now()/1000);
+ if(!/^\d{2}:\d{2}:\d{2}$/.test(time)||!Number.isFinite(target.getTime())){$('message').textContent='予約時刻を確認してください。';return;}
+ const executeAt=Math.floor(target.getTime()/1000),now=Math.floor(Date.now()/1000);
  if(executeAt<=now){$('message').textContent='予約時刻は現在より後に設定してください。';return;}
  const market=selectedMarket();
  if(!market||!Number.isFinite(volume)||volume<=0||!Number.isFinite(slPips)||slPips<0||!Number.isFinite(tpPips)||tpPips<0){$('message').textContent='ロット・SL・TP（pips）の入力内容を確認してください。';return;}
  const levels=levelsFromPips(side,slPips,tpPips,market);
  pendingOrder={side,volume,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit,slPips,tpPips,scheduled:true,executeAt,targetAt:Math.floor(target.getTime()/1000),lead,symbol:market.symbol};
  $('orderConfirmTitle').textContent='ゴトー日 予約エントリー '+side;
- $('orderConfirmText').textContent=market.symbol+' / '+volume+' lot / 目標 '+target.toLocaleString('ja-JP')+' / EA実行 '+new Date(executeAt*1000).toLocaleTimeString('ja-JP')+'（タイムラグ '+lead+'秒） / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
+ $('orderConfirmText').textContent=market.symbol+' / '+volume+' lot / 予約時刻 '+target.toLocaleString('ja-JP')+' / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
  $('orderConfirmNote').textContent='予約をEAへ登録します。指定時刻に'+currentPlatform()+'側でデモ成行注文を実行します。約定価格基準でSL／TPを自動設定し、到達時に自動決済します。';
  $('orderExecute').textContent='予約を登録';
  $('orderConfirm').showModal();
@@ -2153,18 +2153,19 @@ function setupReverseIndicatorSettings(){
  });
 }
 function updateIndicatorEntryMode(){
- const mode=selectedIndicatorEntryMode(),scheduled=mode==='scheduled',market=mode==='market',reverse=scheduled&&selectedIndicatorOrderStyle()==='reverse';
+ const mode=selectedIndicatorEntryMode(),scheduled=mode==='scheduled',immediate=mode==='immediate',market=mode==='market',orderMode=scheduled||immediate,reverse=orderMode&&selectedIndicatorOrderStyle()==='reverse';
  const panel=$('indicatorOrderPanel');if(panel){panel.dataset.entryMode=mode;panel.dataset.orderStyle=reverse?'reverse':'trend';}
  const style=$('indicatorOrderStyle'),trend=$('indicatorTrendSettings'),reverseSettings=$('indicatorReverseSettings');
- if(style)style.hidden=!scheduled;
+ if(style)style.hidden=!orderMode;
  if(trend)trend.hidden=reverse;
  if(reverseSettings)reverseSettings.hidden=!reverse;
  $('indicatorTimeField').hidden=!scheduled;
+ $('reverseTimeField').hidden=!scheduled;
  $('indicatorMarginField').hidden=market;
  $('indicatorCancel').hidden=market;
  $('indicatorReserve').hidden=reverse;
  if(reverse){
-  $('indicatorStatus').textContent='逆張り4ラインの設定を確認してください。';
+  $('indicatorStatus').textContent=scheduled?'逆張り4ラインの設定を確認してください。':'逆張り4ラインの設定を確認してください。即時モードでは予約時刻を使用しません。';
   return;
  }
  $('indicatorReserve').textContent=scheduled?'上下逆指値を予約':market?'両建て成行注文を送信':'上下逆指値を即時設置';
