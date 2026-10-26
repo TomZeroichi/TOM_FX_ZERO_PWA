@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME='tom-fx-zero-shell-0.5.24';
+const CACHE_NAME='tom-fx-zero-shell-0.5.25';
 const APP_SHELL=[
   './',
   './index.html',
@@ -9,7 +9,7 @@ const APP_SHELL=[
   './app.js',
   './pwa.js',
   './manifest.webmanifest',
-  './icons/app-icon.svg?v=0.5.24'
+  './icons/app-icon.svg?v=0.5.25'
 ];
 
 self.addEventListener('install',event=>{
