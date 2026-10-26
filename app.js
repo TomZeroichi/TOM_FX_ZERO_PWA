@@ -52,6 +52,7 @@ const ORDER_VOLUME_KEY='tomFxZeroOrderVolumeV1';
 const WEEKEND_BTC_TEST_KEY='tomFxZeroWeekendBtcTestV1';
 const LOT_CALCULATOR_KEY='tomFxZeroLotCalculatorV1';
 const INDICATOR_PRESETS_KEY='tomFxZeroIndicatorPresetsV1';
+const INDICATOR_REVERSE_SETTINGS_KEY='tomFxZeroIndicatorReverseSettingsV1';
 const LIVE_SNAPSHOT_KEY='tomFxZeroLiveSnapshotV1';
 const THEME_KEY='tomFxZeroThemeV1';
 const CHART_DISPLAY_BARS_KEY='tomFxZeroChartDisplayBarsV1';
@@ -2107,12 +2108,64 @@ function setupChartInteractions(){
 
 $('symbol').onchange=()=>{selected.clear();render();};
 function selectedIndicatorEntryMode(){return document.querySelector('input[name="indicatorEntryMode"]:checked')?.value||'scheduled';}
+function selectedIndicatorOrderStyle(){return document.querySelector('[data-indicator-order-style].is-active')?.dataset.indicatorOrderStyle||'trend';}
+function readReverseIndicatorSettings(){
+ try{const stored=JSON.parse(localStorage.getItem(profileSettingKey(INDICATOR_REVERSE_SETTINGS_KEY))||'{}');return stored&&typeof stored==='object'?stored:{};}catch{return {};}
+}
+function reverseIndicatorSettingIds(){return ['reverseLag','reverseInnerDistance','reverseOuterDistance','reverseInnerLots','reverseOuterLots','reverseTP','reverseSL','reverseLotS2','reverseLotS1','reverseLotB1','reverseLotB2'];}
+function saveReverseIndicatorSettings(){
+ const values={style:selectedIndicatorOrderStyle(),individualLots:Boolean($('reverseIndividualLots')?.checked)};
+ reverseIndicatorSettingIds().forEach(id=>{const input=$(id);if(input)values[id]=input.value;});
+ try{localStorage.setItem(profileSettingKey(INDICATOR_REVERSE_SETTINGS_KEY),JSON.stringify(values));}catch{}
+ return values;
+}
+function updateReverseIndividualLotFields(){
+ const enabled=Boolean($('reverseIndividualLots')?.checked),fields=$('reverseIndividualLotFields');
+ if(fields)fields.hidden=!enabled;
+}
+function applyReverseIndicatorSettings(){
+ const values=readReverseIndicatorSettings();
+ reverseIndicatorSettingIds().forEach(id=>{if(values[id]!==undefined&&$(id))$(id).value=values[id];});
+ if($('reverseIndividualLots'))$('reverseIndividualLots').checked=Boolean(values.individualLots);
+ updateReverseIndividualLotFields();
+ setIndicatorOrderStyle(values.style==='reverse'?'reverse':'trend',false);
+}
+function setIndicatorOrderStyle(style,save=true){
+ const selected=style==='reverse'?'reverse':'trend';
+ document.querySelectorAll('[data-indicator-order-style]').forEach(button=>{
+  const active=button.dataset.indicatorOrderStyle===selected;
+  button.classList.toggle('is-active',active);
+  button.setAttribute('aria-selected',active?'true':'false');
+ });
+ if(save)saveReverseIndicatorSettings();
+ updateIndicatorEntryMode();
+ requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+}
+function setupReverseIndicatorSettings(){
+ applyReverseIndicatorSettings();
+ document.querySelectorAll('[data-indicator-order-style]').forEach(button=>button.onclick=()=>setIndicatorOrderStyle(button.dataset.indicatorOrderStyle));
+ reverseIndicatorSettingIds().forEach(id=>$(id)?.addEventListener('input',saveReverseIndicatorSettings));
+ $('reverseIndividualLots')?.addEventListener('change',()=>{updateReverseIndividualLotFields();saveReverseIndicatorSettings();});
+ $('reverseReserve')?.addEventListener('click',()=>{
+  saveReverseIndicatorSettings();
+  $('reverseStatus').textContent='4ライン設定を端末に保存しました。実注文の送信はEA／API側の4ライン対応後に有効化します。';
+ });
+}
 function updateIndicatorEntryMode(){
- const mode=selectedIndicatorEntryMode(),scheduled=mode==='scheduled',market=mode==='market';
- const panel=$('indicatorOrderPanel');if(panel)panel.dataset.entryMode=mode;
+ const mode=selectedIndicatorEntryMode(),scheduled=mode==='scheduled',market=mode==='market',reverse=scheduled&&selectedIndicatorOrderStyle()==='reverse';
+ const panel=$('indicatorOrderPanel');if(panel){panel.dataset.entryMode=mode;panel.dataset.orderStyle=reverse?'reverse':'trend';}
+ const style=$('indicatorOrderStyle'),trend=$('indicatorTrendSettings'),reverseSettings=$('indicatorReverseSettings');
+ if(style)style.hidden=!scheduled;
+ if(trend)trend.hidden=reverse;
+ if(reverseSettings)reverseSettings.hidden=!reverse;
  $('indicatorTimeField').hidden=!scheduled;
  $('indicatorMarginField').hidden=market;
  $('indicatorCancel').hidden=market;
+ $('indicatorReserve').hidden=reverse;
+ if(reverse){
+  $('indicatorStatus').textContent='逆張り4ラインの設定を確認してください。';
+  return;
+ }
  $('indicatorReserve').textContent=scheduled?'上下逆指値を予約':market?'両建て成行注文を送信':'上下逆指値を即時設置';
  $('indicatorStatus').textContent=scheduled?'予約時刻は秒まで指定できます。':market?'BUY／SELLを同時に成行注文します。TP／SLはそれぞれの約定価格からpipsで設定します。':'現在の'+currentPlatform()+'価格を基準に、すぐBuy Stop／Sell Stopを設置します。';
 }
@@ -2328,7 +2381,9 @@ const reserveDate=$('reserveDate');if(reserveDate)reserveDate.value=todayText;
 $('indicatorDate').value=todayText;
 setupClockSelects('reserve',9,54,59);
 setupClockSelects('indicator',today.getHours(),today.getMinutes(),today.getSeconds());
+setupClockSelects('reverse',today.getHours(),today.getMinutes(),today.getSeconds());
 renderIndicatorPresets();
+setupReverseIndicatorSettings();
 loadOrderVolume();
 loadNanpinSettings();
 updateNanpinToggleState();
