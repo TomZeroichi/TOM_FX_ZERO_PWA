@@ -10,10 +10,10 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.33">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.33" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.33">
-  <link rel="stylesheet" href="style.css?v=0.5.33">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.34">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.34" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.34">
+  <link rel="stylesheet" href="style.css?v=0.5.34">
 
   <style id="settings-tabs-style">
     /* 0.5.33: モード切替を横並び・低い高さへ固定 */
@@ -46,7 +46,7 @@
           <span id="accountConnectionAge">0秒</span>
         </span>
       </div>
-      <div class="header-actions"><span class="version">検証版 0.5.33</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
+      <div class="header-actions"><span class="version">検証版 0.5.34</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
     </div>
   </header>
 
@@ -239,10 +239,6 @@
       <button id="indicatorReserve" type="button" class="primary">上下逆指値を予約</button>
       <button id="indicatorCancel" type="button" class="indicator-cancel">この銘柄の指標注文をキャンセル</button>
       <p class="small" id="indicatorStatus" aria-live="polite">未予約</p>
-      <details class="indicator-presets" id="indicatorPresetDetails">
-        <summary><span><strong id="indicatorPresetTitle">指標プリセット</strong><small>銘柄・ロット・マージン・SL／TP・モード・時刻を保存</small></span><b>開く</b></summary>
-        <div class="indicator-preset-body"><label><span>プリセット</span><select id="indicatorPreset" aria-label="指標プリセット"></select></label><div class="indicator-preset-actions"><button id="indicatorPresetSave" type="button">保存／更新</button><button id="indicatorPresetDuplicate" type="button">複製</button><button id="indicatorPresetDelete" type="button">削除</button></div><p id="indicatorPresetStatus" class="small" aria-live="polite">「＋ 新規プリセット」で米CPIなどの設定を保存できます。</p></div>
-      </details>
       </section>
       </div>
     </section>
@@ -303,6 +299,10 @@
     <div class="menu-actions settings-scroll" id="settingsContent">
       <section id="settingsPanelTrade" class="settings-panel" data-settings-panel="trade" role="tabpanel" aria-labelledby="settingsTabTrade">
         <button id="openLotCalculator" type="button" class="menu-item"><span>ロット計算ツール</span><small>注文・ナンピン・指標へ反映</small></button>
+        <details class="indicator-presets settings-indicator-presets" id="indicatorPresetDetails">
+          <summary><span><strong id="indicatorPresetTitle">指標プリセット</strong><small>指標モードの銘柄・ロット・距離・SL／TP・方式・予約時刻を保存</small></span><b>開く</b></summary>
+          <div class="indicator-preset-body"><label><span>プリセット</span><select id="indicatorPreset" aria-label="指標プリセット"></select></label><div class="indicator-preset-actions"><button id="indicatorPresetSave" type="button">保存／更新</button><button id="indicatorPresetDuplicate" type="button">複製</button><button id="indicatorPresetDelete" type="button">削除</button></div><p id="indicatorPresetStatus" class="small" aria-live="polite">「＋ 新規プリセット」で米CPIなどの設定を保存できます。</p></div>
+        </details>
       </section>
       <section id="settingsPanelChart" class="settings-panel" data-settings-panel="chart" role="tabpanel" aria-labelledby="settingsTabChart" hidden>
         <button id="openChartSettings" type="button" class="menu-item"><span>チャート設定</span><small>表示本数・初期位置</small></button>
@@ -420,10 +420,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.33"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.33"></script>
-  <script src="app.js?v=0.5.33"></script>
-  <script src="pwa.js?v=0.5.33"></script>
+  <script src="calc.js?v=0.5.34"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.34"></script>
+  <script src="app.js?v=0.5.34"></script>
+  <script src="pwa.js?v=0.5.34"></script>
 
   <script>
     (() => {
