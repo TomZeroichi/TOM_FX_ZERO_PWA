@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="76" fill="#071a38"/>
   <!-- 右下は4本の上昇バー。文字はアイコン全体の中心に固定する。 -->
-  <g fill="#f47721">
+  <g fill="#21bdf4">
     <rect x="344" y="426" width="25" height="42" rx="8"/>
     <rect x="378" y="407" width="25" height="61" rx="8"/>
     <rect x="412" y="374" width="25" height="94" rx="8"/>
@@ -9,7 +9,7 @@
   </g>
   <g text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800">
     <text x="248" y="213" font-size="78" letter-spacing="-3" fill="#ffffff">TOM</text>
-    <text x="248" y="309" font-size="100" letter-spacing="-5" fill="#f47721">FX</text>
+    <text x="248" y="309" font-size="100" letter-spacing="-5" fill="#21bdf4">FX</text>
     <text x="248" y="398" font-size="67" letter-spacing="-1" fill="#ffffff">ZERO</text>
   </g>
 </svg>
