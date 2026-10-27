@@ -10,10 +10,10 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.34">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.34" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.34">
-  <link rel="stylesheet" href="style.css?v=0.5.34">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.35">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.35" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.35">
+  <link rel="stylesheet" href="style.css?v=0.5.35">
 
   <style id="settings-tabs-style">
     /* 0.5.33: モード切替を横並び・低い高さへ固定 */
@@ -46,7 +46,7 @@
           <span id="accountConnectionAge">0秒</span>
         </span>
       </div>
-      <div class="header-actions"><span class="version">検証版 0.5.34</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
+      <div class="header-actions"><span class="version">検証版 0.5.35</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
     </div>
   </header>
 
@@ -301,7 +301,29 @@
         <button id="openLotCalculator" type="button" class="menu-item"><span>ロット計算ツール</span><small>注文・ナンピン・指標へ反映</small></button>
         <details class="indicator-presets settings-indicator-presets" id="indicatorPresetDetails">
           <summary><span><strong id="indicatorPresetTitle">指標プリセット</strong><small>指標モードの銘柄・ロット・距離・SL／TP・方式・予約時刻を保存</small></span><b>開く</b></summary>
-          <div class="indicator-preset-body"><label><span>プリセット</span><select id="indicatorPreset" aria-label="指標プリセット"></select></label><div class="indicator-preset-actions"><button id="indicatorPresetSave" type="button">保存／更新</button><button id="indicatorPresetDuplicate" type="button">複製</button><button id="indicatorPresetDelete" type="button">削除</button></div><p id="indicatorPresetStatus" class="small" aria-live="polite">「＋ 新規プリセット」で米CPIなどの設定を保存できます。</p></div>
+          <div class="indicator-preset-body">
+            <label><span>保存先プリセット</span><select id="indicatorPreset" aria-label="指標プリセット"></select></label>
+            <div class="indicator-preset-config" aria-label="指標プリセット設定">
+              <label><span>銘柄</span><select id="indicatorPresetSymbol" aria-label="プリセット銘柄"><option value="USDJPYz">USDJPYz</option><option value="EURJPYz">EURJPYz</option><option value="XAUUSDz">XAUUSDz</option></select></label>
+              <label><span>注文モード</span><select id="indicatorPresetEntryMode" aria-label="プリセット注文モード"><option value="scheduled">予約</option><option value="immediate">即時</option><option value="market">成行</option></select></label>
+              <label><span>方式</span><select id="indicatorPresetOrderStyle" aria-label="プリセット注文方式"><option value="trend">順張り</option><option value="reverse">逆張り4ライン</option></select></label>
+              <label><span>ロット</span><input id="indicatorPresetVolume" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"></label>
+              <label><span>Margin（距離）</span><input id="indicatorPresetMargin" type="number" inputmode="decimal" min="0.1" step="0.1" value="10"></label>
+              <label><span>SL（pips）</span><input id="indicatorPresetSL" type="number" inputmode="decimal" min="0" step="0.1" value="10"></label>
+              <label><span>TP（pips）</span><input id="indicatorPresetTP" type="number" inputmode="decimal" min="0" step="0.1" value="20"></label>
+              <label class="indicator-preset-time-field"><span>予約時刻</span><div class="indicator-preset-time-selects" aria-label="プリセット予約時刻（時・分・秒）"><select id="indicatorPresetHour" aria-label="プリセット予約時刻・時"></select><b>:</b><select id="indicatorPresetMinute" aria-label="プリセット予約時刻・分"></select><b>:</b><select id="indicatorPresetSecond" aria-label="プリセット予約時刻・秒"></select></div></label>
+            </div>
+            <div id="indicatorPresetReverseFields" class="indicator-preset-reverse-fields" hidden>
+              <label><span>内側距離（S1・B1）</span><input id="indicatorPresetReverseInnerDistance" type="number" inputmode="decimal" min="0.1" step="0.1" value="20"></label>
+              <label><span>外側距離（S2・B2）</span><input id="indicatorPresetReverseOuterDistance" type="number" inputmode="decimal" min="0.1" step="0.1" value="40"></label>
+              <label><span>内側ロット（S1・B1）</span><input id="indicatorPresetReverseInnerLots" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.10"></label>
+              <label><span>外側ロット（S2・B2）</span><input id="indicatorPresetReverseOuterLots" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.20"></label>
+              <label><span>逆張りTP（pips）</span><input id="indicatorPresetReverseTP" type="number" inputmode="decimal" min="0" step="0.1" value="15"></label>
+              <label><span>逆張りSL（pips）</span><input id="indicatorPresetReverseSL" type="number" inputmode="decimal" min="0" step="0.1" value="20"></label>
+            </div>
+            <div class="indicator-preset-actions"><button id="indicatorPresetSave" type="button">保存／更新</button><button id="indicatorPresetDuplicate" type="button">複製</button><button id="indicatorPresetDelete" type="button">削除</button></div>
+            <p id="indicatorPresetStatus" class="small" aria-live="polite">入力した銘柄・ロット・距離・SL／TP・方式・予約時刻を保存できます。</p>
+          </div>
         </details>
       </section>
       <section id="settingsPanelChart" class="settings-panel" data-settings-panel="chart" role="tabpanel" aria-labelledby="settingsTabChart" hidden>
@@ -420,10 +442,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.34"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.34"></script>
-  <script src="app.js?v=0.5.34"></script>
-  <script src="pwa.js?v=0.5.34"></script>
+  <script src="calc.js?v=0.5.35"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.35"></script>
+  <script src="app.js?v=0.5.35"></script>
+  <script src="pwa.js?v=0.5.35"></script>
 
   <script>
     (() => {
