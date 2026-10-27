@@ -33,6 +33,7 @@ let chartDrag=null;
 const chartPinches=new Map();
 const chartLayouts=new Map();
 let selectedTradeSymbol='USDJPYz';
+let currencySearchQuery='';
 let liveTimer=null;
 let liveBusy=false;
 let liveReceivedAt=0;
@@ -440,6 +441,7 @@ function symbols(){
  const select=$('symbol');
  select.replaceChildren(new Option('すべて',''));
  [...new Set(data.positions.map(p=>p.symbol))].forEach(symbol=>select.add(new Option(symbol,symbol)));
+ if(document.body?.dataset.appPage==='symbols')renderCurrencyList();
 }
 
 function canCreateCloseCommand(items=chosen()){
@@ -1457,8 +1459,12 @@ function selectCurrency(symbol){
 function renderCurrencyList(){
  const container=$('currencyRows');
  if(!container)return;
+ const allMarkets=currencyMarkets();
+ const normalize=value=>String(value||'').toLowerCase().replace(/[\s/_\-.]/g,'');
+ const needle=normalize(currencySearchQuery);
+ const markets=needle?allMarkets.filter(m=>normalize(m.symbol).includes(needle)||normalize(tradeSymbolLabel(m.symbol)).includes(needle)):allMarkets;
  const current=currentCurrencySymbol();container.replaceChildren();
- for(const market of currencyMarkets()){
+ for(const market of markets){
   const symbol=market.symbol,label=tradeSymbolLabel(symbol),button=document.createElement('button');
   button.type='button';button.className='currency-row'+(symbol===current?' is-active':'');button.onclick=()=>selectCurrency(symbol);
   const main=document.createElement('span');main.className='currency-main';
@@ -1469,7 +1475,11 @@ function renderCurrencyList(){
   const bid=Number(market.bid),ask=Number(market.ask);quote.textContent=Number.isFinite(bid)?marketPrice(bid,market)+(Number.isFinite(ask)?' / '+marketPrice(ask,market):''):'--';
   button.append(main,quote);container.append(button);
  }
- $('currencyListStatus').textContent=data.live?platformLabel(data)+'価格':'サンプル銘柄';
+ if(!markets.length){
+  const empty=document.createElement('p');empty.className='currency-list-empty';empty.textContent='一致するEA受信銘柄がありません';container.append(empty);
+ }
+ const status=$('currencyListStatus');
+ if(status)status.textContent=data.live?platformLabel(data)+'価格 '+markets.length+'/'+allMarkets.length:'サンプル銘柄 '+markets.length+'/'+allMarkets.length;
 }
 
 function renderDesktopWatchlist(containerId){
@@ -2535,6 +2545,8 @@ $('applyLotCalculator').onclick=applyLotCalculator;
 $('menuDialog').addEventListener('close',()=>{$('openMenu')?.setAttribute('aria-expanded','false');});
 $('menuDialog').addEventListener('click',event=>{if(event.target===$('menuDialog'))closeMenu();});
 document.querySelectorAll('[data-app-nav]').forEach(button=>button.onclick=()=>setAppPage(button.dataset.appNav));
+const currencySearch=$('currencySearch');
+if(currencySearch)currencySearch.oninput=()=>{currencySearchQuery=currencySearch.value;renderCurrencyList();};
 $('calendarScope').onchange=renderPnlCalendar;
 $('calendarMonth').onchange=renderPnlCalendar;
 $('closeCalendarDay').onclick=()=>$('calendarDayDialog').close();

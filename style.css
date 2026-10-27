@@ -232,6 +232,10 @@ dialog::backdrop{background:#10172188}
 .current-price-box strong,.indicator-current-price strong{font-variant-numeric:tabular-nums}
 
 .currency-list{display:grid;gap:8px}
+.currency-list-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px;margin:-2px 0 12px;padding:10px 11px;border:1px solid #245985;border-radius:10px;background:#072541;color:#9fbdd5}
+.currency-list-tools label{display:grid;gap:4px;color:#cfe7fa;font-size:.75rem;font-weight:700}
+.currency-list-tools input{width:100%;min-width:0;height:40px;padding:7px 10px;border:1px solid #326895;border-radius:8px;background:#061a30;color:#edf7ff;font-size:.9rem;color-scheme:dark}
+.currency-list-tools>span{align-self:end;color:#9fbdd5;font-size:.7rem;white-space:nowrap}
 .currency-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:11px 12px;background:#fff;border:1px solid #dfe3e9;border-radius:10px}
 .currency-row:hover,.currency-row.is-active{border-color:var(--orange);background:#fff8f2}
 .currency-main{display:grid;gap:0;min-width:0}
@@ -239,6 +243,7 @@ dialog::backdrop{background:#10172188}
 .currency-main small{color:var(--muted);font-size:.75rem}
 .currency-quote{flex:0 0 auto;color:var(--blue);font-size:.8125rem;font-variant-numeric:tabular-nums;text-align:right}
 .currency-row.is-active .currency-quote{color:#b65016;font-weight:750}
+.currency-list-empty{margin:4px 0;padding:28px 12px;border:1px dashed #326895;border-radius:10px;color:#9fbdd5;text-align:center;font-size:.84rem}
 
 .calendar-scope-label{display:grid;gap:3px;flex:0 0 min(48%,230px);color:var(--muted);font-size:.75rem;font-weight:650}
 .calendar-scope-label select,.calendar-controls input{width:100%;min-width:0;height:42px;padding:7px 9px}
@@ -1689,6 +1694,8 @@ body[data-theme] .bottom-nav button[aria-current="page"] .nav-icon{color:#22c7ff
   .bottom-nav button{height:52px;min-height:52px!important;font-size:.61rem}
   .bottom-nav .nav-icon{width:22px;height:22px;font-size:1.25rem}
   .bottom-nav .nav-icon svg{width:20px;height:20px}
+ .currency-list-tools{grid-template-columns:1fr;gap:6px}
+ .currency-list-tools>span{align-self:start;white-space:normal}
   .mode-button-icon{font-size:1em}.action-button-icon{font-size:1.08em}
 }
 
@@ -1732,4 +1739,28 @@ body[data-theme] .bottom-nav button[aria-current="page"] .nav-icon{color:#22c7ff
   body[data-app-page="home"] .trade-quickbar>.mode-switch button{height:40px!important;min-height:40px!important}
   body[data-app-page="home"] .trade-quickbar>.mode-switch{gap:4px!important}
   body[data-app-page="home"] .trade-quickbar>.mode-switch button{font-size:.66rem!important;gap:3px!important}
+}
+
+/* v0.5.39：下部ナビの上線・枠・ボタン高さを全ページでホームと同じ寸法に固定する。 */
+@media(max-width:999px){
+  html body[data-app-page] #bottomNav.bottom-nav{
+    grid-auto-rows:52px!important;
+    padding:3px 7px calc(3px + env(safe-area-inset-bottom))!important;
+    border-top-width:2px!important;
+    box-sizing:border-box!important;
+  }
+  html body[data-app-page] #bottomNav.bottom-nav button{
+    height:52px!important;
+    min-height:52px!important;
+    max-height:52px!important;
+    padding:2px 1px!important;
+    box-sizing:border-box!important;
+    font-size:.61rem!important;
+  }
+  html body[data-app-page] #bottomNav.bottom-nav .nav-icon{
+    width:22px!important;
+    height:22px!important;
+    font-size:1.25rem!important;
+  }
+  html body[data-app-page] #bottomNav.bottom-nav .nav-icon svg{width:20px!important;height:20px!important}
 }
