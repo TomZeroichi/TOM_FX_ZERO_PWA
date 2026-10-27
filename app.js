@@ -2228,6 +2228,18 @@ function indicatorPresetValues(){
   stopLossPips:$('indicatorSL').value,
   takeProfitPips:$('indicatorTP').value,
   mode:selectedIndicatorEntryMode(),
+  orderStyle:selectedIndicatorOrderStyle(),
+  reverseInnerDistance:$('reverseInnerDistance')?.value,
+  reverseOuterDistance:$('reverseOuterDistance')?.value,
+  reverseInnerLots:$('reverseInnerLots')?.value,
+  reverseOuterLots:$('reverseOuterLots')?.value,
+  reverseIndividualLots:Boolean($('reverseIndividualLots')?.checked),
+  reverseLotS2:$('reverseLotS2')?.value,
+  reverseLotS1:$('reverseLotS1')?.value,
+  reverseLotB1:$('reverseLotB1')?.value,
+  reverseLotB2:$('reverseLotB2')?.value,
+  reverseTP:$('reverseTP')?.value,
+  reverseSL:$('reverseSL')?.value,
   hour:$('indicatorHour').value,
   minute:$('indicatorMinute').value,
   second:$('indicatorSecond').value
@@ -2251,6 +2263,13 @@ function applyIndicatorPreset(preset){
   const value=[values.volume,values.marginPips,values.stopLossPips,values.takeProfitPips][index];
   if(value!==undefined&&value!==null)$(id).value=value;
  });
+ reverseIndicatorSettingIds().forEach(id=>{
+  const value=values[id];
+  if(value!==undefined&&value!==null&&$(id))$(id).value=value;
+ });
+ if($('reverseIndividualLots')&&values.reverseIndividualLots!==undefined)$('reverseIndividualLots').checked=Boolean(values.reverseIndividualLots);
+ updateReverseIndividualLotFields();
+ setIndicatorOrderStyle(values.orderStyle==='reverse'?'reverse':'trend',false);
  const mode=document.querySelector('input[name="indicatorEntryMode"][value="'+values.mode+'"]');
  if(mode)mode.checked=true;
  [['indicatorHour',values.hour],['indicatorMinute',values.minute],['indicatorSecond',values.second]].forEach(([id,value])=>{if(value!==undefined&&[...$(id).options].some(option=>option.value===value))$(id).value=value;});
