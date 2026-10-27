@@ -352,6 +352,7 @@ function syncIndicatorSymbolOptions(){
   const selected=markets.some(m=>m.symbol===previous)?previous:markets[0].symbol;
   syncSelectOptions(select,markets.map(m=>({text:m.symbol,value:m.symbol})),selected);
  }
+ syncIndicatorPresetSymbolOptions();
 }
 function selectedMarket(){
  const markets=marketList(data).filter(m=>isGotoSymbol(m.symbol));
@@ -2220,6 +2221,72 @@ function readIndicatorPresets(){
  }catch{return [];}
 }
 function writeIndicatorPresets(presets){try{localStorage.setItem(profileSettingKey(INDICATOR_PRESETS_KEY),JSON.stringify(presets.slice(0,30)));}catch{}}
+function syncIndicatorPresetSymbolOptions(){
+ const source=$('indicatorSymbol'),target=$('indicatorPresetSymbol');
+ if(!source||!target)return;
+ const previous=target.value;
+ target.replaceChildren(...[...source.options].map(option=>new Option(option.textContent,option.value,false,option.value===source.value)));
+ target.value=[...target.options].some(option=>option.value===previous)?previous:source.value;
+}
+function syncIndicatorPresetFormFromIndicator(){
+ const fields={
+  indicatorPresetVolume:'indicatorVolume',indicatorPresetMargin:'indicatorMargin',indicatorPresetSL:'indicatorSL',indicatorPresetTP:'indicatorTP',
+  indicatorPresetReverseInnerDistance:'reverseInnerDistance',indicatorPresetReverseOuterDistance:'reverseOuterDistance',
+  indicatorPresetReverseInnerLots:'reverseInnerLots',indicatorPresetReverseOuterLots:'reverseOuterLots',
+  indicatorPresetReverseTP:'reverseTP',indicatorPresetReverseSL:'reverseSL'
+ };
+ syncIndicatorPresetSymbolOptions();
+ if($('indicatorPresetSymbol'))$('indicatorPresetSymbol').value=$('indicatorSymbol').value;
+ Object.entries(fields).forEach(([target,source])=>{if($(target)&&$(source))$(target).value=$(source).value;});
+ if($('indicatorPresetEntryMode'))$('indicatorPresetEntryMode').value=selectedIndicatorEntryMode();
+ if($('indicatorPresetOrderStyle'))$('indicatorPresetOrderStyle').value=selectedIndicatorOrderStyle();
+ [['indicatorPresetHour','indicatorHour'],['indicatorPresetMinute','indicatorMinute'],['indicatorPresetSecond','indicatorSecond']].forEach(([target,source])=>{if($(target)&&$(source))$(target).value=$(source).value;});
+ updateIndicatorPresetReverseFields();
+}
+function indicatorPresetFormValues(){
+ const values={
+  symbol:$('indicatorPresetSymbol')?.value,
+  volume:$('indicatorPresetVolume')?.value,
+  marginPips:$('indicatorPresetMargin')?.value,
+  stopLossPips:$('indicatorPresetSL')?.value,
+  takeProfitPips:$('indicatorPresetTP')?.value,
+  mode:$('indicatorPresetEntryMode')?.value,
+  orderStyle:$('indicatorPresetOrderStyle')?.value,
+  reverseInnerDistance:$('indicatorPresetReverseInnerDistance')?.value,
+  reverseOuterDistance:$('indicatorPresetReverseOuterDistance')?.value,
+  reverseInnerLots:$('indicatorPresetReverseInnerLots')?.value,
+  reverseOuterLots:$('indicatorPresetReverseOuterLots')?.value,
+  reverseTP:$('indicatorPresetReverseTP')?.value,
+  reverseSL:$('indicatorPresetReverseSL')?.value,
+  hour:$('indicatorPresetHour')?.value,
+  minute:$('indicatorPresetMinute')?.value,
+  second:$('indicatorPresetSecond')?.value
+ };
+ return Object.values(values).some(value=>value!==undefined)?values:null;
+}
+function updateIndicatorPresetReverseFields(){
+ const reverse=$('indicatorPresetOrderStyle')?.value==='reverse';
+ const fields=$('indicatorPresetReverseFields');
+ if(fields)fields.hidden=!reverse;
+}
+function syncIndicatorFromPresetForm(){
+ const values=indicatorPresetFormValues();if(!values)return;
+ if(values.symbol&&[...$('indicatorSymbol').options].some(option=>option.value===values.symbol))$('indicatorSymbol').value=values.symbol;
+ [['indicatorVolume',values.volume],['indicatorMargin',values.marginPips],['indicatorSL',values.stopLossPips],['indicatorTP',values.takeProfitPips],['reverseInnerDistance',values.reverseInnerDistance],['reverseOuterDistance',values.reverseOuterDistance],['reverseInnerLots',values.reverseInnerLots],['reverseOuterLots',values.reverseOuterLots],['reverseTP',values.reverseTP],['reverseSL',values.reverseSL],['indicatorHour',values.hour],['indicatorMinute',values.minute],['indicatorSecond',values.second]].forEach(([id,value])=>{if(value!==undefined&&value!==null&&$(id))$(id).value=value;});
+ const mode=document.querySelector('input[name="indicatorEntryMode"][value="'+values.mode+'"]');
+ if(mode)mode.checked=true;
+ if(values.orderStyle)setIndicatorOrderStyle(values.orderStyle,false);
+ updateReverseIndividualLotFields();
+ updateIndicatorEntryMode();
+ updateIndicatorMarket();
+}
+function setupIndicatorPresetForm(){
+ setupClockSelects('indicatorPreset',new Date().getHours(),new Date().getMinutes(),new Date().getSeconds());
+ syncIndicatorPresetFormFromIndicator();
+ ['indicatorPresetSymbol','indicatorPresetEntryMode','indicatorPresetOrderStyle','indicatorPresetVolume','indicatorPresetMargin','indicatorPresetSL','indicatorPresetTP','indicatorPresetHour','indicatorPresetMinute','indicatorPresetSecond','indicatorPresetReverseInnerDistance','indicatorPresetReverseOuterDistance','indicatorPresetReverseInnerLots','indicatorPresetReverseOuterLots','indicatorPresetReverseTP','indicatorPresetReverseSL'].forEach(id=>$(id)?.addEventListener('input',()=>{updateIndicatorPresetReverseFields();syncIndicatorFromPresetForm();}));
+ ['indicatorPresetSymbol','indicatorPresetEntryMode','indicatorPresetOrderStyle','indicatorPresetHour','indicatorPresetMinute','indicatorPresetSecond'].forEach(id=>$(id)?.addEventListener('change',()=>{updateIndicatorPresetReverseFields();syncIndicatorFromPresetForm();}));
+ updateIndicatorPresetReverseFields();
+}
 function indicatorPresetValues(){
  return {
   symbol:$('indicatorSymbol').value,
@@ -2247,6 +2314,7 @@ function indicatorPresetValues(){
 }
 function renderIndicatorPresets(selectedId=''){
  const select=$('indicatorPreset');if(!select)return;
+ syncIndicatorPresetFormFromIndicator();
  const previous=selectedId||select.value;
  const presets=readIndicatorPresets();
  select.replaceChildren(new Option('＋ 新規プリセットを作成','__new__'),...presets.map(preset=>new Option(preset.name,preset.id)));
@@ -2275,6 +2343,7 @@ function applyIndicatorPreset(preset){
  [['indicatorHour',values.hour],['indicatorMinute',values.minute],['indicatorSecond',values.second]].forEach(([id,value])=>{if(value!==undefined&&[...$(id).options].some(option=>option.value===value))$(id).value=value;});
  updateIndicatorEntryMode();
  updateIndicatorMarket();
+ syncIndicatorPresetFormFromIndicator();
  $('indicatorPresetStatus').textContent='「'+preset.name+'」を読み込みました。必要なら数値を変えて「保存／更新」で上書きできます。';
 }
 function createIndicatorPreset(copyFrom=null){
@@ -2440,7 +2509,7 @@ function setMode(mode){
 $('modeGoto').onclick=()=>setMode('goto');
 $('modeIndicator').onclick=()=>setMode('indicator');
 function closeMenu(){const menu=$('menuDialog');if(menu?.open)menu.close();$('openMenu')?.setAttribute('aria-expanded','false');}
-function openMenu(){const menu=$('menuDialog');if(menu&&!menu.open){menu.showModal();$('openMenu')?.setAttribute('aria-expanded','true');}}
+function openMenu(){const menu=$('menuDialog');if(menu&&!menu.open){syncIndicatorPresetFormFromIndicator();menu.showModal();$('openMenu')?.setAttribute('aria-expanded','true');}}
 $('openMenu').onclick=openMenu;
 $('closeMenu').onclick=closeMenu;
 $('openLotCalculator').onclick=openLotCalculator;
@@ -2464,6 +2533,7 @@ setupClockSelects('indicator',today.getHours(),today.getMinutes(),today.getSecon
 setupClockSelects('reverse',today.getHours(),today.getMinutes(),today.getSeconds());
 renderIndicatorPresets();
 setupReverseIndicatorSettings();
+setupIndicatorPresetForm();
 loadOrderVolume();
 loadNanpinSettings();
 updateNanpinToggleState();
