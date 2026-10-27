@@ -3119,3 +3119,5 @@ showStoredKey();
 closeMenu();
 window.addEventListener('pageshow',closeMenu);
 setAppPage('home');
+// 初期DOMや旧キャッシュの画面が一瞬見えないよう、起動処理完了後にだけ表示する。
+document.documentElement.classList.add('app-ready');

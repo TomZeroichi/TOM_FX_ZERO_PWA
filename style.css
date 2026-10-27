@@ -1,6 +1,6 @@
 :root{color-scheme:light;--ink:#172338;--muted:#65758a;--orange:#f08342;--green:#007c65;--red:#c73847;--blue:#102b4e;--blue-deep:#0a1c34;--blue-line:#24517f}
 *{box-sizing:border-box}
-html{min-height:100%;overflow-x:hidden;overflow-y:auto}body{min-height:100%;margin:0;background:linear-gradient(180deg,#eaf2fb 0,#f3f6fa 320px,#f0f2f5 100%);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;font-size:1rem;line-height:1.6;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:auto}
+html{min-height:100%;overflow-x:hidden;overflow-y:auto;background:#000}html:not(.app-ready) body{visibility:hidden!important}body{min-height:100%;margin:0;background:linear-gradient(180deg,#eaf2fb 0,#f3f6fa 320px,#f0f2f5 100%);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;font-size:1rem;line-height:1.6;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:auto}
 button,select,input{font:inherit}
 button,.upload{cursor:pointer}
 button,select,.upload{border:1px solid #ccd1d8;background:white;color:var(--ink);border-radius:9px;padding:10px 14px;min-height:44px}

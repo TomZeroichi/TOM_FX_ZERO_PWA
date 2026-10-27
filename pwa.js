@@ -4,6 +4,7 @@
   const installGuide=document.getElementById('installGuide');
   const closeInstallGuide=document.getElementById('closeInstallGuide');
   const message=document.getElementById('message');
+  const revealAppShell=()=>document.documentElement.classList.add('app-ready');
   let installPrompt=null;
   const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
   const desktopWeb=window.matchMedia('(min-width:1000px)').matches&&!standalone;
@@ -14,6 +15,8 @@
     document.querySelectorAll('meta[name="theme-color"]').forEach(meta=>meta.setAttribute('content','#000000'));
   };
   applyBlackSystemBars();
+  // app.jsの読み込み失敗時も永久に黒画面へ残さない安全弁。
+  window.setTimeout(revealAppShell,5000);
 
   function showManualInstall(){
     if(!installButton||standalone||installPrompt)return;
@@ -78,7 +81,7 @@
     });
   }else if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
     navigator.serviceWorker.addEventListener('controllerchange',()=>{
-      const reloadKey='tomFxPwaControllerReloaded_0.5.37';
+      const reloadKey='tomFxPwaControllerReloaded_0.5.38';
       if(sessionStorage.getItem(reloadKey)==='done')return;
       sessionStorage.setItem(reloadKey,'done');
       location.reload();
@@ -86,17 +89,19 @@
 
     window.addEventListener('load',async()=>{
       try{
-        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.5.37',{scope:'./'});
+        const registration=await navigator.serviceWorker.register('./service-worker.js?v=0.5.38',{scope:'./'});
         await registration.update();
         await navigator.serviceWorker.ready;
         if(navigator.serviceWorker.controller)showManualInstall();
         setTimeout(showManualInstall,3000);
       }catch{
+        revealAppShell();
         showManualInstall();
         message.textContent='PWAの準備に失敗しました。Chromeでページを再読み込みしてください。';
       }
     });
   }else{
+    revealAppShell();
     showManualInstall();
   }
 })();
