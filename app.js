@@ -1855,14 +1855,21 @@ function configureHomeOrderTabs(mode){
  const buttons=[...document.querySelectorAll('.goto-order-tabs button')];
  if(!buttons.length)return;
  const indicator=mode==='indicator';
+ const actionIcon=kind=>({
+  reserve:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M7.5 3.5v3M16.5 3.5v3M3.5 9h17M8 13h3M13 13h3M8 16.5h3"/></svg>',
+  immediate:'<svg viewBox="0 0 24 24"><path d="m13 2-8 12h6l-1 8 9-13h-6z"/></svg>',
+  market:'<svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg>',
+  nanpin:'<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/><path d="m15.5 4 3.5 3-3.5 3M8.5 9 5 12l3.5 3M15.5 14l3.5 3-3.5 3"/></svg>'
+ })[kind]||'';
  const config=indicator
-  ?[{key:'scheduled',label:'予約'},{key:'immediate',label:'即時'},{key:'market',label:'成行'}]
-  :[{key:'market',label:'成行'},{key:'reserve',label:'予約'},{key:'nanpin',label:'ナンピン'}];
+  ?[{key:'scheduled',label:'予約',icon:'reserve'},{key:'immediate',label:'即時',icon:'immediate'},{key:'market',label:'成行',icon:'market'}]
+  :[{key:'market',label:'成行',icon:'market'},{key:'reserve',label:'予約',icon:'reserve'},{key:'nanpin',label:'ナンピン',icon:'nanpin'}];
  const tabs=document.querySelector('.goto-order-tabs');
  if(tabs)tabs.setAttribute('aria-label',indicator?'指標注文メニュー':'ゴトー日注文メニュー');
  buttons.forEach((button,index)=>{
   const item=config[index];if(!item)return;
-  button.textContent=item.label;
+  button.innerHTML='<span class="action-button-icon" aria-hidden="true">'+actionIcon(item.icon)+'</span><span>'+item.label+'</span>';
+  button.setAttribute('aria-label',item.label);
   button.classList.remove('is-active');
   if(indicator){
    delete button.dataset.gotoOrderTab;
