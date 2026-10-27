@@ -16,6 +16,7 @@ let closeNoConfirm=false;
 let closeInFlight=false;
 let orderInFlight=false;
 let nanpinInFlight=false;
+let nanpinSyncKey='';
 let modifyInFlight=false;
 let vpsRestartInFlight=false;
 let pendingOrder=null;
@@ -1959,9 +1960,9 @@ function applyLotCalculator(){
  $('lotCalculatorStatus').textContent=lot.toFixed(2)+' lotを注文・ナンピン・指標のロット欄へ反映しました。ナンピン設定は「設定をEAへ送信」で確定します。';
 }
 async function sendNanpinSettings(){
- if(nanpinInFlight||!canSendLiveCommand())return;
+ if(nanpinInFlight||!canSendLiveCommand())return false;
  const settings=readNanpinSettings();
- if(!Number.isFinite(settings.widthPips)||settings.widthPips<=0||!Number.isFinite(settings.lots)||settings.lots<=0||settings.lots>5||!Number.isFinite(settings.takeProfitPips)||settings.takeProfitPips<0){$('message').textContent='ナンピン幅・ロット（最大5.00）・一括利確pipsを確認してください。';return;}
+ if(!Number.isFinite(settings.widthPips)||settings.widthPips<=0||!Number.isFinite(settings.lots)||settings.lots<=0||settings.lots>5||!Number.isFinite(settings.takeProfitPips)||settings.takeProfitPips<0){$('message').textContent='ナンピン幅・ロット（最大5.00）・一括利確pipsを確認してください。';return false;}
  localStorage.setItem(profileSettingKey(NANPIN_SETTINGS_KEY),JSON.stringify({...settings,applied:false}));
  const key=connectionKey();
  setNanpinBusy(true);$('message').textContent='ナンピン設定をEAへ送信中です。';
@@ -1969,7 +1970,19 @@ async function sendNanpinSettings(){
   const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:'nanpin_settings',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),enabled:settings.enabled,sellOnly:settings.sellOnly,widthPips:settings.widthPips,lots:settings.lots,takeProfitPips:settings.takeProfitPips})},6000);
   $('message').textContent='ナンピン設定を送信しました。EAの反映結果を待っています。';
   waitForCommandResult(body.commandId,key,'nanpin');
- }catch(err){setNanpinBusy(false);setNanpinStatus('送信失敗');$('message').textContent=err.name==='AbortError'?'ナンピン設定を送信できません：通信がタイムアウトしました':commandSendErrorMessage(err.message,'ナンピン設定');}
+  return true;
+ }catch(err){setNanpinBusy(false);setNanpinStatus('送信失敗');$('message').textContent=err.name==='AbortError'?'ナンピン設定を送信できません：通信がタイムアウトしました':commandSendErrorMessage(err.message,'ナンピン設定');return false;}
+}
+function nanpinSyncIdentity(){
+ const key=connectionKey(),account=String(data.account||'');
+ return data.live&&key&&account?activeProfile().id+'|'+account+'|'+key:'';
+}
+async function syncNanpinSettingsForConnection(){
+ const identity=nanpinSyncIdentity();
+ if(!identity||identity===nanpinSyncKey||nanpinInFlight)return;
+ // EA再起動後に残った古いナンピン設定を使わせず、現在のPWA設定を
+ // 最初のライブスナップショットで必ず再送する。OFFも明示的に送る。
+ if(await sendNanpinSettings())nanpinSyncKey=identity;
 }
 
 function modifyTargetPositions(){
@@ -2733,6 +2746,7 @@ function pauseLiveConnection(){clearInterval(liveTimer);liveTimer=null;liveBusy=
 function switchProfile(id){
  if(!connectionProfiles.some(profile=>profile.id===id)||id===activeConnectionProfileId)return;
  pauseLiveConnection();
+ nanpinSyncKey='';
  activeConnectionProfileId=id;persistProfiles();
  data=demo();data.live=false;selected=new Set(data.positions.slice(0,4).map(position=>position.id));liveReceivedAt=0;lastLiveCacheSavedAt=0;selectedTradeSymbol='USDJPYz';
  updateProfileUi();
@@ -2865,6 +2879,7 @@ function applyLiveSnapshot(payload){
  // render完了後だけでなく、受信直後にも固定決済バーの状態を同期する。
  updateActionFooter();
  refreshSyncAge();
+ void syncNanpinSettingsForConnection();
 }
 
 function restoreCachedLiveSnapshot(){
@@ -2927,6 +2942,7 @@ function startLiveConnection(){
 function stopLiveConnection(){
  const key=connectionKey();
  pauseLiveConnection();
+ nanpinSyncKey='';
  liveReceivedAt=0;
  lastLiveCacheSavedAt=0;
  if(key&&navigator.onLine){
