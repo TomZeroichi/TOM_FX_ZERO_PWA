@@ -1615,3 +1615,45 @@ body[data-theme] .bottom-nav button[aria-current="page"] .nav-icon{color:#22c7ff
   .bottom-nav .nav-icon svg{width:20px;height:20px}
   .mode-button-icon{font-size:1em}.action-button-icon{font-size:1.08em}
 }
+
+/* v0.5.32：ゴトー／指標は残高の右側で常に横書き・低い高さを保つ。 */
+@media(max-width:999px){
+  body[data-app-page="home"] .trade-quickbar{
+    grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)!important;
+    align-items:start!important;
+  }
+  body[data-app-page="home"] .account-metrics,
+  body[data-app-page="home"] .balance-details{align-self:start!important}
+  body[data-app-page="home"] .trade-quickbar>.mode-switch{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-self:start!important;
+    height:42px!important;
+    min-height:42px!important;
+    gap:6px!important;
+  }
+  body[data-app-page="home"] .trade-quickbar>.mode-switch button{
+    display:flex!important;
+    flex-flow:row nowrap!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:4px!important;
+    width:100%!important;
+    height:42px!important;
+    min-height:42px!important;
+    padding:5px 3px!important;
+    overflow:hidden!important;
+    white-space:nowrap!important;
+    font-size:.7rem!important;
+    line-height:1!important;
+  }
+  body[data-app-page="home"] .trade-quickbar>.mode-switch button>span:last-child{display:block;min-width:0;white-space:nowrap!important}
+  body[data-app-page="home"] .trade-quickbar>.mode-switch .mode-button-icon{width:15px;height:15px;font-size:15px}
+  body[data-app-page="home"] .trade-quickbar>.mode-switch .mode-button-icon svg{width:15px;height:15px}
+}
+@media(max-width:390px){
+  body[data-app-page="home"] .trade-quickbar>.mode-switch,
+  body[data-app-page="home"] .trade-quickbar>.mode-switch button{height:40px!important;min-height:40px!important}
+  body[data-app-page="home"] .trade-quickbar>.mode-switch{gap:4px!important}
+  body[data-app-page="home"] .trade-quickbar>.mode-switch button{font-size:.66rem!important;gap:3px!important}
+}
