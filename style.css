@@ -739,6 +739,24 @@ html body #settingsPanelTrade details.settings-indicator-presets .indicator-pres
 html body #settingsPanelTrade details.settings-indicator-presets .indicator-preset-actions button:first-child{background:#1066e9!important;border-color:#18c7ff!important;color:#fff!important}
 html body #settingsPanelTrade details.settings-indicator-presets .indicator-preset-actions button:last-child{background:#3a1821!important;border-color:#a93c4b!important;color:#ffb1b9!important}
 html body #settingsPanelTrade details.settings-indicator-presets #indicatorPresetStatus{color:#a9c5db!important}
+html body #settingsPanelTrade .indicator-preset-config{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;padding-top:2px}
+html body #settingsPanelTrade .indicator-preset-config>label,
+html body #settingsPanelTrade .indicator-preset-reverse-fields>label{display:grid!important;gap:4px!important;min-width:0!important;color:#afc9df!important;font-size:.76rem!important;font-weight:700!important}
+html body #settingsPanelTrade .indicator-preset-config input,
+html body #settingsPanelTrade .indicator-preset-config select,
+html body #settingsPanelTrade .indicator-preset-reverse-fields input{width:100%!important;min-width:0!important;height:38px!important;padding:6px 8px!important;border:1px solid #326895!important;border-radius:8px!important;background:#061a30!important;color:#edf7ff!important;color-scheme:dark!important}
+html body #settingsPanelTrade .indicator-preset-time-field{grid-column:1/-1!important}
+html body #settingsPanelTrade .indicator-preset-time-selects{display:grid!important;grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr) 16px minmax(0,1fr)!important;align-items:center!important;gap:3px!important}
+html body #settingsPanelTrade .indicator-preset-time-selects b{text-align:center;color:#a9c5db}
+html body #settingsPanelTrade .indicator-preset-reverse-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;padding:8px;border:1px solid #245985;border-radius:8px;background:#061a30}
+html body #settingsPanelTrade .indicator-preset-reverse-fields[hidden]{display:none!important}
+@media(max-width:420px){
+ html body #settingsPanelTrade .indicator-preset-config,
+ html body #settingsPanelTrade .indicator-preset-reverse-fields{gap:6px!important}
+ html body #settingsPanelTrade .indicator-preset-config input,
+ html body #settingsPanelTrade .indicator-preset-config select,
+ html body #settingsPanelTrade .indicator-preset-reverse-fields input{height:36px!important;padding:5px 6px!important;font-size:.82rem!important}
+}
 
 /* v0.5.33：下部ナビの選択は、背景なし・アイコンと文字の青い発光だけに固定する。 */
 html body[data-app-page] #bottomNav.bottom-nav button.is-active,
