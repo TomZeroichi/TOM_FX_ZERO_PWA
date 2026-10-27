@@ -714,6 +714,32 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
  .chart-compact-price{font-size:.82rem}
 }
 
+/* v0.5.34：設定内の指標プリセットを全テーマで読みやすい暗色UIに固定する。 */
+html body #settingsPanelTrade details.settings-indicator-presets{
+  display:block!important;
+  margin:10px 0 0!important;
+  padding:0!important;
+  border:1px solid #286293!important;
+  border-radius:10px!important;
+  background:#082846!important;
+  color:#e7f4ff!important;
+}
+html body #settingsPanelTrade details.settings-indicator-presets>summary{
+  min-height:48px!important;
+  padding:10px 12px!important;
+  color:#e7f4ff!important;
+}
+html body #settingsPanelTrade details.settings-indicator-presets>summary small{color:#a5c2d9!important}
+html body #settingsPanelTrade details.settings-indicator-presets>summary b{color:#22c7ff!important}
+html body #settingsPanelTrade details.settings-indicator-presets[open]>summary{border-bottom:1px solid #245985!important}
+html body #settingsPanelTrade details.settings-indicator-presets .indicator-preset-body{display:grid!important;gap:9px!important;padding:12px!important}
+html body #settingsPanelTrade details.settings-indicator-presets label{color:#afc9df!important}
+html body #settingsPanelTrade details.settings-indicator-presets select{border-color:#326895!important;background:#061a30!important;color:#edf7ff!important;color-scheme:dark}
+html body #settingsPanelTrade details.settings-indicator-presets .indicator-preset-actions button{border-color:#326895!important;background:#0a2a4d!important;color:#e8f4ff!important}
+html body #settingsPanelTrade details.settings-indicator-presets .indicator-preset-actions button:first-child{background:#1066e9!important;border-color:#18c7ff!important;color:#fff!important}
+html body #settingsPanelTrade details.settings-indicator-presets .indicator-preset-actions button:last-child{background:#3a1821!important;border-color:#a93c4b!important;color:#ffb1b9!important}
+html body #settingsPanelTrade details.settings-indicator-presets #indicatorPresetStatus{color:#a9c5db!important}
+
 /* v0.5.33：下部ナビの選択は、背景なし・アイコンと文字の青い発光だけに固定する。 */
 html body[data-app-page] #bottomNav.bottom-nav button.is-active,
 html body[data-app-page] #bottomNav.bottom-nav button[aria-current="page"]{
@@ -730,6 +756,22 @@ html body[data-app-page] #bottomNav.bottom-nav button[aria-current="page"] .nav-
   filter:drop-shadow(0 0 5px #16c7ffcc) drop-shadow(0 0 10px #168dff77) !important;
 }
 
+
+/* v0.5.34：指標プリセットは設定メニューから保存・反映する。 */
+.settings-indicator-presets{display:block;margin-top:10px;padding:0;border-color:#286293;background:#082846;color:#e7f4ff}
+.settings-indicator-presets summary{min-height:48px;padding:10px 12px;color:#e7f4ff}
+.settings-indicator-presets summary strong{font-size:.92rem}
+.settings-indicator-presets summary small{color:#a5c2d9}
+.settings-indicator-presets summary b{color:#22c7ff;font-size:.75rem}
+.settings-indicator-presets[open] summary{border-bottom:1px solid #245985}
+.settings-indicator-presets .indicator-preset-body{display:grid;gap:9px;padding:12px}
+.settings-indicator-presets label{color:#afc9df}
+.settings-indicator-presets select{border-color:#326895;background:#061a30;color:#edf7ff;color-scheme:dark}
+.settings-indicator-presets .indicator-preset-actions{gap:7px}
+.settings-indicator-presets .indicator-preset-actions button{border-color:#326895;background:#0a2a4d;color:#e8f4ff}
+.settings-indicator-presets .indicator-preset-actions button:first-child{background:#1066e9;border-color:#18c7ff;color:#fff}
+.settings-indicator-presets .indicator-preset-actions button:last-child{background:#3a1821;border-color:#a93c4b;color:#ffb1b9}
+.settings-indicator-presets #indicatorPresetStatus{color:#a9c5db}
 
 /* 0.4.98：初期画面はチャート＋注文タブで完結。設定は選択時のみ展開する */
 .chart-wrap-trade{--chart-price-axis-width:64px}
