@@ -1520,3 +1520,98 @@ dialog:not([open]){display:none!important}
 }
 .bottom-nav button.is-active .nav-icon,
 .bottom-nav button[aria-current="page"] .nav-icon{color:#fff!important}
+
+/* v0.5.31：参考UIに合わせたアイコン操作ボタン。通信・固定座標は維持する。 */
+.mode-button-icon,.action-button-icon,.nav-icon{display:inline-grid;place-items:center;flex:0 0 auto}
+.mode-button-icon svg,.action-button-icon svg,.nav-icon svg{width:1em;height:1em;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.mode-switch button,.goto-order-tabs button{display:inline-flex!important;align-items:center;justify-content:center;gap:6px}
+.mode-button-icon{font-size:1.05em}.action-button-icon{font-size:1.12em}
+
+/* 上部のゴトー／指標はネイビーの枠ボタン、選択中だけオレンジの発光に統一。 */
+body[data-app-page="home"] .mode-switch button{
+  border-color:#28699b!important;
+  background:linear-gradient(145deg,#0b2949,#071c35)!important;
+  color:#dcecff!important;
+  box-shadow:inset 0 0 0 1px #72bcff0d!important;
+}
+body[data-app-page="home"] .mode-switch button.is-active{
+  border-color:#ff9b42!important;
+  background:linear-gradient(135deg,#ff9a43,#ff7430)!important;
+  color:#161d28!important;
+  box-shadow:0 0 0 1px #ffb66a44,0 0 15px #ff873766!important;
+}
+
+/* ゴトー／指標の固定3操作。全ボタンの寸法を保ち、選択中のみオレンジで表示する。 */
+body[data-app-page="home"] #marketPanel>.goto-order-tabs button{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  border-color:#28699b!important;
+  background:linear-gradient(145deg,#0b2949,#071c35)!important;
+  color:#dcecff!important;
+  box-shadow:inset 0 0 0 1px #72bcff0d!important;
+}
+body[data-app-page="home"] #marketPanel>.goto-order-tabs button.is-active{
+  border-color:#ff9b42!important;
+  background:linear-gradient(135deg,#ff9a43,#ff7430)!important;
+  color:#161d28!important;
+  box-shadow:0 0 0 1px #ffb66a44,0 0 15px #ff873766!important;
+}
+
+/* 下部5メニューは常に同じ5枠・同じ高さ。選択時は背景を変えず青い発光だけにする。 */
+.bottom-nav{
+  grid-auto-rows:54px;
+  align-items:stretch;
+  overflow:hidden;
+}
+.bottom-nav button{
+  width:100%;
+  height:54px;
+  min-height:54px!important;
+  box-sizing:border-box;
+  grid-template-rows:24px minmax(0,1fr);
+  gap:2px;
+  padding:4px 1px!important;
+  border-color:transparent!important;
+  background:transparent!important;
+  color:#9bb9d6!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-shadow:none;
+  transform:none!important;
+}
+.bottom-nav button:hover{border-color:transparent!important;background:transparent!important;color:#dcecff!important}
+.bottom-nav .nav-icon{width:24px;height:24px;font-size:1.42rem;line-height:1}
+.bottom-nav .nav-icon svg{width:22px;height:22px;stroke-width:1.8}
+.bottom-nav button.is-active,
+.bottom-nav button[aria-current="page"]{
+  border-color:transparent!important;
+  background:transparent!important;
+  color:#22c7ff!important;
+  box-shadow:none!important;
+  font-weight:650!important;
+  text-shadow:0 0 7px #16c7ffcc,0 0 16px #168dff88!important;
+}
+.bottom-nav button.is-active .nav-icon,
+.bottom-nav button[aria-current="page"] .nav-icon{
+  color:#22c7ff!important;
+  filter:drop-shadow(0 0 5px #16c7ffcc) drop-shadow(0 0 10px #168dff77);
+}
+body[data-theme] .bottom-nav button.is-active,
+body[data-theme] .bottom-nav button[aria-current="page"]{
+  border-color:transparent!important;
+  background:transparent!important;
+  color:#22c7ff!important;
+  box-shadow:none!important;
+  font-weight:650!important;
+}
+body[data-theme] .bottom-nav button.is-active .nav-icon,
+body[data-theme] .bottom-nav button[aria-current="page"] .nav-icon{color:#22c7ff!important}
+@media(max-width:600px){
+  .bottom-nav{grid-auto-rows:52px}
+  .bottom-nav button{height:52px;min-height:52px!important;font-size:.61rem}
+  .bottom-nav .nav-icon{width:22px;height:22px;font-size:1.25rem}
+  .bottom-nav .nav-icon svg{width:20px;height:20px}
+  .mode-button-icon{font-size:1em}.action-button-icon{font-size:1.08em}
+}
