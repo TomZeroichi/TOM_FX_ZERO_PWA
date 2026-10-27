@@ -714,6 +714,22 @@ body[data-app-page="positions"] .filters button{border-color:#2b6291;background:
  .chart-compact-price{font-size:.82rem}
 }
 
+/* v0.5.33：下部ナビの選択は、背景なし・アイコンと文字の青い発光だけに固定する。 */
+html body[data-app-page] #bottomNav.bottom-nav button.is-active,
+html body[data-app-page] #bottomNav.bottom-nav button[aria-current="page"]{
+  border-color:transparent !important;
+  background:transparent !important;
+  background-image:none !important;
+  color:#22c7ff !important;
+  box-shadow:none !important;
+  text-shadow:0 0 7px #16c7ffcc,0 0 16px #168dff88 !important;
+}
+html body[data-app-page] #bottomNav.bottom-nav button.is-active .nav-icon,
+html body[data-app-page] #bottomNav.bottom-nav button[aria-current="page"] .nav-icon{
+  color:#22c7ff !important;
+  filter:drop-shadow(0 0 5px #16c7ffcc) drop-shadow(0 0 10px #168dff77) !important;
+}
+
 
 /* 0.4.98：初期画面はチャート＋注文タブで完結。設定は選択時のみ展開する */
 .chart-wrap-trade{--chart-price-axis-width:64px}
