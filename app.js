@@ -74,6 +74,7 @@ const WEEKEND_BTC_TEST_KEY='tomFxZeroWeekendBtcTestV1';
 const LOT_CALCULATOR_KEY='tomFxZeroLotCalculatorV1';
 const INDICATOR_PRESETS_KEY='tomFxZeroIndicatorPresetsV1';
 const INDICATOR_REVERSE_SETTINGS_KEY='tomFxZeroIndicatorReverseSettingsV1';
+const INDICATOR_SCHEDULE_GUARD_KEY='tomFxZeroIndicatorScheduleGuardV1';
 const LIVE_SNAPSHOT_KEY='tomFxZeroLiveSnapshotV1';
 const THEME_KEY='tomFxZeroThemeV1';
 const CHART_DISPLAY_BARS_KEY='tomFxZeroChartDisplayBarsV1';
@@ -643,9 +644,14 @@ async function waitForCommandResult(commandId,key,kind='close'){
      const status=$('vpsStatus');
      if(status)status.textContent=result.status==='completed'?'再起動指示を受け付けました。VPSの復旧とMT4／MT5・EAの自動起動を待っています。':'VPS再起動の実行に失敗しました。VPS側のエージェントを確認してください。';
     }
+    if(kind==='indicator'&&result.status==='rejected')clearIndicatorScheduleGuard();
+    if(kind==='reverseIndicator'&&result.status==='rejected')clearIndicatorScheduleGuard();
     if(kind==='indicator')$('indicatorStatus').textContent=indicatorResultMessage(result);
     else if(kind==='reverseIndicator')$('reverseStatus').textContent=indicatorResultMessage(result);
-    else if(kind==='indicatorCancel')$('indicatorStatus').textContent=indicatorCancelResultMessage(result);
+    else if(kind==='indicatorCancel'){
+     if(result.status==='completed')clearIndicatorScheduleGuard();
+     $('indicatorStatus').textContent=indicatorCancelResultMessage(result);
+    }
     else if(kind==='order')setOrderBusy(false);else if(kind==='nanpin')setNanpinBusy(false);else if(kind==='modify')setModifyBusy(false);else if(kind!=='vps')setCloseBusy(false);
     pollLive();
     return;
@@ -2242,6 +2248,21 @@ function setupChartInteractions(){
 $('symbol').onchange=()=>{selected.clear();render();};
 function selectedIndicatorEntryMode(){return document.querySelector('input[name="indicatorEntryMode"]:checked')?.value||'scheduled';}
 function selectedIndicatorOrderStyle(){return document.querySelector('[data-indicator-order-style].is-active')?.dataset.indicatorOrderStyle||'trend';}
+function readIndicatorScheduleGuard(){
+ try{
+  const value=JSON.parse(localStorage.getItem(profileSettingKey(INDICATOR_SCHEDULE_GUARD_KEY))||'null');
+  if(!value||typeof value!=='object'||typeof value.symbol!=='string'||!value.symbol||!Number.isFinite(Number(value.executeAt)))return null;
+  return value;
+ }catch{return null;}
+}
+function saveIndicatorScheduleGuard(value){try{localStorage.setItem(profileSettingKey(INDICATOR_SCHEDULE_GUARD_KEY),JSON.stringify(value));}catch{}}
+function clearIndicatorScheduleGuard(){try{localStorage.removeItem(profileSettingKey(INDICATOR_SCHEDULE_GUARD_KEY));}catch{}}
+function indicatorScheduleGuardForSymbol(symbol=''){
+ const guard=readIndicatorScheduleGuard();
+ if(!guard)return null;
+ if(Number(guard.executeAt)<=0){clearIndicatorScheduleGuard();return null;}
+ return !symbol||guard.symbol===symbol?guard:null;
+}
 function readReverseIndicatorSettings(){
  try{const stored=JSON.parse(localStorage.getItem(profileSettingKey(INDICATOR_REVERSE_SETTINGS_KEY))||'{}');return stored&&typeof stored==='object'?stored:{};}catch{return {};}
 }
@@ -2285,6 +2306,7 @@ function setupReverseIndicatorSettings(){
 }
 function updateIndicatorEntryMode(){
  const mode=selectedIndicatorEntryMode(),scheduled=mode==='scheduled',immediate=mode==='immediate',market=mode==='market',orderMode=scheduled||immediate,reverse=orderMode&&selectedIndicatorOrderStyle()==='reverse';
+ const scheduleGuard=indicatorScheduleGuardForSymbol($('indicatorSymbol')?.value||'');
  const panel=$('indicatorOrderPanel');if(panel){panel.dataset.entryMode=mode;panel.dataset.orderStyle=reverse?'reverse':'trend';}
  const style=$('indicatorOrderStyle'),trend=$('indicatorTrendSettings'),reverseSettings=$('indicatorReverseSettings');
  if(style)style.hidden=!orderMode;
@@ -2297,11 +2319,13 @@ function updateIndicatorEntryMode(){
  $('indicatorReserve').hidden=reverse;
  if(reverse){
   $('reverseReserve').textContent=scheduled?'4ライン予約注文を登録':'4ライン予約注文を即時設置';
-  $('indicatorStatus').textContent=scheduled?'逆張り4ラインの設定を確認してください。':'逆張り4ラインの設定を確認してください。即時モードでは予約時刻を使用しません。';
+  $('reverseReserve').disabled=Boolean(scheduleGuard);
+  $('indicatorStatus').textContent=scheduleGuard?'この銘柄は指標予約済みです。先に「この銘柄の指標注文をキャンセル」してください。':scheduled?'逆張り4ラインの設定を確認してください。':'逆張り4ラインの設定を確認してください。即時モードでは予約時刻を使用しません。';
   return;
  }
  $('indicatorReserve').textContent=scheduled?'上下逆指値を予約':market?'両建て成行注文を送信':'上下逆指値を即時設置';
- $('indicatorStatus').textContent=scheduled?'予約時刻は秒まで指定できます。':market?'BUY／SELLを同時に成行注文します。TP／SLはそれぞれの約定価格からpipsで設定します。':'現在の'+currentPlatform()+'価格を基準に、すぐBuy Stop／Sell Stopを設置します。';
+ $('indicatorReserve').disabled=Boolean(scheduleGuard);
+ $('indicatorStatus').textContent=scheduleGuard?'この銘柄は指標予約済みです。先に「この銘柄の指標注文をキャンセル」してください。':scheduled?'予約時刻は秒まで指定できます。':market?'BUY／SELLを同時に成行注文します。TP／SLはそれぞれの約定価格からpipsで設定します。':'現在の'+currentPlatform()+'価格を基準に、すぐBuy Stop／Sell Stopを設置します。';
 }
 function indicatorScheduledTime(){
  const date=$('indicatorDate').value,time=selectedClockTime('indicator');
@@ -2478,6 +2502,7 @@ function deleteIndicatorPreset(){
 function reserveReverseIndicator(){
  const mode=selectedIndicatorEntryMode(),scheduledAt=mode==='scheduled'?reverseScheduledTime():null,executeAt=scheduledAt?.executeAt||0;
  const symbol=$('indicatorSymbol').value,innerDistance=Number($('reverseInnerDistance').value),outerDistance=Number($('reverseOuterDistance').value),innerLots=Number($('reverseInnerLots').value),outerLots=Number($('reverseOuterLots').value),individualLots=Boolean($('reverseIndividualLots').checked),lotS2=Number($('reverseLotS2').value),lotS1=Number($('reverseLotS1').value),lotB1=Number($('reverseLotB1').value),lotB2=Number($('reverseLotB2').value),takeProfitPips=Number($('reverseTP').value),stopLossPips=Number($('reverseSL').value);
+ if(indicatorScheduleGuardForSymbol(symbol)){ $('reverseStatus').textContent='この銘柄は指標予約済みです。先に指標注文をキャンセルしてください。';return; }
  const lots=individualLots?[lotS2,lotS1,lotB1,lotB2]:[innerLots,outerLots];
  const validLot=value=>Number.isFinite(value)&&value>0&&value<=5;
  if(!canSendLiveCommand()){ $('reverseStatus').textContent=currentPlatform()+'デモ口座へ接続してから注文してください。';return; }
@@ -2490,6 +2515,7 @@ function reserveReverseIndicator(){
  const payload={action:'indicator_reverse_4line',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume:innerLots,executeAt,cycleId,reverseInnerDistancePips:innerDistance,reverseOuterDistancePips:outerDistance,reverseInnerLots:innerLots,reverseOuterLots:outerLots,reverseIndividualLots:individualLots,reverseLotS2:lotS2,reverseLotS1:lotS1,reverseLotB1:lotB1,reverseLotB2:lotB2,reverseTP:takeProfitPips,reverseSL:stopLossPips};
  fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+connectionKey(),'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(body=>{
   if(mode==='scheduled'){
+   saveIndicatorScheduleGuard({symbol,executeAt,style:'reverse',commandId:body.commandId,createdAt:Math.floor(Date.now()/1000)});
    $('reverseStatus').textContent='4ライン予約をEAへ登録しました。'+scheduledAt.at.replace('T',' ')+' にS2／S1／B1／B2を設置します。';
    if(executeAt-Math.floor(Date.now()/1000)<=30)waitForCommandResult(body.commandId,connectionKey(),'reverseIndicator');
   }else{
@@ -2501,6 +2527,7 @@ function reserveReverseIndicator(){
 function reserveIndicator(){
  const mode=selectedIndicatorEntryMode(),scheduledAt=mode==='scheduled'?indicatorScheduledTime():null,at=scheduledAt?.at||'',executeAt=scheduledAt?.executeAt,volume=Number($('indicatorVolume').value),marginPips=Number($('indicatorMargin').value),slPips=Number($('indicatorSL').value||0),tpPips=Number($('indicatorTP').value||0),symbol=$('indicatorSymbol').value;
  if(!canSendLiveCommand()){ $('indicatorStatus').textContent=currentPlatform()+'デモ口座へ接続してから注文してください。'; return; }
+ if(indicatorScheduleGuardForSymbol(symbol)){ $('indicatorStatus').textContent='この銘柄は指標予約済みです。先に「この銘柄の指標注文をキャンセル」してください。';return; }
  if(!Number.isFinite(volume)||volume<=0||!Number.isFinite(slPips)||slPips<0||!Number.isFinite(tpPips)||tpPips<0||((mode==='scheduled'||mode==='immediate')&&(!Number.isFinite(marginPips)||marginPips<=0))||(mode==='scheduled'&&(!Number.isFinite(executeAt)||executeAt<=Math.floor(Date.now()/1000)))){ $('indicatorStatus').textContent=mode==='scheduled'?'銘柄・ロット・マージン・注文設置日／時刻／秒を確認してください。':'銘柄・ロット・マージン・SL／TPを確認してください。'; return; }
  const button=$('indicatorReserve');
  // 指標予約も通常予約と同じスケジュール経路でEAへ保持させる。
@@ -2510,6 +2537,7 @@ function reserveIndicator(){
  const payload={action,account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume,marginPips:mode==='market'?0:marginPips,stopLossPips:slPips,takeProfitPips:tpPips,...(mode==='scheduled'?{executeAt,indicatorScheduled:'1'}:{})};
  fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+connectionKey(),'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(body=>{
   if(mode==='scheduled'){
+   saveIndicatorScheduleGuard({symbol,executeAt,style:'trend',commandId:body.commandId,createdAt:Math.floor(Date.now()/1000)});
    $('indicatorStatus').textContent='予約をEAへ登録しました。'+at.replace('T',' ')+' にBuy Stop／Sell Stopを設置します。';
    if(executeAt-Math.floor(Date.now()/1000)<=30) waitForCommandResult(body.commandId,connectionKey(),'indicator');
   }else{
@@ -2818,7 +2846,7 @@ function removeProfile(id){
  const wasActive=activeConnectionProfileId===id;
  const next=connectionProfiles.find(profile=>profile.id!==id&&hasConnectionHistory(profile))||connectionProfiles.find(profile=>profile.id!==id);
  pauseLiveConnection();
- [LIVE_SNAPSHOT_KEY,WEEKEND_BTC_TEST_KEY,NANPIN_SETTINGS_KEY,ORDER_VOLUME_KEY,LOT_CALCULATOR_KEY,INDICATOR_PRESETS_KEY].forEach(key=>{try{localStorage.removeItem(key+'_'+id);}catch{}});
+ [LIVE_SNAPSHOT_KEY,WEEKEND_BTC_TEST_KEY,NANPIN_SETTINGS_KEY,ORDER_VOLUME_KEY,LOT_CALCULATOR_KEY,INDICATOR_PRESETS_KEY,INDICATOR_SCHEDULE_GUARD_KEY].forEach(key=>{try{localStorage.removeItem(key+'_'+id);}catch{}});
  connectionProfiles=connectionProfiles.filter(profile=>profile.id!==id);
  ['goto','indicator'].forEach(mode=>{if(modeProfiles[mode]===id)modeProfiles[mode]=next.id;});
  try{localStorage.setItem(MODE_PROFILE_KEY,JSON.stringify(modeProfiles));}catch{}
