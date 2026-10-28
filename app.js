@@ -1509,11 +1509,6 @@ function selectTradingViewPreview(item){
  tradingViewPreviewSymbol=item.tvSymbol;
  try{localStorage.setItem('tomFxZeroTradingViewPreviewSymbolV1',tradingViewPreviewSymbol);}catch{}
  renderTradingViewPreview();
- if(activeMode==='goto'){
-  selectedTradeSymbol=item.symbol;
-  updateMarket();
-  setAppPage('home');
- }
 }
 function currentCurrencySymbol(){return activeMode==='goto'?selectedTradeSymbol:($('indicatorSymbol')?.value||selectedTradeSymbol);}
 function selectCurrency(symbol){
@@ -1536,7 +1531,8 @@ function renderCurrencyList(){
  const normalize=value=>String(value||'').toLowerCase().replace(/[\s/_\-.]/g,'');
  const needle=normalize(currencySearchQuery);
  const markets=needle?allMarkets.filter(m=>normalize(m.symbol).includes(needle)||normalize(tradeSymbolLabel(m.symbol)).includes(needle)):allMarkets;
- const previewMarkets=tradingViewCatalogMatches(currencySearchQuery);
+ const configuredBases=new Set(allMarkets.map(m=>(String(m.symbol||'').match(/[A-Z]{6}/i)||[''])[0].toUpperCase()).filter(Boolean));
+ const previewMarkets=tradingViewCatalogMatches(currencySearchQuery).filter(item=>!configuredBases.has(item.symbol));
  const current=currentCurrencySymbol();container.replaceChildren();
  for(const market of markets){
   const symbol=market.symbol,label=tradeSymbolLabel(symbol),button=document.createElement('button');
@@ -1562,7 +1558,7 @@ function renderCurrencyList(){
   const empty=document.createElement('p');empty.className='currency-list-empty';empty.textContent='一致するEA受信銘柄・TradingView銘柄がありません';container.append(empty);
  }
  const status=$('currencyListStatus');
- if(status)status.textContent=(data.live?platformLabel(data)+'価格 ':'サンプル銘柄 ')+markets.length+'/'+allMarkets.length+' · TV '+previewMarkets.length;
+ if(status)status.textContent=(data.live?platformLabel(data)+'価格 ':'サンプル銘柄 ')+markets.length+'/'+allMarkets.length+' · TV表示 '+previewMarkets.length;
 }
 
 function renderDesktopWatchlist(containerId){

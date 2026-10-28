@@ -10,10 +10,10 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.42">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.42" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.42">
-  <link rel="stylesheet" href="style.css?v=0.5.42">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.43">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.43" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.43">
+  <link rel="stylesheet" href="style.css?v=0.5.43">
 
   <style id="settings-tabs-style">
     /* 0.5.33: モード切替を横並び・低い高さへ固定 */
@@ -46,7 +46,7 @@
           <span id="accountConnectionAge">0秒</span>
         </span>
       </div>
-      <div class="header-actions"><span class="version">検証版 0.5.42</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
+      <div class="header-actions"><span class="version">検証版 0.5.43</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
     </div>
   </header>
 
@@ -245,13 +245,13 @@
     </section>
 
     <section id="symbolsPage" class="app-page page-panel" data-app-page="symbols" hidden aria-labelledby="symbolsPageTitle">
-      <div class="page-title-row"><div><h2 id="symbolsPageTitle">通貨リスト</h2><p>EA受信銘柄とTradingViewプレビュー銘柄を検索できます。</p></div><span id="currencyListStatus" class="page-status">EA価格</span></div>
-      <div class="currency-list-tools"><label for="currencySearch">銘柄を検索<input id="currencySearch" type="search" placeholder="例：USDJPY / GBP / ゴールド" autocomplete="off" enterkeyhint="search"></label><span>EA価格またはTradingViewプレビュー</span></div>
+      <div class="page-title-row"><div><h2 id="symbolsPageTitle">通貨リスト</h2><p>EA価格のある銘柄は実チャート・注文に使用できます。TradingViewは表示専用です。</p></div><span id="currencyListStatus" class="page-status">EA価格</span></div>
+      <div class="currency-list-tools"><label for="currencySearch">銘柄を検索<input id="currencySearch" type="search" placeholder="例：USDJPY / GBP / ゴールド" autocomplete="off" enterkeyhint="search"></label><span>EA価格＝実チャート・注文可／TV＝表示専用</span></div>
       <div id="currencyRows" class="currency-list"></div>
       <section id="tradingViewPreview" class="tradingview-preview" hidden aria-labelledby="tradingViewPreviewTitle">
         <div class="tradingview-preview-head"><div><h3 id="tradingViewPreviewTitle">TradingViewプレビュー</h3><p id="tradingViewPreviewSymbol">銘柄を選択してください</p></div><span>表示用</span></div>
         <div id="tradingViewPreviewFrame" class="tradingview-preview-frame"></div>
-        <p class="small">このチャートは確認用の市場表示です。注文時の口座銘柄はEAのサフィックス／特殊銘柄設定で自動解決します。</p>
+        <p class="small">このチャートは確認用の市場表示です。注文にはEA価格が必要です。EAパラメータの「配信・取引銘柄」に追加すると、口座価格・実チャート・注文の対象になります。</p>
       </section>
     </section>
 
@@ -448,10 +448,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.42"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.42"></script>
-  <script src="app.js?v=0.5.42"></script>
-  <script src="pwa.js?v=0.5.42"></script>
+  <script src="calc.js?v=0.5.43"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.43"></script>
+  <script src="app.js?v=0.5.43"></script>
+  <script src="pwa.js?v=0.5.43"></script>
 
   <script>
     (() => {
