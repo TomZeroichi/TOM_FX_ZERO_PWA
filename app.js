@@ -1,12 +1,13 @@
 'use strict';
 const $=id=>document.getElementById(id),C=FXCalc;
-const demo=()=>({schema:1,source:'demo',currency:'JPY',balance:500000,equity:500000,generatedAt:Date.now()/1000,positions:[
+const demoPositions=[
  {id:'1001',symbol:'USDJPY',side:'BUY',volume:.2,profit:1850,swap:-30,commission:-420,fee:0,costStatus:'observed'},
  {id:'1002',symbol:'XAUUSD',side:'BUY',volume:.05,profit:620,swap:0,commission:-700,fee:0,costStatus:'observed'},
  {id:'1003',symbol:'EURUSD',side:'SELL',volume:.1,profit:-450,swap:-20,commission:-210,fee:0,costStatus:'observed'},
  {id:'1004',symbol:'USDJPY',side:'SELL',volume:.1,profit:980,swap:-50,commission:-210,fee:0,costStatus:'observed'},
  {id:'1005',symbol:'XAUUSD',side:'SELL',volume:.02,profit:130,swap:0,commission:0,fee:0,costStatus:'unknown'}
-]});
+];
+const demo=()=>({schema:1,source:'demo',currency:'JPY',balance:500000,equity:500000,generatedAt:Date.now()/1000,positions:demoPositions.map(position=>({...position})),pendingOrders:[]});
 
 let data=demo();
 let selected=new Set(data.positions.slice(0,4).map(p=>p.id));
@@ -423,6 +424,7 @@ const money=n=>n===null?'未確認':new Intl.NumberFormat('ja-JP',{
 }).format(Math.abs(n)<1e-8?0:n);
 const balanceMoney=n=>Number.isFinite(n)?new Intl.NumberFormat('ja-JP',{style:'currency',currency:data.currency,maximumFractionDigits:data.currency==='JPY'?0:2}).format(n):'--';
 const visible=()=>data.positions.filter(p=>!$('symbol').value||p.symbol===$('symbol').value);
+const pendingVisible=()=>Array.isArray(data.pendingOrders)?data.pendingOrders.filter(p=>!$('symbol').value||p.symbol===$('symbol').value):[];
 const chosen=()=>data.positions.filter(p=>selected.has(p.id));
 const closeTargets=kind=>C.closeTargets(data.positions,kind);
 const sumText=a=>a.net===null?'純損益 未確認（手数料未確認を含む）':'純損益 '+money(a.net);
@@ -465,7 +467,7 @@ function updateBalance(){
 function symbols(){
  const select=$('symbol');
  select.replaceChildren(new Option('すべて',''));
- [...new Set(data.positions.map(p=>p.symbol))].forEach(symbol=>select.add(new Option(symbol,symbol)));
+ [...new Set([...data.positions.map(p=>p.symbol),...(Array.isArray(data.pendingOrders)?data.pendingOrders.map(p=>p.symbol):[])])].forEach(symbol=>select.add(new Option(symbol,symbol)));
  if(document.body?.dataset.appPage==='symbols')renderCurrencyList();
 }
 
@@ -1611,12 +1613,65 @@ function clearPositionLevelDrafts(positionIds=[]){
   positionLevelDrafts.delete(positionLevelDraftKey(positionId,'takeProfit'));
  }
 }
+function renderPendingOrderRow(container,order){
+ const row=document.createElement('div');
+ row.className='row pending-order-row';
+ const details=document.createElement('div');
+ details.className='position-details pending-order-details';
+ const summary=document.createElement('div');
+ summary.className='position-summary pending-order-summary';
+ const left=document.createElement('span');
+ left.className='position-main';
+ const title=document.createElement('span');
+ title.className='position-title';
+ const identity=document.createElement('span');
+ identity.className='identity';
+ identity.textContent=order.symbol;
+ const side=document.createElement('span');
+ side.className='side '+(order.side==='SELL'?'sell':'');
+ side.textContent=order.side;
+ const state=document.createElement('span');
+ state.className='pending-order-state';
+ state.textContent='予約中';
+ title.append(identity,side,state);
+ const meta=document.createElement('span');
+ meta.className='position-meta';
+ meta.textContent=Number(order.volume).toFixed(2)+' lot · '+(order.type||'待機注文');
+ left.append(title,meta);
+ const right=document.createElement('span');
+ right.className='position-result';
+ const status=document.createElement('span');
+ status.className='status pending-order-status';
+ status.textContent='待機中';
+ right.append(status);
+ summary.append(left,right);
+ details.append(summary);
+ const market=marketForSymbol(order.symbol);
+ const priceText=value=>Number(value)>0?chartPrice(Number(value),market):'未設定';
+ const breakdown=document.createElement('dl');
+ breakdown.className='position-breakdown pending-order-breakdown';
+ for(const [label,value] of [
+  ['予約価格',priceText(order.orderPrice)],
+  ['SL価格',priceText(order.stopLoss)],
+  ['TP価格',priceText(order.takeProfit)],
+  ['ロット',Number(order.volume).toFixed(2)+' lot'],
+  ['注文番号','#'+order.ticket]
+ ]){
+  const term=document.createElement('dt');term.textContent=label;
+  const definition=document.createElement('dd');definition.textContent=value;
+  breakdown.append(term,definition);
+ }
+ details.append(breakdown);
+ row.append(details);
+ container.append(row);
+}
 function render(){
  const container=$('rows');
  const opened=new Set([...container.querySelectorAll('details[open]')].map(el=>el.dataset.position));
  capturePositionLevelDrafts(container);
  container.replaceChildren();
- $('count').textContent=data.positions.length+'件';
+ const pendingItems=pendingVisible();
+ $('count').textContent=data.positions.length+'件'+(pendingItems.length?' ／ 予約 '+pendingItems.length+'件':'');
 
  for(const p of visible()){
   const row=document.createElement('div');
@@ -1730,7 +1785,9 @@ function render(){
   container.append(row);
  }
 
- if(!visible().length){
+ for(const order of pendingItems)renderPendingOrderRow(container,order);
+
+ if(!visible().length&&!pendingItems.length){
   const empty=document.createElement('p');
   empty.className='empty';
   empty.textContent='表示するポジションはありません';
@@ -1926,7 +1983,7 @@ function syncIndicatorSymbolToHomeChart(){
  if(indicator&&trade&&[...indicator.options].some(option=>option.value===trade.value))indicator.value=trade.value;
 }
 function setIndicatorOrderTab(target,{closeIfActive=false}={}){
- const modes={scheduled:'予約',immediate:'即時',market:'成行'};
+ const modes={scheduled:'時刻予約',immediate:'即時予約',market:'成行'};
  if(!modes[target])return;
  const stage=$('gotoOrderStage');
  const button=document.querySelector('[data-indicator-order-tab="'+target+'"]');
@@ -1953,10 +2010,10 @@ function configureHomeOrderTabs(mode){
   nanpin:'<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/><path d="m15.5 4 3.5 3-3.5 3M8.5 9 5 12l3.5 3M15.5 14l3.5 3-3.5 3"/></svg>'
  })[kind]||'';
  const config=indicator
-  ?[{key:'scheduled',label:'予約',icon:'reserve'},{key:'immediate',label:'即時',icon:'immediate'},{key:'market',label:'成行',icon:'market'}]
+  ?[{key:'scheduled',label:'時刻予約',icon:'reserve'},{key:'immediate',label:'即時予約',icon:'immediate'},{key:'market',label:'成行',icon:'market'}]
   :[{key:'market',label:'成行',icon:'market'},{key:'reserve',label:'予約',icon:'reserve'},{key:'nanpin',label:'ナンピン',icon:'nanpin'}];
  const tabs=document.querySelector('.goto-order-tabs');
- if(tabs)tabs.setAttribute('aria-label',indicator?'指標注文メニュー':'ゴトー日注文メニュー');
+ if(tabs){tabs.setAttribute('aria-label',indicator?'指標注文メニュー':'ゴトー日注文メニュー');tabs.classList.toggle('is-indicator-mode',indicator);}
  buttons.forEach((button,index)=>{
   const item=config[index];if(!item)return;
   button.innerHTML='<span class="action-button-icon" aria-hidden="true">'+actionIcon(item.icon)+'</span><span>'+item.label+'</span>';

@@ -120,6 +120,7 @@ h2 span{color:var(--muted);font-size:.875rem;margin-left:5px;white-space:nowrap}
 .position-breakdown{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 12px;font-size:.875rem;line-height:1.5;background:#f5f6f8;border-radius:8px;padding:12px;margin:0 8px 12px 0}
 .position-breakdown dt{color:var(--muted)}
 .position-breakdown dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.position-level-editor{display:grid;gap:8px;margin:0 8px 12px 0;padding:10px;border:1px solid #d7dfe8;border-radius:8px;background:#fff}.position-level-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.position-level-head strong{font-size:.8rem}.position-level-head small{color:var(--muted);font-size:.7rem}.position-level-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.position-level-fields label{display:grid;gap:4px;color:var(--muted);font-size:.72rem;font-weight:700}.position-level-fields input{display:block;width:100%;height:40px;min-width:0;margin:0;padding:7px 9px;border:1px solid #ccd1d8;border-radius:8px;background:#fff;color:var(--ink);font-size:.875rem}.position-level-submit{width:100%;min-height:40px;padding:7px 10px;background:#fff3e7;border-color:#e2b38f;color:#93410f;font-size:.8rem;font-weight:750}
+.pending-order-row{grid-template-columns:minmax(0,1fr);padding:0 8px;border:1px solid #2b6594;border-radius:10px;background:linear-gradient(135deg,#0b3151,#071d32);margin-top:8px;overflow:hidden}.pending-order-summary{padding-left:0}.pending-order-state{display:inline-flex;align-items:center;margin-left:5px;padding:2px 6px;border:1px solid #4c9ad0;border-radius:999px;color:#b9e4ff;font-size:.68rem;font-weight:750}.pending-order-status{color:#8fd7ff!important}.pending-order-breakdown{margin:0 0 10px;background:#061a30;border-color:#245985}.pending-order-breakdown dt{color:#9fbdd5}
 .small{font-size:.8125rem}
 .positions>.small{margin-bottom:0}
 .upload{display:inline-flex;align-items:center;background:#171b22;color:white;position:relative;overflow:hidden}
@@ -190,6 +191,9 @@ dialog::backdrop{background:#10172188}
  .footer-close-actions{min-width:min(58vw,300px);gap:6px}.direct-close-option{font-size:.6875rem}.direct-close-option input{width:17px;height:17px}
  .version{font-size:.75rem}
 }
+
+body[data-app-page="home"] #marketPanel>.goto-order-tabs.is-indicator-mode button{font-size:.76rem!important;gap:4px!important;padding-left:4px!important;padding-right:4px!important}
+body[data-app-page="home"] #marketPanel>.goto-order-tabs.is-indicator-mode .action-button-icon{font-size:.88em!important}
 @media(display-mode:standalone){
  header{padding-top:max(14px,env(safe-area-inset-top))}
  body{overscroll-behavior-y:auto}
@@ -492,6 +496,8 @@ details.indicator-presets{display:block;margin:16px 0 0;padding:11px 12px;border
 @media(max-width:999px){
  .desktop-market-ticker,.desktop-watchlist{display:none!important}
 }
+
+@media(max-width:999px){#positionsPage #rows .pending-order-row{grid-template-columns:minmax(0,1fr)!important;padding:0!important}.pending-order-row .pending-order-details{grid-column:1!important}.pending-order-row .pending-order-summary{min-height:70px!important;padding:10px 12px!important}.pending-order-row .pending-order-breakdown{margin:0!important;padding:9px 12px!important}}
 
 /* 0.4.88: 残高タップ式・取引モード横配置・テーマ切替 */
 .trade-quickbar{grid-template-columns:minmax(0,1fr) auto;align-items:stretch}.account-metrics{min-width:0}.balance-details{margin:0}.balance-details>summary{list-style:none;cursor:pointer}.balance-details>summary::-webkit-details-marker{display:none}.balance-strip{width:100%}.balance-strip small{display:inline-block;margin-left:5px;color:inherit;font-size:.78rem;transition:transform .18s ease}.balance-details[open]>.balance-strip small{transform:rotate(180deg)}.trade-quickbar>.mode-switch{align-self:stretch;margin:0}.trade-quickbar>.mode-switch button{min-width:86px}.theme-settings{border:1px solid #286293;border-radius:10px;background:#082846;color:#e7f4ff}.theme-settings>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:11px 12px;cursor:pointer;list-style:none}.theme-settings>summary::-webkit-details-marker{display:none}.theme-settings summary span{font-weight:750}.theme-settings summary small{color:#a5c2d9}.theme-settings summary::after{content:'⌄';color:#9ebed7;font-size:1.1rem}.theme-settings[open] summary::after{transform:rotate(180deg)}.theme-options{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 11px 11px}.theme-options button{min-height:38px;border:1px solid #326895;border-radius:7px;background:#061a30;color:#ddecf9;font-size:.76rem;font-weight:700}.theme-options button[aria-pressed="true"]{border-color:#ff8737;background:#ff8737;color:#21150d;box-shadow:0 0 14px #ff873744}

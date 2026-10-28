@@ -10,10 +10,10 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.43">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.43" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.43">
-  <link rel="stylesheet" href="style.css?v=0.5.43">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.44">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.44" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.44">
+  <link rel="stylesheet" href="style.css?v=0.5.44">
 
   <style id="settings-tabs-style">
     /* 0.5.33: モード切替を横並び・低い高さへ固定 */
@@ -46,7 +46,7 @@
           <span id="accountConnectionAge">0秒</span>
         </span>
       </div>
-      <div class="header-actions"><span class="version">検証版 0.5.43</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
+      <div class="header-actions"><span class="version">検証版 0.5.44</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
     </div>
   </header>
 
@@ -140,7 +140,7 @@
 
     <section class="positions">
       <div class="sectionhead">
-        <h2>保有ポジション <span id="count"></span></h2>
+        <h2>ポジション・予約注文 <span id="count"></span></h2>
         <label>銘柄 <select id="symbol"><option value="">すべて</option></select></label>
       </div>
       <div class="filters" aria-label="ポジションを選択">
@@ -153,7 +153,7 @@
         <p class="small" id="modifyStatus" aria-live="polite"></p>
       </div>
       <div id="rows"></div>
-      <p class="small">行をタップして内訳を表示。各ポジションからTP／SLを追加・変更できます。</p>
+      <p class="small">保有ポジションは行をタップして内訳を表示できます。予約注文は予約価格・ロット・TP／SL価格を表示します。</p>
     </section>
 
     <section class="history-dialog" id="historyDialog" aria-labelledby="historyTitle">
@@ -201,8 +201,8 @@
       </section>
       <div id="indicatorOrderPanelSlot"><section id="indicatorOrderPanel" class="indicator-order-panel" aria-labelledby="indicatorOrderTitle"><h2 id="indicatorOrderTitle" class="sr-only">指標トレード注文</h2>
       <div class="indicator-entry-modes" role="radiogroup" aria-label="指標トレードのエントリーモード">
-        <label><input type="radio" name="indicatorEntryMode" value="scheduled" checked><span><strong>予約モード</strong><small>指定時刻に上下逆指値</small></span></label>
-        <label><input type="radio" name="indicatorEntryMode" value="immediate"><span><strong>即時モード</strong><small>すぐ上下逆指値</small></span></label>
+        <label><input type="radio" name="indicatorEntryMode" value="scheduled" checked><span><strong>時刻予約モード</strong><small>指定時刻に上下逆指値</small></span></label>
+        <label><input type="radio" name="indicatorEntryMode" value="immediate"><span><strong>即時予約モード</strong><small>すぐ上下逆指値</small></span></label>
         <label><input type="radio" name="indicatorEntryMode" value="market"><span><strong>成行モード</strong><small>TP／SL付き両建て</small></span></label>
       </div>
       <div id="indicatorOrderStyle" class="indicator-order-style" role="tablist" aria-label="予約注文方式">
@@ -256,7 +256,7 @@
     </section>
 
     <section id="positionsPage" class="app-page" data-app-page="positions" hidden aria-labelledby="positionsPageTitle">
-      <div class="page-title-row positions-page-title"><div><h2 id="positionsPageTitle">ポジション</h2><p>現在の保有ポジションと決済操作</p></div></div>
+      <div class="page-title-row positions-page-title"><div><h2 id="positionsPageTitle">ポジション</h2><p>保有ポジション・予約注文と決済操作</p></div></div>
     </section>
 
     <section id="historyPage" class="app-page" data-app-page="history" hidden aria-labelledby="historyPageTitle">
@@ -448,10 +448,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.43"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.43"></script>
-  <script src="app.js?v=0.5.43"></script>
-  <script src="pwa.js?v=0.5.43"></script>
+  <script src="calc.js?v=0.5.44"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.44"></script>
+  <script src="app.js?v=0.5.44"></script>
+  <script src="pwa.js?v=0.5.44"></script>
 
   <script>
     (() => {
