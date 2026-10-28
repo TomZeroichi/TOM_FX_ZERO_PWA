@@ -2306,12 +2306,16 @@ function updateIndicatorEntryMode(){
 function indicatorScheduledTime(){
  const date=$('indicatorDate').value,time=selectedClockTime('indicator');
  if(!date||!time)return null;
- const at=date+'T'+time,executeAt=Math.floor(new Date(at).getTime()/1000);
+ const parts=date.split('-').map(Number),clock=time.split(':').map(Number);
+ if(parts.length!==3||clock.length!==3||parts.some(value=>!Number.isInteger(value))||clock.some(value=>!Number.isInteger(value)))return null;
+ const localDate=new Date(parts[0],parts[1]-1,parts[2],clock[0],clock[1],clock[2],0),at=date+'T'+time,executeAt=Math.floor(localDate.getTime()/1000);
  return Number.isFinite(executeAt)?{at,executeAt}:null;
 }
 function reverseScheduledTime(){
  const time=selectedClockTime('reverse');if(!time)return null;
- const today=new Date(),date=[today.getFullYear(),twoDigits(today.getMonth()+1),twoDigits(today.getDate())].join('-'),at=date+'T'+time,executeAt=Math.floor(new Date(at).getTime()/1000);
+ const today=new Date(),date=[today.getFullYear(),twoDigits(today.getMonth()+1),twoDigits(today.getDate())].join('-'),parts=date.split('-').map(Number),clock=time.split(':').map(Number);
+ if(parts.length!==3||clock.length!==3||parts.some(value=>!Number.isInteger(value))||clock.some(value=>!Number.isInteger(value)))return null;
+ const localDate=new Date(parts[0],parts[1]-1,parts[2],clock[0],clock[1],clock[2],0),at=date+'T'+time,executeAt=Math.floor(localDate.getTime()/1000);
  return Number.isFinite(executeAt)?{at,executeAt}:null;
 }
 function readIndicatorPresets(){
@@ -2499,9 +2503,11 @@ function reserveIndicator(){
  if(!canSendLiveCommand()){ $('indicatorStatus').textContent=currentPlatform()+'デモ口座へ接続してから注文してください。'; return; }
  if(!Number.isFinite(volume)||volume<=0||!Number.isFinite(slPips)||slPips<0||!Number.isFinite(tpPips)||tpPips<0||((mode==='scheduled'||mode==='immediate')&&(!Number.isFinite(marginPips)||marginPips<=0))||(mode==='scheduled'&&(!Number.isFinite(executeAt)||executeAt<=Math.floor(Date.now()/1000)))){ $('indicatorStatus').textContent=mode==='scheduled'?'銘柄・ロット・マージン・注文設置日／時刻／秒を確認してください。':'銘柄・ロット・マージン・SL／TPを確認してください。'; return; }
  const button=$('indicatorReserve');
- const action=mode==='scheduled'?'indicator_order':mode==='market'?'indicator_market_hedge':'indicator_order_now';
+ // 指標予約も通常予約と同じスケジュール経路でEAへ保持させる。
+ // indicatorScheduled=1を付け、指定時刻にだけ指標用OCO逆指値として処理する。
+ const action=mode==='scheduled'?'schedule_market_order':mode==='market'?'indicator_market_hedge':'indicator_order_now';
  button.disabled=true;button.textContent='注文を送信中…';$('indicatorStatus').textContent=currentPlatform()+'へ注文指示を送信中…';
- const payload={action,account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume,marginPips:mode==='market'?0:marginPips,stopLossPips:slPips,takeProfitPips:tpPips,...(mode==='scheduled'?{executeAt}:{})};
+ const payload={action,account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume,marginPips:mode==='market'?0:marginPips,stopLossPips:slPips,takeProfitPips:tpPips,...(mode==='scheduled'?{executeAt,indicatorScheduled:'1'}:{})};
  fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+connectionKey(),'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(body=>{
   if(mode==='scheduled'){
    $('indicatorStatus').textContent='予約をEAへ登録しました。'+at.replace('T',' ')+' にBuy Stop／Sell Stopを設置します。';
