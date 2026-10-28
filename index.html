@@ -10,10 +10,11 @@
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.45">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.45" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.45">
-  <link rel="stylesheet" href="style.css?v=0.5.45">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.46">
+  <link rel="icon" href="icons/app-icon.svg?v=0.5.46" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.46">
+  <link rel="stylesheet" href="style.css?v=0.5.46">
+  <link rel="stylesheet" href="mode-buttons.css?v=0.5.46">
 
   <style id="settings-tabs-style">
     /* 0.5.33: モード切替を横並び・低い高さへ固定 */
@@ -46,7 +47,7 @@
           <span id="accountConnectionAge">0秒</span>
         </span>
       </div>
-      <div class="header-actions"><span class="version">検証版 0.5.45</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
+      <div class="header-actions"><span class="version">検証版 0.5.46</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
     </div>
   </header>
 
@@ -60,7 +61,26 @@
           <div class="equity-body" aria-hidden="true"><div><span>現在の含み損益</span><strong id="equityFloatingValue">--</strong></div></div>
         </details>
       </div>
-      <div class="mode-switch" role="tablist" aria-label="取引モード"><button id="modeGoto" type="button" class="is-active" role="tab" aria-selected="true" aria-label="ゴトー日を表示"><span class="mode-button-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M7.5 3.5v3M16.5 3.5v3M3.5 9h17M8 13h3M13 13h3M8 16.5h3"/></svg></span><span>ゴトー</span></button><button id="modeIndicator" type="button" role="tab" aria-selected="false" aria-label="指標トレードを表示"><span class="mode-button-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V5M16 20v-8M22 20V2"/><path d="M2.5 20.5h20"/></svg></span><span>指標</span></button></div>
+      <div class="mode-switch neon-mode-switch" role="tablist" aria-label="取引モード">
+        <button id="modeGoto" type="button" class="mode-card mode-card-goto is-active" role="tab" aria-selected="true" aria-label="ゴトー日を表示：ゴトー日の注文補助">
+          <span class="mode-button-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse class="mode-icon-orbit" cx="12" cy="12" rx="10.3" ry="4.2" transform="rotate(-28 12 12)"/><rect x="4.2" y="5.2" width="15.6" height="15" rx="2.2"/><path d="M8 3.5v3.4M16 3.5v3.4M4.2 9h15.6"/><text x="12" y="17" text-anchor="middle">5</text></svg></span>
+          <span class="mode-button-copy">
+            <span class="mode-button-title"><span class="mode-button-title-en">GOTO MODE</span><span class="mode-button-title-short">GOTO</span></span>
+            <span class="mode-button-subtitle">ゴトー日の注文補助</span>
+          </span>
+          <span class="mode-button-divider" aria-hidden="true"></span>
+          <span class="mode-button-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 4 8 8-8 8"/></svg></span>
+        </button>
+        <button id="modeIndicator" type="button" class="mode-card mode-card-indicator" role="tab" aria-selected="false" aria-label="指標トレードを表示：経済指標発表時などの注文補助">
+          <span class="mode-button-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse class="mode-icon-orbit" cx="12" cy="12" rx="10.3" ry="4.2" transform="rotate(-28 12 12)"/><path d="M5 19V12M10 19V7M15 19V10M20 19V4M3.5 20.5h17"/></svg></span>
+          <span class="mode-button-copy">
+            <span class="mode-button-title"><span class="mode-button-title-en">EVENT MODE</span><span class="mode-button-title-short">EVENT</span></span>
+            <span class="mode-button-subtitle">経済指標発表時などの注文補助</span>
+          </span>
+          <span class="mode-button-divider" aria-hidden="true"></span>
+          <span class="mode-button-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 4 8 8-8 8"/></svg></span>
+        </button>
+      </div>
     </div>
     <div class="desktop-market-ticker" id="desktopMarketTicker" aria-label="市場概況">
       <span class="desktop-ticker-label">Market News</span><div id="desktopTickerItems" class="desktop-ticker-items"></div><span class="desktop-ticker-live"><i aria-hidden="true"></i> REALTIME</span>
@@ -448,10 +468,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.45"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.45"></script>
-  <script src="app.js?v=0.5.45"></script>
-  <script src="pwa.js?v=0.5.45"></script>
+  <script src="calc.js?v=0.5.46"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.46"></script>
+  <script src="app.js?v=0.5.46"></script>
+  <script src="pwa.js?v=0.5.46"></script>
 
   <script>
     (() => {

@@ -1652,20 +1652,7 @@ dialog:not([open]){display:none!important}
 .mode-switch button,.goto-order-tabs button{display:inline-flex!important;align-items:center;justify-content:center;gap:6px}
 .mode-button-icon{font-size:1.05em}.action-button-icon{font-size:1.12em}
 
-/* 上部のゴトー／指標はネイビーの枠ボタン、選択中だけオレンジの発光に統一。 */
-body[data-app-page="home"] .mode-switch button{
-  border-color:#28699b!important;
-  background:linear-gradient(145deg,#0b2949,#071c35)!important;
-  color:#dcecff!important;
-  box-shadow:inset 0 0 0 1px #72bcff0d!important;
-}
-body[data-app-page="home"] .mode-switch button.is-active{
-  border-color:#ff9b42!important;
-  background:linear-gradient(135deg,#ff9a43,#ff7430)!important;
-  color:#161d28!important;
-  box-shadow:0 0 0 1px #ffb66a44,0 0 15px #ff873766!important;
-}
-
+/* v0.5.46: 上部モードカードの配色と寸法は mode-buttons.css に集約。 */
 /* ゴトー／指標の固定3操作。全ボタンの寸法を保ち、選択中のみオレンジで表示する。 */
 body[data-app-page="home"] #marketPanel>.goto-order-tabs button{
   display:inline-flex!important;
