@@ -34,6 +34,25 @@ const chartPinches=new Map();
 const chartLayouts=new Map();
 let selectedTradeSymbol='USDJPYz';
 let currencySearchQuery='';
+let tradingViewPreviewSymbol='OANDA:USDJPY';
+const TRADINGVIEW_SYMBOL_CATALOG=[
+ {symbol:'EURUSD',label:'EUR/USD',tvSymbol:'OANDA:EURUSD'},
+ {symbol:'GBPUSD',label:'GBP/USD',tvSymbol:'OANDA:GBPUSD'},
+ {symbol:'AUDUSD',label:'AUD/USD',tvSymbol:'OANDA:AUDUSD'},
+ {symbol:'NZDUSD',label:'NZD/USD',tvSymbol:'OANDA:NZDUSD'},
+ {symbol:'USDCAD',label:'USD/CAD',tvSymbol:'OANDA:USDCAD'},
+ {symbol:'USDCHF',label:'USD/CHF',tvSymbol:'OANDA:USDCHF'},
+ {symbol:'USDJPY',label:'USD/JPY',tvSymbol:'OANDA:USDJPY'},
+ {symbol:'EURJPY',label:'EUR/JPY',tvSymbol:'OANDA:EURJPY'},
+ {symbol:'GBPJPY',label:'GBP/JPY',tvSymbol:'OANDA:GBPJPY'},
+ {symbol:'AUDJPY',label:'AUD/JPY',tvSymbol:'OANDA:AUDJPY'},
+ {symbol:'XAUUSD',label:'金（XAU/USD）',tvSymbol:'OANDA:XAUUSD'},
+ {symbol:'XAGUSD',label:'銀（XAG/USD）',tvSymbol:'OANDA:XAGUSD'},
+ {symbol:'BTCUSD',label:'Bitcoin（BTC/USD）',tvSymbol:'COINBASE:BTCUSD'},
+ {symbol:'USOIL',label:'原油（WTI）',tvSymbol:'TVC:USOIL'},
+ {symbol:'NAS100',label:'NASDAQ 100',tvSymbol:'FOREXCOM:NAS100'},
+ {symbol:'JP225',label:'日経225',tvSymbol:'TVC:JP225'}
+];
 let liveTimer=null;
 let liveBusy=false;
 let liveReceivedAt=0;
@@ -345,8 +364,13 @@ function syncTradeSymbolOptions(){
  const select=$('tradeSymbol'),gotobi=marketList(data).filter(m=>isGotoSymbol(m.symbol));
  const btcToggle=$('weekendBtcTest');
  if(btcToggle)btcToggle.checked=weekendBtcTestEnabled();
- if(gotobi.length&&!gotobi.some(m=>m.symbol===selectedTradeSymbol))selectedTradeSymbol=gotobi[0].symbol;
- if(gotobi.length)syncSelectOptions(select,gotobi.map(m=>({text:tradeSymbolLabel(m.symbol),value:m.symbol})),selectedTradeSymbol);
+ const previewSelected=TRADINGVIEW_SYMBOL_CATALOG.some(item=>item.symbol===selectedTradeSymbol);
+ if(gotobi.length&&!gotobi.some(m=>m.symbol===selectedTradeSymbol)&&!previewSelected)selectedTradeSymbol=gotobi[0].symbol;
+ if(gotobi.length){
+  const options=gotobi.map(m=>({text:tradeSymbolLabel(m.symbol),value:m.symbol}));
+  if(previewSelected)options.unshift({text:tradeSymbolLabel(selectedTradeSymbol)+'（TVプレビュー）',value:selectedTradeSymbol});
+  syncSelectOptions(select,options,selectedTradeSymbol);
+ }
 }
 function syncIndicatorSymbolOptions(){
  const select=$('indicatorSymbol'),markets=marketList(data).filter(m=>!isWeekendBtcSymbol(m.symbol)||weekendBtcTestEnabled()),previous=select.value;
@@ -357,9 +381,9 @@ function syncIndicatorSymbolOptions(){
  syncIndicatorPresetSymbolOptions();
 }
 function selectedMarket(){
- const markets=marketList(data).filter(m=>isGotoSymbol(m.symbol));
- return markets.find(m=>m.symbol===selectedTradeSymbol)||markets[0]||null;
+ return marketList(data).find(m=>m.symbol===selectedTradeSymbol)||null;
 }
+function isTradingViewCatalogSymbol(symbol){return TRADINGVIEW_SYMBOL_CATALOG.some(item=>item.symbol===symbol);}
 function marketForSymbol(symbol){return marketList(data).find(m=>m.symbol===symbol)||null;}
 function currentPositionPips(position){
  const open=Number(position.openPrice),market=marketForSymbol(position.symbol);
@@ -452,7 +476,7 @@ function canCreateCloseCommand(items=chosen()){
 function canCreateOrder(){
  const freshLive=!data.live||((Date.now()/1000-liveReceivedAt)<=10);
  const market=selectedMarket();
- return isLiveSource(data.source)&&data.schema===2&&data.tradeMode==='demo'&&connectionKey()&&freshLive&&!!market;
+ return isLiveSource(data.source)&&data.schema===2&&data.tradeMode==='demo'&&connectionKey()&&freshLive&&(!!market||isTradingViewCatalogSymbol(selectedTradeSymbol));
 }
 function canSendLiveCommand(){
  const freshLive=!data.live||((Date.now()/1000-liveReceivedAt)<=10);
@@ -791,10 +815,10 @@ function updateMarket(){
  $('tradeSymbolLabel').textContent=isWeekendBtcSymbol(selectedTradeSymbol)?'週末テスト銘柄':'ゴトー日 通貨ペア';
  $('marketTestNote').hidden=!isWeekendBtcSymbol(selectedTradeSymbol);
  if(!market){
-  $('marketQuote').textContent='EA最新版からドル円／ユーロ円、または有効化したBTCテストの価格を受信してください';
+  $('marketQuote').textContent=isTradingViewCatalogSymbol(selectedTradeSymbol)?'TradingViewプレビュー（注文時の口座価格はEAから取得）':'EA最新版からドル円／ユーロ円、または有効化したBTCテストの価格を受信してください';
   $('marketPrice').textContent='--';
-  $('chartEmpty').hidden=false;
-  $('chartEmpty').textContent='ゴトー日通貨ペアの価格待ち（EA設定を確認）';
+  if(isTradingViewCatalogSymbol(selectedTradeSymbol))showTradingViewChartPreview('marketChart','chartEmpty',selectedTradeSymbol);
+  else{$('chartEmpty').hidden=false;$('chartEmpty').textContent='ゴトー日通貨ペアの価格待ち（EA設定を確認）';}
   setOrderBusy(orderInFlight);
   return;
  }
@@ -1104,9 +1128,18 @@ function drawCanvasChart(canvasId,empty,market,timeframe,bars){
 function drawChartFor(canvasId,emptyId,market,timeframe){
  const canvas=$(canvasId),host=$(canvasId+'TradingView'),bars=market?.charts?.[timeframe],empty=$(emptyId);
  if(!canvas||!empty)return;
- if(!Array.isArray(bars)||bars.length<2){destroyChartLayout(canvasId);clearChartLevelLabels(canvasId);canvas.hidden=false;if(host)host.hidden=true;empty.hidden=false;return;}
+ if(!Array.isArray(bars)||bars.length<2){destroyChartLayout(canvasId);clearChartLevelLabels(canvasId);if(host&&host.dataset.externalPreview==='1'){host.replaceChildren();delete host.dataset.externalPreview;}canvas.hidden=false;if(host)host.hidden=true;empty.hidden=false;return;}
+ if(host&&host.dataset.externalPreview==='1'){host.replaceChildren();delete host.dataset.externalPreview;}
  if(host){host.hidden=false;if(drawTradingViewChart(canvasId,host,empty,market,timeframe,bars)){canvas.hidden=true;renderChartLevelLabels(canvasId);return;}}
  destroyChartLayout(canvasId);if(host)host.hidden=true;canvas.hidden=false;drawCanvasChart(canvasId,empty,market,timeframe,bars);renderChartLevelLabels(canvasId);
+}
+function showTradingViewChartPreview(canvasId,emptyId,symbol){
+ const canvas=$(canvasId),host=$(canvasId+'TradingView'),empty=$(emptyId);
+ if(!canvas||!host||!symbol)return;
+ destroyChartLayout(canvasId);clearChartLevelLabels(canvasId);
+ const tvSymbol=(TRADINGVIEW_SYMBOL_CATALOG.find(item=>item.symbol===symbol)||{}).tvSymbol||'OANDA:'+symbol;
+ const iframe=document.createElement('iframe');iframe.title=symbol+' TradingViewプレビュー';iframe.loading='lazy';iframe.referrerPolicy='no-referrer-when-downgrade';iframe.src=tradingViewPreviewUrl(tvSymbol);
+ host.replaceChildren(iframe);host.dataset.externalPreview='1';host.hidden=false;canvas.hidden=true;if(empty)empty.hidden=true;
 }
 
 function updateQuickClose(){
@@ -1442,6 +1475,40 @@ function currencyMarkets(){
  if(markets.length)return markets.filter(m=>!isWeekendBtcSymbol(m.symbol)||weekendBtcTestEnabled());
  return [{symbol:'USDJPYz'},{symbol:'EURJPYz'}];
 }
+function tradingViewCatalogMatches(query){
+ const normalize=value=>String(value||'').toLowerCase().replace(/[\s/_\-.]/g,'');
+ const needle=normalize(query);
+ return TRADINGVIEW_SYMBOL_CATALOG.filter(item=>!needle||normalize(item.symbol).includes(needle)||normalize(item.label).includes(needle)||normalize(item.tvSymbol).includes(needle));
+}
+function tradingViewPreviewUrl(symbol){
+ const params=new URLSearchParams({frameElementId:'tom_fx_zero_tradingview_preview',symbol,interval:'5',hidetoptoolbar:'1',symboledit:'1',saveimage:'0',toolbarbg:'08142b',studies:'[]',theme:'dark',style:'1',timezone:'Asia/Tokyo',withdateranges:'1',hide_side_toolbar:'1',allow_symbol_change:'1',details:'0',hotlist:'0',calendar:'0',hideideas:'1',locale:'ja'});
+ return 'https://www.tradingview.com/widgetembed/?'+params.toString();
+}
+function renderTradingViewPreview(){
+ const panel=$('tradingViewPreview'),frame=$('tradingViewPreviewFrame'),symbolLabel=$('tradingViewPreviewSymbol');
+ if(!panel||!frame)return;
+ const item=TRADINGVIEW_SYMBOL_CATALOG.find(entry=>entry.tvSymbol===tradingViewPreviewSymbol)||TRADINGVIEW_SYMBOL_CATALOG[0];
+ if(!item)return;
+ panel.hidden=false;
+ if(symbolLabel)symbolLabel.textContent=item.label+' · '+item.tvSymbol;
+ const iframe=document.createElement('iframe');
+ iframe.title=item.label+' TradingViewプレビュー';
+ iframe.loading='lazy';
+ iframe.referrerPolicy='no-referrer-when-downgrade';
+ iframe.src=tradingViewPreviewUrl(item.tvSymbol);
+ frame.replaceChildren(iframe);
+}
+function selectTradingViewPreview(item){
+ if(!item)return;
+ tradingViewPreviewSymbol=item.tvSymbol;
+ try{localStorage.setItem('tomFxZeroTradingViewPreviewSymbolV1',tradingViewPreviewSymbol);}catch{}
+ renderTradingViewPreview();
+ if(activeMode==='goto'){
+  selectedTradeSymbol=item.symbol;
+  updateMarket();
+  setAppPage('home');
+ }
+}
 function currentCurrencySymbol(){return activeMode==='goto'?selectedTradeSymbol:($('indicatorSymbol')?.value||selectedTradeSymbol);}
 function selectCurrency(symbol){
  if(activeMode==='goto'){
@@ -1463,6 +1530,7 @@ function renderCurrencyList(){
  const normalize=value=>String(value||'').toLowerCase().replace(/[\s/_\-.]/g,'');
  const needle=normalize(currencySearchQuery);
  const markets=needle?allMarkets.filter(m=>normalize(m.symbol).includes(needle)||normalize(tradeSymbolLabel(m.symbol)).includes(needle)):allMarkets;
+ const previewMarkets=tradingViewCatalogMatches(currencySearchQuery);
  const current=currentCurrencySymbol();container.replaceChildren();
  for(const market of markets){
   const symbol=market.symbol,label=tradeSymbolLabel(symbol),button=document.createElement('button');
@@ -1475,11 +1543,20 @@ function renderCurrencyList(){
   const bid=Number(market.bid),ask=Number(market.ask);quote.textContent=Number.isFinite(bid)?marketPrice(bid,market)+(Number.isFinite(ask)?' / '+marketPrice(ask,market):''):'--';
   button.append(main,quote);container.append(button);
  }
- if(!markets.length){
-  const empty=document.createElement('p');empty.className='currency-list-empty';empty.textContent='一致するEA受信銘柄がありません';container.append(empty);
+ for(const item of previewMarkets){
+  const button=document.createElement('button');button.type='button';button.className='currency-row currency-row-preview';button.onclick=()=>selectTradingViewPreview(item);
+  const main=document.createElement('span');main.className='currency-main';
+  const title=document.createElement('strong');title.textContent=item.label;
+  const detail=document.createElement('small');detail.textContent=item.symbol+' · TradingViewプレビュー';
+  main.append(title,detail);
+  const quote=document.createElement('span');quote.className='currency-quote';quote.textContent='プレビュー';
+  button.append(main,quote);container.append(button);
+ }
+ if(!markets.length&&!previewMarkets.length){
+  const empty=document.createElement('p');empty.className='currency-list-empty';empty.textContent='一致するEA受信銘柄・TradingView銘柄がありません';container.append(empty);
  }
  const status=$('currencyListStatus');
- if(status)status.textContent=data.live?platformLabel(data)+'価格 '+markets.length+'/'+allMarkets.length:'サンプル銘柄 '+markets.length+'/'+allMarkets.length;
+ if(status)status.textContent=(data.live?platformLabel(data)+'価格 ':'サンプル銘柄 ')+markets.length+'/'+allMarkets.length+' · TV '+previewMarkets.length;
 }
 
 function renderDesktopWatchlist(containerId){
@@ -1706,12 +1783,12 @@ function openCloseConfirm(items,label,skipConfirm=false){
 
 function openOrderConfirm(side){
  if(orderInFlight||!canCreateOrder())return;
- const volume=Number($('orderVolume').value),slPips=Number($('orderStopLoss').value||0),tpPips=Number($('orderTakeProfit').value||0),market=selectedMarket();
- if(!market||!Number.isFinite(volume)||volume<=0||!Number.isFinite(slPips)||slPips<0||!Number.isFinite(tpPips)||tpPips<0){$('message').textContent='ロット・SL・TP（pips）の入力内容を確認してください。';return;}
- const levels=levelsFromPips(side,slPips,tpPips,market);
- pendingOrder={side,volume,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit,slPips,tpPips,symbol:market.symbol};
+ const volume=Number($('orderVolume').value),slPips=Number($('orderStopLoss').value||0),tpPips=Number($('orderTakeProfit').value||0),market=selectedMarket(),symbol=market?.symbol||selectedTradeSymbol;
+ if(!symbol||!Number.isFinite(volume)||volume<=0||!Number.isFinite(slPips)||slPips<0||!Number.isFinite(tpPips)||tpPips<0){$('message').textContent='ロット・SL・TP（pips）の入力内容を確認してください。';return;}
+ const levels=market?levelsFromPips(side,slPips,tpPips,market):{stopLoss:0,takeProfit:0};
+ pendingOrder={side,volume,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit,slPips,tpPips,symbol};
  $('orderConfirmTitle').textContent='デモ口座の成行 '+side;
- $('orderConfirmText').textContent=market.symbol+' / '+volume+' lot / 現在 '+(side==='BUY'?'Ask ':'Bid ')+marketPrice(side==='BUY'?market.ask:market.bid,market)+' / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
+ $('orderConfirmText').textContent=symbol+' / '+volume+' lot / '+(market?'現在 '+(side==='BUY'?'Ask ':'Bid ')+marketPrice(side==='BUY'?market.ask:market.bid,market):'現在価格はEA側で取得')+' / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
  $('orderConfirmNote').textContent='実口座・コンテスト口座では発注できません。'+currentPlatform()+'側で価格と注文条件を再確認してからデモ発注します。SL／TPは約定価格基準で自動設定され、到達時に自動決済されます。';
  $('orderExecute').textContent='注文指示を送信';
  $('orderConfirm').showModal();
@@ -1725,12 +1802,12 @@ function openReserveConfirm(side){
  if(!/^\d{2}:\d{2}:\d{2}$/.test(time)||!Number.isFinite(target.getTime())){$('message').textContent='予約時刻を確認してください。';return;}
  const executeAt=Math.floor(target.getTime()/1000),now=Math.floor(Date.now()/1000);
  if(executeAt<=now){$('message').textContent='予約時刻は現在より後に設定してください。';return;}
- const market=selectedMarket();
- if(!market||!Number.isFinite(volume)||volume<=0||!Number.isFinite(slPips)||slPips<0||!Number.isFinite(tpPips)||tpPips<0){$('message').textContent='ロット・SL・TP（pips）の入力内容を確認してください。';return;}
- const levels=levelsFromPips(side,slPips,tpPips,market);
- pendingOrder={side,volume,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit,slPips,tpPips,scheduled:true,executeAt,targetAt:Math.floor(target.getTime()/1000),lead,symbol:market.symbol};
+ const market=selectedMarket(),symbol=market?.symbol||selectedTradeSymbol;
+ if(!symbol||!Number.isFinite(volume)||volume<=0||!Number.isFinite(slPips)||slPips<0||!Number.isFinite(tpPips)||tpPips<0){$('message').textContent='ロット・SL・TP（pips）の入力内容を確認してください。';return;}
+ const levels=market?levelsFromPips(side,slPips,tpPips,market):{stopLoss:0,takeProfit:0};
+ pendingOrder={side,volume,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit,slPips,tpPips,scheduled:true,executeAt,targetAt:Math.floor(target.getTime()/1000),lead,symbol};
  $('orderConfirmTitle').textContent='ゴトー日 予約エントリー '+side;
- $('orderConfirmText').textContent=market.symbol+' / '+volume+' lot / 予約時刻 '+target.toLocaleString('ja-JP')+' / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
+ $('orderConfirmText').textContent=symbol+' / '+volume+' lot / 予約時刻 '+target.toLocaleString('ja-JP')+' / SL '+(side==='BUY'?'-':'+')+slPips+' pips / TP '+(side==='BUY'?'+':'-')+tpPips+' pips';
  $('orderConfirmNote').textContent='予約をEAへ登録します。指定時刻に'+currentPlatform()+'側でデモ成行注文を実行します。約定価格基準でSL／TPを自動設定し、到達時に自動決済します。';
  $('orderExecute').textContent='予約を登録';
  $('orderConfirm').showModal();
@@ -1744,7 +1821,7 @@ async function sendMarketOrder(){
  setOrderBusy(true);$('orderConfirm').close();$('message').textContent='デモ成行注文を'+currentPlatform()+'へ送信中です。SL／TPは約定価格基準で自動設定されます。画面はそのままお待ちください。';
  try{
   // 既存のEAプロトコルどおり、pips距離を渡して約定後の価格からSL／TPを自動設定する。
-  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:order.scheduled?'schedule_market_order':'market_order',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:order.symbol||market.symbol,side:order.side,volume:order.volume,stopLoss:0,takeProfit:0,stopLossPips,takeProfitPips,executeAt:order.scheduled?order.executeAt:0})},6000);
+  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:order.scheduled?'schedule_market_order':'market_order',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:order.symbol||market?.symbol||selectedTradeSymbol,side:order.side,volume:order.volume,stopLoss:0,takeProfit:0,stopLossPips,takeProfitPips,executeAt:order.scheduled?order.executeAt:0})},6000);
   pendingOrder=null;$('message').textContent='デモ成行注文を'+currentPlatform()+'へ送信しました。EAの処理結果を待っています。';
   waitForCommandResult(body.commandId,key,'order');
  }catch(err){setOrderBusy(false);$('message').textContent=err.name==='AbortError'?'注文指示を送信できません：通信がタイムアウトしました':commandSendErrorMessage(err.message,'注文');}
@@ -2861,7 +2938,7 @@ function applyLiveSnapshot(payload){
  const previousSelected=new Set(selected);
  const previousPositionIds=new Set(data.positions.map(p=>p.id));
  const incomingMarkets=marketList(snapshot);
- if(!incomingMarkets.some(m=>m.symbol===selectedTradeSymbol)){
+ if(!incomingMarkets.some(m=>m.symbol===selectedTradeSymbol)&&!isTradingViewCatalogSymbol(selectedTradeSymbol)){
   const gotobiMarket=incomingMarkets.find(m=>/^(USDJPY|EURJPY)/i.test(m.symbol));
   selectedTradeSymbol=gotobiMarket?.symbol||incomingMarkets[0]?.symbol||selectedTradeSymbol;
  }
@@ -3115,6 +3192,7 @@ document.querySelectorAll('[data-theme-choice]').forEach(button=>button.onclick=
 try{applyTheme(localStorage.getItem(THEME_KEY)||'default');}catch{applyTheme('default');}
 try{localStorage.setItem(CHART_DISPLAY_BARS_KEY,'max');}catch{}
 chartDisplayBars=Number.MAX_SAFE_INTEGER;
+try{tradingViewPreviewSymbol=localStorage.getItem('tomFxZeroTradingViewPreviewSymbolV1')||tradingViewPreviewSymbol;}catch{}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)pollLive();});
 setInterval(refreshSyncAge,1000);
 restoreCachedLiveSnapshot();
