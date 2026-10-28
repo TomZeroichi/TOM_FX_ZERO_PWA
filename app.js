@@ -1924,6 +1924,10 @@ function setGotoOrderTab(target,{closeIfActive=false}={}){
  // 同じタブをもう一度押した時だけ、注文設定全体を閉じる。
  if(closeIfActive&&wasActive&&wasOpen){
   stage.hidden=true;
+  document.querySelectorAll('[data-goto-order-tab]').forEach(button=>{
+   button.classList.remove('is-active');
+   button.setAttribute('aria-selected','false');
+  });
   requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
   return;
  }
@@ -1972,8 +1976,9 @@ function placeIndicatorOrderPanel(inStage){
  if(panel&&target&&panel.parentElement!==target)target.append(panel);
 }
 function syncIndicatorOrderTabActive(target=selectedIndicatorEntryMode()){
+ const stageOpen=Boolean($('gotoOrderStage')&&!$('gotoOrderStage').hidden);
  document.querySelectorAll('[data-indicator-order-tab]').forEach(item=>{
-  const active=item.dataset.indicatorOrderTab===target;
+  const active=stageOpen&&item.dataset.indicatorOrderTab===target;
   item.classList.toggle('is-active',active);
   item.setAttribute('aria-selected',active?'true':'false');
  });
@@ -1988,7 +1993,12 @@ function setIndicatorOrderTab(target,{closeIfActive=false}={}){
  const stage=$('gotoOrderStage');
  const button=document.querySelector('[data-indicator-order-tab="'+target+'"]');
  const wasActive=Boolean(button?.classList.contains('is-active'));
- if(closeIfActive&&wasActive&&stage&&!stage.hidden){stage.hidden=true;return;}
+ if(closeIfActive&&wasActive&&stage&&!stage.hidden){
+  stage.hidden=true;
+  syncIndicatorOrderTabActive();
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+  return;
+ }
  // 指標タブではゴトー日側の設定を残さず、指標設定だけを同じ上側ステージへ出す。
  ['marketOrderDetails','reserveDetails','nanpinDetails'].forEach(id=>{const panel=$(id);if(panel)panel.hidden=true;});
  placeIndicatorOrderPanel(true);
@@ -2039,6 +2049,31 @@ function setupGotoOrderTabs(){
  // 初期画面はチャートとタブのみ。成行タブで注文設定を開く。
  setGotoOrderTab('market');
  setGotoOrderTab('market',{closeIfActive:true});
+}
+function setupHomeOrderTabsSwipe(){
+ const tabs=document.querySelector('.goto-order-tabs');
+ if(!tabs)return;
+ let start=null,blockClickUntil=0;
+ tabs.addEventListener('touchstart',event=>{
+  if(event.touches.length!==1)return;
+  const touch=event.touches[0];start={x:touch.clientX,y:touch.clientY};
+ },{passive:true});
+ tabs.addEventListener('touchcancel',()=>{start=null;},{passive:true});
+ tabs.addEventListener('touchend',event=>{
+  if(!start||event.changedTouches.length!==1){start=null;return;}
+  const touch=event.changedTouches[0],dx=touch.clientX-start.x,dy=touch.clientY-start.y;
+  start=null;
+  // 縦スクロールや通常タップとは区別し、意図した横スワイプだけでモードを切り替える。
+  if(Math.abs(dx)<46||Math.abs(dx)<=Math.abs(dy)*1.35)return;
+  const next=dx<0?'indicator':'goto';
+  if(next===activeMode)return;
+  blockClickUntil=Date.now()+420;
+  setMode(next);
+ },{passive:true});
+ tabs.addEventListener('click',event=>{
+  if(Date.now()>=blockClickUntil)return;
+  event.preventDefault();event.stopImmediatePropagation();
+ },true);
 }
 function applyNanpinSettings(settings){
  const s={enabled:false,sellOnly:true,widthPips:5,lots:.01,takeProfitPips:2,...settings};
@@ -2669,6 +2704,7 @@ $('nanpinEnabled').onchange=()=>{
  sendNanpinSettings();
 };
 setupGotoOrderTabs();
+setupHomeOrderTabsSwipe();
 $('modifySelected').onclick=openModifyConfirm;
 $('modifyCancel').onclick=()=>{if(!modifyInFlight){pendingModify=null;$('modifyConfirm').close();}};
 $('modifyExecute').onclick=sendModifyLevels;
@@ -2684,7 +2720,12 @@ function setMode(mode){
  const goto=mode==='goto';
  // スマホでは指標もゴトー日と同じメインチャートを使い、設定だけを固定タブの上へ開く。
  $('gotoMode').hidden=false;$('indicatorMode').hidden=true;$('modeGoto').classList.toggle('is-active',goto);$('modeIndicator').classList.toggle('is-active',!goto);$('modeGoto').setAttribute('aria-selected',goto?'true':'false');$('modeIndicator').setAttribute('aria-selected',goto?'false':'true');
- if(!goto){syncIndicatorSymbolToHomeChart();resetChartPosition('marketChart');}
+ if(!goto){
+  // モード切替直後は注文方式を未選択に戻す。オレンジは実際にボタンを押した時だけ表示する。
+  $('gotoOrderStage').hidden=true;
+  syncIndicatorSymbolToHomeChart();
+  resetChartPosition('marketChart');
+ }
  else {$('gotoOrderStage').hidden=true;placeIndicatorOrderPanel(false);}
  configureHomeOrderTabs(mode);
  updateChartLevelAction();

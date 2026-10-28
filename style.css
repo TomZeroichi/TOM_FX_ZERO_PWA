@@ -895,6 +895,34 @@ html body[data-app-page] #bottomNav.bottom-nav button[aria-current="page"] .nav-
  body[data-app-page="home"] .bottom-nav button{min-height:41px!important;font-size:.6rem}
 }
 
+/* v0.5.45：指標の固定3操作は、文字・アイコンを読みやすくしつつ一行のまま保つ。 */
+@media(max-width:999px){
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs.is-indicator-mode button{
+    gap:5px!important;
+    padding-inline:4px!important;
+    font-size:.88rem!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs.is-indicator-mode .action-button-icon{
+    font-size:1.16em!important;
+  }
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs.is-indicator-mode button>span:last-child{
+    min-width:0;
+    white-space:nowrap!important;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+}
+@media(max-width:390px){
+  body[data-app-page="home"] #marketPanel>.goto-order-tabs.is-indicator-mode button{
+    gap:3px!important;
+    padding-inline:2px!important;
+    font-size:.76rem!important;
+  }
+}
+
 /* 0.5.00：設定ダイアログ中はホームの固定レイアウトを解除して表示を安定させる */
 @media(max-width:999px){
   body[data-app-page="home"]:has(#menuDialog[open]){
