@@ -1245,7 +1245,7 @@ function connection(){
 function historyCommission(item){return -Math.abs(Number(item.commission)||0);}
 function historyFee(item){return -Math.abs(Number(item.fee)||0);}
 function historyNet(item){return (Number(item.profit)||0)+(Number(item.swap)||0)+historyCommission(item)+historyFee(item);}
-function historyPipsValue(item){
+function historyGrossPipsValue(item){
  const reported=Number(item?.pips);
  if(Number.isFinite(reported))return reported;
  const open=Number(item?.openPrice??item?.open_price??item?.entryPrice),close=Number(item?.price??item?.closePrice??item?.close_price),pip=pipSize(item?.symbol,marketForSymbol(item?.symbol));
@@ -1254,9 +1254,27 @@ function historyPipsValue(item){
  const value=item?.side==='BUY'?(open-close)/pip:(close-open)/pip;
  return Number.isFinite(value)?value:null;
 }
+function historyCostPipsValue(item){
+ const grossPips=historyGrossPipsValue(item);
+ const grossMoney=Number(item?.profit);
+ const costs=historyCommission(item)+(Number(item?.swap)||0)+historyFee(item);
+ if(grossPips===null)return null;
+ if(Math.abs(costs)<1e-8)return 0;
+ // 売買損益と売買pipsから、この決済の実質的な1pips金額を求めて費用をpipsへ換算する。
+ // 口座通貨・銘柄・桁数が異なっても、EAが送った同一決済の実績値で計算する。
+ if(!Number.isFinite(grossMoney)||Math.abs(grossMoney)<1e-8||Math.abs(grossPips)<1e-8)return null;
+ const moneyPerPip=Math.abs(grossMoney/grossPips);
+ return Number.isFinite(moneyPerPip)&&moneyPerPip>0?costs/moneyPerPip:null;
+}
+function historyPipsValue(item){
+ const grossPips=historyGrossPipsValue(item);
+ if(grossPips===null)return null;
+ const costPips=historyCostPipsValue(item);
+ return costPips===null?null:grossPips+costPips;
+}
 function historyPipsText(item){
  const value=historyPipsValue(item);
- return value===null?'獲得pips --':'獲得pips '+(value>=0?'+':'')+value.toFixed(1);
+ return value===null?'実質pips --':'実質pips '+(value>=0?'+':'')+value.toFixed(1);
 }
 function renderHistory(){
  const container=$('historyRows'),items=Array.isArray(data.history)?[...data.history].sort((a,b)=>Number(b.time)-Number(a.time)):[];
