@@ -627,7 +627,7 @@ async function waitForCommandResult(commandId,key,kind='close'){
     if(kind==='nanpin'&&result.status==='completed'){
      const settings=readNanpinSettings();
      localStorage.setItem(profileSettingKey(NANPIN_SETTINGS_KEY),JSON.stringify({...settings,applied:true}));
-     setNanpinStatus('EA反映済み：幅 '+settings.widthPips+' pips / '+settings.lots.toFixed(2)+' lot / 利確 '+settings.takeProfitPips+' pips');
+     setNanpinStatus('EA反映済み：ナンピン幅 '+settings.widthPips+' pips / 建値 '+(settings.autoBeEnabled?'ON':'OFF'));
     }else if(kind==='nanpin')setNanpinStatus('EAへの反映に失敗');
     if(kind==='modify'){
      const modifiedPositionIds=Array.isArray(pendingModify?.positionIds)?[...pendingModify.positionIds]:[];
@@ -1911,11 +1911,22 @@ function readNanpinSettings(){
   sellOnly:$('nanpinSellOnly')?Boolean($('nanpinSellOnly').checked):true,
   widthPips:Number($('nanpinWidth')?.value||0),
   lots:Number($('nanpinLots')?.value||0),
-  takeProfitPips:Number($('nanpinTakeProfit')?.value||0)
+  takeProfitPips:Number($('nanpinTakeProfit')?.value||0),
+  autoBeEnabled:Boolean($('autoBeEnabled')?.checked),
+  autoBeTriggerPips:Number($('autoBeTriggerPips')?.value||0),
+  autoBeSpreadMode:Number($('autoBeSpreadMode')?.value||0),
+  autoBeSafetyPips:Number($('autoBeSafetyPips')?.value||0)
  };
 }
 function updateNanpinToggleState(){
  const input=$('nanpinEnabled'),state=$('nanpinEnabledState');
+ if(!input)return;
+ const enabled=Boolean(input.checked);
+ input.setAttribute('aria-checked',enabled?'true':'false');
+ if(state){state.textContent=enabled?'ON':'OFF';state.classList.toggle('is-on',enabled);}
+}
+function updateAutoBeToggleState(){
+ const input=$('autoBeEnabled'),state=$('autoBeEnabledState');
  if(!input)return;
  const enabled=Boolean(input.checked);
  input.setAttribute('aria-checked',enabled?'true':'false');
@@ -2094,13 +2105,18 @@ function setupHomeOrderTabsSwipe(){
  },true);
 }
 function applyNanpinSettings(settings){
- const s={enabled:false,sellOnly:true,widthPips:5,lots:.01,takeProfitPips:2,...settings};
+ const s={enabled:false,sellOnly:true,widthPips:5,lots:.01,takeProfitPips:2,autoBeEnabled:false,autoBeTriggerPips:1.5,autoBeSpreadMode:0,autoBeSafetyPips:0,...settings};
  if($('nanpinEnabled'))$('nanpinEnabled').checked=Boolean(s.enabled);
  if($('nanpinSellOnly'))$('nanpinSellOnly').checked=s.sellOnly!==false;
  if($('nanpinWidth'))$('nanpinWidth').value=s.widthPips;
  if($('nanpinLots'))$('nanpinLots').value=s.lots;
  if($('nanpinTakeProfit'))$('nanpinTakeProfit').value=s.takeProfitPips;
+ if($('autoBeEnabled'))$('autoBeEnabled').checked=Boolean(s.autoBeEnabled);
+ if($('autoBeTriggerPips'))$('autoBeTriggerPips').value=s.autoBeTriggerPips;
+ if($('autoBeSpreadMode'))$('autoBeSpreadMode').value=String(s.autoBeSpreadMode===1?1:0);
+ if($('autoBeSafetyPips'))$('autoBeSafetyPips').value=s.autoBeSafetyPips;
  updateNanpinToggleState();
+ updateAutoBeToggleState();
  setNanpinStatus(s.applied?'EA反映済み':'未送信です');
 }
 function loadNanpinSettings(){
@@ -2161,12 +2177,12 @@ function applyLotCalculator(){
 async function sendNanpinSettings(){
  if(nanpinInFlight||!canSendLiveCommand())return false;
  const settings=readNanpinSettings();
- if(!Number.isFinite(settings.widthPips)||settings.widthPips<=0||!Number.isFinite(settings.lots)||settings.lots<=0||settings.lots>5||!Number.isFinite(settings.takeProfitPips)||settings.takeProfitPips<0){$('message').textContent='ナンピン幅・ロット（最大5.00）・一括利確pipsを確認してください。';return false;}
+ if(!Number.isFinite(settings.widthPips)||settings.widthPips<=0||!Number.isFinite(settings.lots)||settings.lots<=0||settings.lots>5||!Number.isFinite(settings.takeProfitPips)||settings.takeProfitPips<0||!Number.isFinite(settings.autoBeTriggerPips)||settings.autoBeTriggerPips<=0||!Number.isFinite(settings.autoBeSpreadMode)||![0,1].includes(settings.autoBeSpreadMode)||!Number.isFinite(settings.autoBeSafetyPips)||settings.autoBeSafetyPips<0){$('message').textContent='ナンピン・自動建値の入力内容を確認してください。';return false;}
  localStorage.setItem(profileSettingKey(NANPIN_SETTINGS_KEY),JSON.stringify({...settings,applied:false}));
  const key=connectionKey();
  setNanpinBusy(true);$('message').textContent='ナンピン設定をEAへ送信中です。';
  try{
-  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:'nanpin_settings',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),enabled:settings.enabled,sellOnly:settings.sellOnly,widthPips:settings.widthPips,lots:settings.lots,takeProfitPips:settings.takeProfitPips})},6000);
+  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:'nanpin_settings',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),enabled:settings.enabled,sellOnly:settings.sellOnly,widthPips:settings.widthPips,lots:settings.lots,takeProfitPips:settings.takeProfitPips,autoBeEnabled:settings.autoBeEnabled,autoBeTriggerPips:settings.autoBeTriggerPips,autoBeSpreadMode:settings.autoBeSpreadMode,autoBeSafetyPips:settings.autoBeSafetyPips})},6000);
   $('message').textContent='ナンピン設定を送信しました。EAの反映結果を待っています。';
   waitForCommandResult(body.commandId,key,'nanpin');
   return true;
@@ -2721,6 +2737,20 @@ $('nanpinEnabled').onchange=()=>{
  // ON／OFF自体をEAへ即時反映する。ナンピンの送信ボタンは使用しない。
  sendNanpinSettings();
 };
+$('autoBeEnabled').onchange=()=>{
+ updateAutoBeToggleState();
+ // 自動建値もON／OFFを即時反映し、EA側の判定を止める場合は
+ // 保存ボタンを押さなくても次の通信で確実にOFFにする。
+ sendNanpinSettings();
+};
+['nanpinWidth','nanpinLots','nanpinTakeProfit','autoBeTriggerPips','autoBeSpreadMode','autoBeSafetyPips'].forEach(id=>{
+ const input=$(id);
+ input?.addEventListener('change',()=>{
+  // 接続前の変更も端末へ保持し、次回ライブ接続時に自動同期する。
+  try{localStorage.setItem(profileSettingKey(NANPIN_SETTINGS_KEY),JSON.stringify({...readNanpinSettings(),applied:false}));}catch{}
+  sendNanpinSettings();
+ });
+});
 setupGotoOrderTabs();
 setupHomeOrderTabsSwipe();
 $('modifySelected').onclick=openModifyConfirm;
@@ -2785,6 +2815,7 @@ setupIndicatorPresetForm();
 loadOrderVolume();
 loadNanpinSettings();
 updateNanpinToggleState();
+updateAutoBeToggleState();
 document.querySelectorAll('[data-pick]').forEach(button=>button.onclick=()=>{
  selected=new Set(visible().filter(p=>
   button.dataset.pick==='all'||
