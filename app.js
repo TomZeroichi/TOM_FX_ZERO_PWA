@@ -2468,7 +2468,7 @@ function updateIndicatorEntryMode(){
  if(reverse){
   $('reverseReserve').textContent=scheduled?'4ライン予約注文を登録':'4ライン予約注文を即時設置';
   $('reverseReserve').disabled=Boolean(scheduleGuard);
-  $('indicatorStatus').textContent=scheduleGuard?'この銘柄は指標予約済みです。先に「この銘柄の指標注文をキャンセル」してください。':scheduled?'逆張り4ラインの設定を確認してください。':'逆張り4ラインの設定を確認してください。即時モードでは予約時刻を使用しません。';
+  $('indicatorStatus').textContent=scheduleGuard?'この銘柄は指標予約済みです。先に「この銘柄の指標注文をキャンセル」してください。':scheduled?'逆張り4ラインの設定を確認してください。価格は予約時点で固定されます。':'逆張り4ラインの設定を確認してください。価格は予約時点で固定されます。即時モードでは予約時刻を使用しません。';
   return;
  }
  $('indicatorReserve').textContent=scheduled?'上下逆指値を予約':market?'両建て成行注文を送信':'上下逆指値を即時設置';
