@@ -647,7 +647,12 @@ async function waitForCommandResult(commandId,key,kind='close'){
      if(status)status.textContent=result.status==='completed'?'再起動指示を受け付けました。VPSの復旧とMT4／MT5・EAの自動起動を待っています。':'VPS再起動の実行に失敗しました。VPS側のエージェントを確認してください。';
     }
     if(kind==='indicator'&&result.status==='rejected')clearIndicatorScheduleGuard();
-    if(kind==='reverseIndicator'&&result.status==='rejected')clearIndicatorScheduleGuard();
+    if(kind==='reverseIndicator'){
+     if(result.status==='completed')applyReverseIndicatorResultAnchor(result);
+     else clearIndicatorScheduleGuard();
+     updateIndicatorEntryMode();
+     redrawTradeCharts();
+    }
     if(kind==='indicator')$('indicatorStatus').textContent=indicatorResultMessage(result);
     else if(kind==='reverseIndicator')$('reverseStatus').textContent=indicatorResultMessage(result);
     else if(kind==='indicatorCancel'){
@@ -939,7 +944,11 @@ function reverseChartLevelsForMarket(market){
  const pip=pipSize(market.symbol,market),bid=Number(market.bid),ask=Number(market.ask);
  const inner=Number($('reverseInnerDistance')?.value),outer=Number($('reverseOuterDistance')?.value);
  if(!Number.isFinite(pip)||pip<=0||!Number.isFinite(bid)||!Number.isFinite(ask)||!Number.isFinite(inner)||inner<=0||!Number.isFinite(outer)||outer<=inner)return [];
- const base=(bid+ask)/2;
+ // 予約注文のラインは現在値に追従させない。予約直後は画面で取得した
+ // 基準価格を使い、EAが設置を完了したら結果ファイルのbasePriceで置き換える。
+ const guard=indicatorScheduleGuardForSymbol(market.symbol);
+ const anchoredBase=Number(guard?.basePrice??guard?.previewBasePrice);
+ const base=Number.isFinite(anchoredBase)&&anchoredBase>0?anchoredBase:(bid+ask)/2;
  return [
   {reverse:true,key:'S2',side:'SELL',label:'S2 SELL LIMIT',color:'#3b82f6',value:base+outer*pip},
   {reverse:true,key:'S1',side:'SELL',label:'S1 SELL LIMIT',color:'#3b82f6',value:base+inner*pip},
@@ -2382,8 +2391,25 @@ function clearIndicatorScheduleGuard(){try{localStorage.removeItem(profileSettin
 function indicatorScheduleGuardForSymbol(symbol=''){
  const guard=readIndicatorScheduleGuard();
  if(!guard)return null;
- if(Number(guard.executeAt)<=0){clearIndicatorScheduleGuard();return null;}
+ // executeAt=0 is the valid marker for an immediate reservation. Older code
+ // treated it as empty and consequently lost the fixed chart anchor.
+ if(Number(guard.executeAt)<0){clearIndicatorScheduleGuard();return null;}
  return !symbol||guard.symbol===symbol?guard:null;
+}
+function indicatorResultField(text,key){
+ const match=String(text||'').match(new RegExp('(?:^|\\n)'+key+'=([^\\n]*)','i'));
+ return match?String(match[1]).trim():'';
+}
+function applyReverseIndicatorResultAnchor(result){
+ const text=String(result?.result?.text||'');
+ if(!text.includes('type=indicator_reverse_4line'))return;
+ const guard=readIndicatorScheduleGuard();
+ if(!guard)return;
+ const resultSymbol=indicatorResultField(text,'symbol');
+ const basePrice=Number(indicatorResultField(text,'basePrice'));
+ if(resultSymbol&&resultSymbol!==guard.symbol)return;
+ if(!Number.isFinite(basePrice)||basePrice<=0)return;
+ saveIndicatorScheduleGuard({...guard,basePrice,installedAt:Math.floor(Date.now()/1000),status:'installed'});
 }
 function readReverseIndicatorSettings(){
  try{const stored=JSON.parse(localStorage.getItem(profileSettingKey(INDICATOR_REVERSE_SETTINGS_KEY))||'{}');return stored&&typeof stored==='object'?stored:{};}catch{return {};}
@@ -2632,12 +2658,16 @@ function reserveReverseIndicator(){
   $('reverseStatus').textContent=mode==='scheduled'?'銘柄・距離・ロット・TP／SL・予約時刻を確認してください。':'銘柄・距離・ロット・TP／SLを確認してください。';return;
  }
  saveReverseIndicatorSettings();
+ const market=marketForSymbol(symbol),bid=Number(market?.bid),ask=Number(market?.ask),previewBasePrice=(Number.isFinite(bid)&&Number.isFinite(ask)&&bid>0&&ask>0)?(bid+ask)/2:0;
  const button=$('reverseReserve'),cycleId='r4'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
  button.disabled=true;button.textContent='注文を送信中…';$('reverseStatus').textContent=currentPlatform()+'へ4ライン注文を送信中…';
  const payload={action:'indicator_reverse_4line',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume:innerLots,executeAt,cycleId,reverseInnerDistancePips:innerDistance,reverseOuterDistancePips:outerDistance,reverseInnerLots:innerLots,reverseOuterLots:outerLots,reverseIndividualLots:individualLots,reverseLotS2:lotS2,reverseLotS1:lotS1,reverseLotB1:lotB1,reverseLotB2:lotB2,reverseTP:takeProfitPips,reverseSL:stopLossPips};
  fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+connectionKey(),'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(body=>{
+  // Immediate and scheduled reservations both keep the price captured at
+  // registration time.  The EA result later replaces previewBasePrice with
+  // its normalized basePrice, so a quote tick cannot move the chart lines.
+  saveIndicatorScheduleGuard({symbol,executeAt,style:'reverse',commandId:body.commandId,createdAt:Math.floor(Date.now()/1000),previewBasePrice:previewBasePrice>0?previewBasePrice:undefined,status:'pending'});
   if(mode==='scheduled'){
-   saveIndicatorScheduleGuard({symbol,executeAt,style:'reverse',commandId:body.commandId,createdAt:Math.floor(Date.now()/1000)});
    $('reverseStatus').textContent='4ライン予約をEAへ登録しました。'+scheduledAt.at.replace('T',' ')+' にS2／S1／B1／B2を設置します。';
    if(executeAt-Math.floor(Date.now()/1000)<=30)waitForCommandResult(body.commandId,connectionKey(),'reverseIndicator');
   }else{
