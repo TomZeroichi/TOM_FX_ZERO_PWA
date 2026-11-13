@@ -1800,3 +1800,6 @@ body[data-theme] .bottom-nav button[aria-current="page"] .nav-icon{color:#22c7ff
   }
   html body[data-app-page] #bottomNav.bottom-nav .nav-icon svg{width:20px!important;height:20px!important}
 }
+/* 予約中の取消と成行ブロック表示 */
+.reserve-cancel{width:100%;margin-top:8px;border-color:#d99a9e;background:#fff7f7;color:#ffb5b8;font-weight:750}
+.reserve-status{min-height:1.35em;margin:8px 0 0;color:#ffcfaf}
