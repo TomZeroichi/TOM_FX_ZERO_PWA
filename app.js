@@ -22,6 +22,8 @@ let modifyInFlight=false;
 let vpsRestartInFlight=false;
 let pendingOrder=null;
 let pendingModify=null;
+let toastTimer=0;
+let toastHideTimer=0;
 const positionLevelDrafts=new Map();
 const CHART_TIMEFRAMES=['M1','M5','M15','M30','H1','H4','D1','W1','MN1'];
 let chartTimeframe='M5';
@@ -85,6 +87,19 @@ let lastLiveCacheSavedAt=0;
 let pendingPairingKey='';
 let pendingPairingProfileId='';
 let pendingPairingPreviousKey='';
+function showToast(message,duration=2800){
+ const toast=$('toast');
+ if(!toast)return;
+ window.clearTimeout(toastTimer);
+ window.clearTimeout(toastHideTimer);
+ toast.textContent=message;
+ toast.hidden=false;
+ requestAnimationFrame(()=>toast.classList.add('is-visible'));
+ toastTimer=window.setTimeout(()=>{
+  toast.classList.remove('is-visible');
+  toastHideTimer=window.setTimeout(()=>{toast.hidden=true;},240);
+ },duration);
+}
 function isLiveSource(source){return source==='mt4-snapshot'||source==='mt5-snapshot';}
 function snapshotPlatform(snapshot=data){return snapshot?.platform||((snapshot?.source==='mt4-snapshot')?'MT4':'MT5');}
 function platformLabel(snapshot=data){return snapshotPlatform(snapshot);}
@@ -1904,11 +1919,17 @@ async function sendMarketOrder(){
  const key=connectionKey(),order=pendingOrder,market=selectedMarket();
  const stopLossPips=Number.isFinite(Number(order.slPips))?Math.max(0,Number(order.slPips)):0;
  const takeProfitPips=Number.isFinite(Number(order.tpPips))?Math.max(0,Number(order.tpPips)):0;
- setOrderBusy(true);$('orderConfirm').close();$('message').textContent='デモ成行注文を'+currentPlatform()+'へ送信中です。SL／TPは約定価格基準で自動設定されます。画面はそのままお待ちください。';
+ setOrderBusy(true);$('orderConfirm').close();$('message').textContent=order.scheduled
+  ?'予約注文を'+currentPlatform()+'へ送信中です。指定時刻の約定価格を基準にSL／TPを設定します。画面はそのままお待ちください。'
+  :'デモ成行注文を'+currentPlatform()+'へ送信中です。SL／TPは約定価格基準で自動設定されます。画面はそのままお待ちください。';
  try{
   // 既存のEAプロトコルどおり、pips距離を渡して約定後の価格からSL／TPを自動設定する。
   const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:order.scheduled?'schedule_market_order':'market_order',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:order.symbol||market?.symbol||selectedTradeSymbol,side:order.side,volume:order.volume,stopLoss:0,takeProfit:0,stopLossPips,takeProfitPips,executeAt:order.scheduled?order.executeAt:0})},6000);
-  pendingOrder=null;$('message').textContent='デモ成行注文を'+currentPlatform()+'へ送信しました。EAの処理結果を待っています。';
+  pendingOrder=null;
+  $('message').textContent=order.scheduled
+   ?'予約注文を'+currentPlatform()+'へ送信しました。EAの処理結果を待っています。'
+   :'デモ成行注文を'+currentPlatform()+'へ送信しました。EAの処理結果を待っています。';
+  if(order.scheduled)showToast('予約注文が送信されました');
   waitForCommandResult(body.commandId,key,'order');
  }catch(err){setOrderBusy(false);$('message').textContent=err.name==='AbortError'?'注文指示を送信できません：通信がタイムアウトしました':commandSendErrorMessage(err.message,'注文');}
 }
@@ -2667,6 +2688,7 @@ function reserveReverseIndicator(){
   // registration time.  The EA result later replaces previewBasePrice with
   // its normalized basePrice, so a quote tick cannot move the chart lines.
   saveIndicatorScheduleGuard({symbol,executeAt,style:'reverse',commandId:body.commandId,createdAt:Math.floor(Date.now()/1000),previewBasePrice:previewBasePrice>0?previewBasePrice:undefined,status:'pending'});
+  showToast('予約注文が送信されました');
   if(mode==='scheduled'){
    $('reverseStatus').textContent='4ライン予約をEAへ登録しました。'+scheduledAt.at.replace('T',' ')+' にS2／S1／B1／B2を設置します。';
    if(executeAt-Math.floor(Date.now()/1000)<=30)waitForCommandResult(body.commandId,connectionKey(),'reverseIndicator');
@@ -2690,9 +2712,11 @@ function reserveIndicator(){
  fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+connectionKey(),'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(body=>{
   if(mode==='scheduled'){
    saveIndicatorScheduleGuard({symbol,executeAt,style:'trend',commandId:body.commandId,createdAt:Math.floor(Date.now()/1000)});
+   showToast('予約注文が送信されました');
    $('indicatorStatus').textContent='予約をEAへ登録しました。'+at.replace('T',' ')+' にBuy Stop／Sell Stopを設置します。';
    if(executeAt-Math.floor(Date.now()/1000)<=30) waitForCommandResult(body.commandId,connectionKey(),'indicator');
   }else{
+   if(mode==='immediate')showToast('予約注文が送信されました');
    $('indicatorStatus').textContent=mode==='market'?'両建て成行注文を'+currentPlatform()+'へ送信しました。結果を待っています。':'即時の上下逆指値を'+currentPlatform()+'へ送信しました。結果を待っています。';
    waitForCommandResult(body.commandId,connectionKey(),'indicator');
   }
