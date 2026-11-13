@@ -21,6 +21,8 @@ let nanpinSyncKey='';
 let modifyInFlight=false;
 let vpsRestartInFlight=false;
 let pendingOrder=null;
+let gotoReserveCancelInFlight=false;
+let gotoScheduleStatusBusy=false;
 let pendingModify=null;
 let toastTimer=0;
 let toastHideTimer=0;
@@ -78,6 +80,7 @@ const LOT_CALCULATOR_KEY='tomFxZeroLotCalculatorV1';
 const INDICATOR_PRESETS_KEY='tomFxZeroIndicatorPresetsV1';
 const INDICATOR_REVERSE_SETTINGS_KEY='tomFxZeroIndicatorReverseSettingsV1';
 const INDICATOR_SCHEDULE_GUARD_KEY='tomFxZeroIndicatorScheduleGuardV1';
+const GOTO_SCHEDULE_GUARD_KEY='tomFxZeroGotoScheduleGuardV1';
 const LIVE_SNAPSHOT_KEY='tomFxZeroLiveSnapshotV1';
 const THEME_KEY='tomFxZeroThemeV1';
 const CHART_DISPLAY_BARS_KEY='tomFxZeroChartDisplayBarsV1';
@@ -532,10 +535,11 @@ function setCloseBusy(busy,label='送信中…'){
 
 function setOrderBusy(busy,label='注文送信中…'){
  orderInFlight=busy;
+ const reservationActive=Boolean(readGotoScheduleGuard());
  for(const id of ['orderBuy','orderSell']){
   const button=$(id);
   if(!button)continue;
-  button.disabled=busy||!canCreateOrder();
+  button.disabled=busy||reservationActive||!canCreateOrder();
   button.setAttribute('aria-busy',busy?'true':'false');
  }
  if(busy&&$('orderExecute'))$('orderExecute').textContent=label;
@@ -590,6 +594,7 @@ function commandResultMessage(result){
   const retcode=(text.match(/retcode=(\d+)/i)||[])[1];
   return `${platform}が注文を拒否しました`+(retcode?'（コード '+retcode+'）':'')+(description?'：'+description:`。${platform}側の結果を確認してください。`);
  }
+ if(text.includes('type=cancel_scheduled_order'))return result.status==='completed'?`${platform}のゴトー日予約をキャンセルしました。成行注文を再び送信できます。`:`ゴトー日予約のキャンセルに失敗しました。${reason?'理由：'+reason:`${platform}の結果を確認してください。`}`;
  if(text.includes('type=indicator_order'))return result.status==='completed'?`${platform}にBuy Stop／Sell Stopを設置しました。片方が約定すると反対側を自動キャンセルします。`:'指標トレードの逆指値設置に失敗しました。'+(reason?'理由：'+reason:`${platform}の結果を確認してください。`);
  if(text.includes('type=indicator_reverse_4line'))return result.status==='completed'?`${platform}にS2／S1／B1／B2の4ライン予約注文を設置しました。約定方向に応じて反対側を自動キャンセルします。`:'逆張り4ライン予約注文の設置に失敗しました。'+(reason?'理由：'+reason:`${platform}の結果を確認してください。`);
  if(text.includes('10027')||text.includes('auto trading disabled'))return `${platform}が決済を拒否しました：自動売買を有効にしてください。`;
@@ -626,6 +631,8 @@ function commandSendErrorMessage(error,kind='決済'){
  if(error==='snapshot_mismatch')return `${platform}の情報が更新中でした。最新の保有ポジションを確認してから、もう一度だけ決済指示を送ってください。`;
  if(error==='position_not_found')return `対象ポジションは${platform}上ですでに変化しています。画面が更新されてから確認してください。`;
  if(error==='command_pending')return 'すでに別の指示を処理中です。結果が表示されるまでお待ちください。';
+ if(error==='scheduled_order_not_found')return '取り消せるゴトー日予約が見つかりません。予約時刻を過ぎたか、すでに処理済みの可能性があります。';
+ if(error==='scheduled_order_already_due')return '予約時刻に到達しているため、キャンセルできません。MT4／MT5側の約定結果を確認してください。';
  if(error==='invalid_order')return '注文条件を確認してください。銘柄・ロット・SL／TP・市場価格が有効か確認してください。';
  if(error==='invalid_nanpin_settings')return 'ナンピン幅・ロット（最大5.00）・一括利確pipsの設定を確認してください。';
  if(error==='invalid_position_levels')return 'SL／TPのpips距離を0以上で入力してください。';
@@ -662,6 +669,14 @@ async function waitForCommandResult(commandId,key,kind='close'){
      if(status)status.textContent=result.status==='completed'?'再起動指示を受け付けました。VPSの復旧とMT4／MT5・EAの自動起動を待っています。':'VPS再起動の実行に失敗しました。VPS側のエージェントを確認してください。';
     }
     if(kind==='indicator'&&result.status==='rejected')clearIndicatorScheduleGuard();
+    if(kind==='order'){
+     const guard=readGotoScheduleGuard();
+     if(guard&&guard.commandId===commandId)clearGotoScheduleGuard();
+    }
+    if(kind==='gotoScheduleCancel'){
+     if(result.status==='completed')clearGotoScheduleGuard();
+     else{gotoReserveCancelInFlight=false;updateGotoReserveUi();}
+    }
     if(kind==='reverseIndicator'){
      if(result.status==='completed')applyReverseIndicatorResultAnchor(result);
      else clearIndicatorScheduleGuard();
@@ -674,7 +689,7 @@ async function waitForCommandResult(commandId,key,kind='close'){
      if(result.status==='completed')clearIndicatorScheduleGuard();
      $('indicatorStatus').textContent=indicatorCancelResultMessage(result);
     }
-    else if(kind==='order')setOrderBusy(false);else if(kind==='nanpin')setNanpinBusy(false);else if(kind==='modify')setModifyBusy(false);else if(kind!=='vps')setCloseBusy(false);
+    else if(kind==='order')setOrderBusy(false);else if(kind==='gotoScheduleCancel'){setOrderBusy(false);updateGotoReserveUi();}else if(kind==='nanpin')setNanpinBusy(false);else if(kind==='modify')setModifyBusy(false);else if(kind!=='vps')setCloseBusy(false);
     pollLive();
     return;
    }
@@ -686,7 +701,7 @@ async function waitForCommandResult(commandId,key,kind='close'){
  $('message').textContent=currentPlatform()+'の処理結果を確認できません。'+currentPlatform()+'のチャートと結果ファイルを確認してください。';
  if(kind==='indicator')$('indicatorStatus').textContent=currentPlatform()+'の処理結果を確認できません。EAの稼働状態を確認してください。';
  else if(kind==='reverseIndicator')$('reverseStatus').textContent=currentPlatform()+'の4ライン設置結果を確認できません。EAの稼働状態を確認してください。';
- else if(kind==='order')setOrderBusy(false);else if(kind==='nanpin')setNanpinBusy(false);else if(kind==='vps'){vpsRestartInFlight=false;const status=$('vpsStatus');if(status)status.textContent='再起動指示の結果を確認できません。VPS側のエージェントとWindowsの状態を確認してください。';updateVpsUi();}else setCloseBusy(false);
+ else if(kind==='order')setOrderBusy(false);else if(kind==='gotoScheduleCancel'){gotoReserveCancelInFlight=false;updateGotoReserveUi();setOrderBusy(false);}else if(kind==='nanpin')setNanpinBusy(false);else if(kind==='vps'){vpsRestartInFlight=false;const status=$('vpsStatus');if(status)status.textContent='再起動指示の結果を確認できません。VPS側のエージェントとWindowsの状態を確認してください。';updateVpsUi();}else setCloseBusy(false);
 }
 
 function openVpsRestartConfirm(){
@@ -833,6 +848,7 @@ function renderMarketOrderLabels(market){
 function updateMarket(){
  const market=selectedMarket();
  renderMarketOrderLabels(market);
+ updateGotoReserveUi();
  $('marketLive').textContent=currentPlatform()+'価格';
  updateChartWatermark('marketChartWatermark',market?.symbol||selectedTradeSymbol,chartTimeframe);
  updateChartCompactSymbol('marketChartSymbolCompact',market?.symbol||selectedTradeSymbol);
@@ -1897,6 +1913,11 @@ function openOrderConfirm(side){
 
 function openReserveConfirm(side){
  if(orderInFlight||!canCreateOrder())return;
+ if(readGotoScheduleGuard()){
+  $('message').textContent='ゴトー日予約が残っています。先に予約をキャンセルしてください。';
+  updateGotoReserveUi();
+  return;
+ }
  const nowDate=new Date(),date=[nowDate.getFullYear(),String(nowDate.getMonth()+1).padStart(2,'0'),String(nowDate.getDate()).padStart(2,'0')].join('-'),time=selectedClockTime('reserve'),lead=0;
  const volume=Number($('orderVolume').value),slPips=Number($('orderStopLoss').value||0),tpPips=Number($('orderTakeProfit').value||0);
  const target=new Date(date+'T'+time);
@@ -1926,12 +1947,40 @@ async function sendMarketOrder(){
   // 既存のEAプロトコルどおり、pips距離を渡して約定後の価格からSL／TPを自動設定する。
   const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:order.scheduled?'schedule_market_order':'market_order',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:order.symbol||market?.symbol||selectedTradeSymbol,side:order.side,volume:order.volume,stopLoss:0,takeProfit:0,stopLossPips,takeProfitPips,executeAt:order.scheduled?order.executeAt:0})},6000);
   pendingOrder=null;
+  if(order.scheduled){
+   saveGotoScheduleGuard({symbol:order.symbol||market?.symbol||selectedTradeSymbol,side:order.side,volume:order.volume,executeAt:Number(order.executeAt),commandId:body.commandId,createdAt:Math.floor(Date.now()/1000),status:'pending'});
+  }
   $('message').textContent=order.scheduled
-   ?'予約注文を'+currentPlatform()+'へ送信しました。EAの処理結果を待っています。'
+   ?'予約注文を'+currentPlatform()+'へ送信しました。予約時刻まで待機します。キャンセルする場合は予約画面の取消ボタンを押してください。'
    :'デモ成行注文を'+currentPlatform()+'へ送信しました。EAの処理結果を待っています。';
   if(order.scheduled)showToast('予約注文が送信されました');
-  waitForCommandResult(body.commandId,key,'order');
+  setOrderBusy(false);
+  const secondsUntilExecution=order.scheduled?Number(order.executeAt)-Math.floor(Date.now()/1000):0;
+  if(!order.scheduled||secondsUntilExecution<=30)waitForCommandResult(body.commandId,key,'order');
  }catch(err){setOrderBusy(false);$('message').textContent=err.name==='AbortError'?'注文指示を送信できません：通信がタイムアウトしました':commandSendErrorMessage(err.message,'注文');}
+}
+
+async function cancelGotoReservation(){
+ const guard=readGotoScheduleGuard();
+ if(!guard||gotoReserveCancelInFlight)return;
+ if(!canSendLiveCommand()){
+  $('message').textContent=currentPlatform()+'デモへ接続してから予約をキャンセルしてください。';
+  return;
+ }
+ const key=connectionKey();
+ gotoReserveCancelInFlight=true;
+ updateGotoReserveUi();
+ $('message').textContent=guard.symbol+' のゴトー日予約をキャンセル中です。';
+ try{
+  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:'cancel_scheduled_order',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:guard.symbol,targetCommandId:guard.commandId})},6000);
+  saveGotoScheduleGuard({...guard,status:'cancelling',cancelCommandId:body.commandId});
+  $('message').textContent=guard.symbol+' の予約キャンセルを'+currentPlatform()+'へ送信しました。EAの処理結果を待っています。';
+  waitForCommandResult(body.commandId,key,'gotoScheduleCancel');
+ }catch(err){
+  gotoReserveCancelInFlight=false;
+  updateGotoReserveUi();
+  $('message').textContent=err.name==='AbortError'?'予約キャンセルを送信できません：通信がタイムアウトしました':commandSendErrorMessage(err.message,'予約キャンセル');
+ }
 }
 
 function readNanpinSettings(){
@@ -2400,6 +2449,47 @@ function setupChartInteractions(){
 $('symbol').onchange=()=>{selected.clear();render();};
 function selectedIndicatorEntryMode(){return document.querySelector('input[name="indicatorEntryMode"]:checked')?.value||'scheduled';}
 function selectedIndicatorOrderStyle(){return document.querySelector('[data-indicator-order-style].is-active')?.dataset.indicatorOrderStyle||'trend';}
+function readGotoScheduleGuard(){
+ try{
+  const value=JSON.parse(localStorage.getItem(profileSettingKey(GOTO_SCHEDULE_GUARD_KEY))||'null');
+  if(!value||typeof value!=='object'||typeof value.symbol!=='string'||!value.symbol||!Number.isFinite(Number(value.executeAt))||!value.commandId)return null;
+  return value;
+ }catch{return null;}
+}
+function saveGotoScheduleGuard(value){try{localStorage.setItem(profileSettingKey(GOTO_SCHEDULE_GUARD_KEY),JSON.stringify(value));}catch{};updateGotoReserveUi();}
+function clearGotoScheduleGuard(){try{localStorage.removeItem(profileSettingKey(GOTO_SCHEDULE_GUARD_KEY));}catch{};gotoReserveCancelInFlight=false;updateGotoReserveUi();setOrderBusy(orderInFlight);}
+function gotoScheduleGuardForSymbol(symbol=''){
+ const guard=readGotoScheduleGuard();
+ return !symbol||guard?.symbol===symbol?guard:null;
+}
+function updateGotoReserveUi(){
+ const guard=readGotoScheduleGuard(),cancel=$('gotoReserveCancel'),status=$('gotoReserveStatus'),buy=$('reserveBuy'),sell=$('reserveSell');
+ const active=Boolean(guard),cancelling=gotoReserveCancelInFlight||guard?.status==='cancelling';
+ if(cancel){cancel.hidden=!active;cancel.disabled=cancelling||!canSendLiveCommand();cancel.textContent=cancelling?'キャンセルを送信中…':'この銘柄の予約をキャンセル';}
+ if(status){
+  if(!active)status.textContent='';
+  else if(cancelling)status.textContent=guard.symbol+' の予約をキャンセル中です。EAの処理結果を待っています。';
+  else status.textContent=guard.symbol+' の予約中です。成行注文を使う場合は、先にこの予約をキャンセルしてください。';
+ }
+ [buy,sell].forEach(button=>{if(button)button.disabled=active||orderInFlight||!canCreateOrder();});
+ const marketButtons=[$('orderBuy'),$('orderSell')].filter(Boolean);
+ marketButtons.forEach(button=>{button.disabled=orderInFlight||active||!canCreateOrder();});
+}
+async function syncGotoScheduleGuardStatus(){
+ const guard=readGotoScheduleGuard(),key=connectionKey();
+ if(!guard||!key||gotoScheduleStatusBusy)return;
+ const commandId=guard.status==='cancelling'?(guard.cancelCommandId||''):guard.commandId;
+ if(!commandId)return;
+ gotoScheduleStatusBusy=true;
+ try{
+  const result=await fetchJsonWithTimeout(COMMAND_ENDPOINT+'?id='+encodeURIComponent(commandId),{headers:{Authorization:'Bearer '+key},cache:'no-store'},2500);
+  if(result.status==='completed'||result.status==='rejected'){
+   clearGotoScheduleGuard();
+   if(guard.status==='cancelling')$('message').textContent=commandResultMessage(result);
+  }
+ }catch{}
+ finally{gotoScheduleStatusBusy=false;updateGotoReserveUi();}
+}
 function readIndicatorScheduleGuard(){
  try{
   const value=JSON.parse(localStorage.getItem(profileSettingKey(INDICATOR_SCHEDULE_GUARD_KEY))||'null');
@@ -2781,6 +2871,7 @@ $('resetMarketChart').onclick=()=>resetChartPosition('marketChart');
 $('resetIndicatorChart').onclick=()=>resetChartPosition('indicatorMarketChart');
 $('orderBuy').onclick=()=>openOrderConfirm('BUY');
 $('orderSell').onclick=()=>openOrderConfirm('SELL');
+$('gotoReserveCancel')?.addEventListener('click',cancelGotoReservation);
 $('orderVolume').addEventListener('input',saveOrderVolume);
 $('orderVolume').addEventListener('change',saveOrderVolume);
 $('reserveBuy').onclick=()=>openReserveConfirm('BUY');
@@ -3043,7 +3134,7 @@ function removeProfile(id){
  const wasActive=activeConnectionProfileId===id;
  const next=connectionProfiles.find(profile=>profile.id!==id&&hasConnectionHistory(profile))||connectionProfiles.find(profile=>profile.id!==id);
  pauseLiveConnection();
- [LIVE_SNAPSHOT_KEY,WEEKEND_BTC_TEST_KEY,NANPIN_SETTINGS_KEY,ORDER_VOLUME_KEY,LOT_CALCULATOR_KEY,INDICATOR_PRESETS_KEY,INDICATOR_SCHEDULE_GUARD_KEY].forEach(key=>{try{localStorage.removeItem(key+'_'+id);}catch{}});
+ [LIVE_SNAPSHOT_KEY,WEEKEND_BTC_TEST_KEY,NANPIN_SETTINGS_KEY,ORDER_VOLUME_KEY,LOT_CALCULATOR_KEY,INDICATOR_PRESETS_KEY,INDICATOR_SCHEDULE_GUARD_KEY,GOTO_SCHEDULE_GUARD_KEY].forEach(key=>{try{localStorage.removeItem(key+'_'+id);}catch{}});
  connectionProfiles=connectionProfiles.filter(profile=>profile.id!==id);
  ['goto','indicator'].forEach(mode=>{if(modeProfiles[mode]===id)modeProfiles[mode]=next.id;});
  try{localStorage.setItem(MODE_PROFILE_KEY,JSON.stringify(modeProfiles));}catch{}
@@ -3245,6 +3336,7 @@ async function pollLive(){
   }
   if(!response.ok)throw Error(response.status===401?'接続キーが認証されませんでした。':'通信エラー '+response.status);
   applyLiveSnapshot(await response.json());
+  void syncGotoScheduleGuardStatus();
   $('syncMessage').textContent='接続済みです。デモ口座の情報を約1秒ごとに取得しています。';
  }catch(err){
   if(err.name!=='AbortError')$('syncMessage').textContent='取得できません：'+err.message;
