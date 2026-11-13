@@ -1,16 +1,16 @@
 'use strict';
-const CACHE_NAME='tom-fx-zero-shell-0.5.49';
+const CACHE_NAME='tom-fx-zero-shell-0.5.50';
 const APP_SHELL=[
   './',
   './index.html',
-  './style.css?v=0.5.49',
-  './mode-buttons.css?v=0.5.49',
+  './style.css?v=0.5.50',
+  './mode-buttons.css?v=0.5.50',
   './calc.js',
   './lightweight-charts.standalone.production.js',
   './app.js',
   './pwa.js',
   './manifest.webmanifest',
-  './icons/app-icon.svg?v=0.5.49'
+  './icons/app-icon.svg?v=0.5.50'
 ];
 
 self.addEventListener('install',event=>{
