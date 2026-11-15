@@ -1997,7 +1997,7 @@ async function sendMarketOrder(){
   :'デモ成行注文を'+currentPlatform()+'へ送信中です。SL／TPは約定価格基準で自動設定されます。画面はそのままお待ちください。';
  try{
   // 既存のEAプロトコルどおり、pips距離を渡して約定後の価格からSL／TPを自動設定する。
-  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:order.scheduled?'schedule_market_order':'market_order',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:order.symbol||market?.symbol||selectedTradeSymbol,side:order.side,volume:order.volume,stopLoss:0,takeProfit:0,stopLossPips,takeProfitPips,executeAt:order.scheduled?order.executeAt:0})},6000);
+  const body=await fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({action:order.scheduled?'schedule_market_order':'market_order',strategy:'GOTO',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol:order.symbol||market?.symbol||selectedTradeSymbol,side:order.side,volume:order.volume,stopLoss:0,takeProfit:0,stopLossPips,takeProfitPips,executeAt:order.scheduled?order.executeAt:0})},6000);
   pendingOrder=null;
   if(order.scheduled){
    saveGotoScheduleGuard({symbol:order.symbol||market?.symbol||selectedTradeSymbol,side:order.side,volume:order.volume,executeAt:Number(order.executeAt),commandId:body.commandId,createdAt:Math.floor(Date.now()/1000),status:'pending'});
@@ -2824,7 +2824,7 @@ function reserveReverseIndicator(){
  const market=marketForSymbol(symbol),bid=Number(market?.bid),ask=Number(market?.ask),previewBasePrice=(Number.isFinite(bid)&&Number.isFinite(ask)&&bid>0&&ask>0)?(bid+ask)/2:0;
  const button=$('reverseReserve'),cycleId='r4'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
  button.disabled=true;button.textContent='注文を送信中…';$('reverseStatus').textContent=currentPlatform()+'へ4ライン注文を送信中…';
- const payload={action:'indicator_reverse_4line',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume:innerLots,executeAt,cycleId,reverseInnerDistancePips:innerDistance,reverseOuterDistancePips:outerDistance,reverseInnerLots:innerLots,reverseOuterLots:outerLots,reverseIndividualLots:individualLots,reverseLotS2:lotS2,reverseLotS1:lotS1,reverseLotB1:lotB1,reverseLotB2:lotB2,reverseTP:takeProfitPips,reverseSL:stopLossPips};
+ const payload={action:'indicator_reverse_4line',strategy:'EVENT',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume:innerLots,executeAt,cycleId,reverseInnerDistancePips:innerDistance,reverseOuterDistancePips:outerDistance,reverseInnerLots:innerLots,reverseOuterLots:outerLots,reverseIndividualLots:individualLots,reverseLotS2:lotS2,reverseLotS1:lotS1,reverseLotB1:lotB1,reverseLotB2:lotB2,reverseTP:takeProfitPips,reverseSL:stopLossPips};
  fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+connectionKey(),'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(body=>{
   // Immediate and scheduled reservations both keep the price captured at
   // registration time.  The EA result later replaces previewBasePrice with
@@ -2850,7 +2850,7 @@ function reserveIndicator(){
  // indicatorScheduled=1を付け、指定時刻にだけ指標用OCO逆指値として処理する。
  const action=mode==='scheduled'?'schedule_market_order':mode==='market'?'indicator_market_hedge':'indicator_order_now';
  button.disabled=true;button.textContent='注文を送信中…';$('indicatorStatus').textContent=currentPlatform()+'へ注文指示を送信中…';
- const payload={action,account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume,marginPips:mode==='market'?0:marginPips,stopLossPips:slPips,takeProfitPips:tpPips,...(mode==='scheduled'?{executeAt,indicatorScheduled:'1'}:{})};
+ const payload={action,strategy:'EVENT',account:data.account,snapshotGeneratedAt:Math.floor(data.generatedAt),symbol,side:'BUY',volume,marginPips:mode==='market'?0:marginPips,stopLossPips:slPips,takeProfitPips:tpPips,...(mode==='scheduled'?{executeAt,indicatorScheduled:'1'}:{})};
  fetchJsonWithTimeout(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+connectionKey(),'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(body=>{
   if(mode==='scheduled'){
    saveIndicatorScheduleGuard({symbol,executeAt,style:'trend',commandId:body.commandId,createdAt:Math.floor(Date.now()/1000)});
