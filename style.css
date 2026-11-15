@@ -254,6 +254,8 @@ body[data-app-page="home"] #marketPanel>.goto-order-tabs.is-indicator-mode .acti
 .currency-list-empty{margin:4px 0;padding:28px 12px;border:1px dashed #326895;border-radius:10px;color:#9fbdd5;text-align:center;font-size:.84rem}
 .currency-row-preview{border-color:#326895;background:#072541;color:#e6f3ff}
 .currency-row-preview:hover,.currency-row-preview:focus-visible{border-color:#18c7ff;background:#0c355b;box-shadow:0 0 10px #18c7ff33}
+.currency-row-waiting{border-color:#9c752e;background:#2e2412;color:#ffe6ae}
+.currency-row-waiting:hover,.currency-row-waiting:focus-visible{border-color:#ffbd4a;background:#493514;box-shadow:0 0 10px #ffbd4a33}
 .tradingview-preview{display:grid;gap:8px;margin-top:12px;padding:10px;border:1px solid #245985;border-radius:10px;background:#072541;color:#e6f3ff}
 .tradingview-preview[hidden]{display:none}
 .tradingview-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -1803,3 +1805,14 @@ body[data-theme] .bottom-nav button[aria-current="page"] .nav-icon{color:#22c7ff
 /* 予約中の取消と成行ブロック表示 */
 .reserve-cancel{width:100%;margin-top:8px;border-color:#d99a9e;background:#fff7f7;color:#ffb5b8;font-weight:750}
 .reserve-status{min-height:1.35em;margin:8px 0 0;color:#ffcfaf}
+.brand-zero-core{display:inline-flex;align-items:center;gap:7px;font-style:normal;letter-spacing:0!important;line-height:1;text-decoration:none}
+.brand-zero-core-mark{display:block;flex:0 0 auto;width:31px;height:31px;filter:drop-shadow(0 1px 5px #0008)}
+.brand-zero-core-name{display:inline-flex!important;align-items:baseline;margin:0!important;padding:0!important;font-size:1rem!important;font-weight:900;letter-spacing:-.75px!important;line-height:1;white-space:nowrap}
+.brand-zero-core-name .brand-tom{margin:0!important;color:#8b63f4!important;font-size:inherit!important;letter-spacing:inherit!important}
+.brand-zero-core-name .brand-fx{margin:0 1px!important;color:#f5fbff!important;font-size:inherit!important;letter-spacing:inherit!important}
+.brand-zero-core-name .brand-zero{margin:0!important;color:#18cfe3!important;font-size:inherit!important;letter-spacing:inherit!important}
+@media(max-width:999px){
+ body[data-app-page="home"] .brand-zero-core{gap:6px}
+ body[data-app-page="home"] .brand-zero-core-mark{width:29px;height:29px}
+ body[data-app-page="home"] .brand-zero-core-name{font-size:.91rem!important;letter-spacing:-.8px!important}
+}

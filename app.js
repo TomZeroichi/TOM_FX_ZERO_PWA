@@ -360,10 +360,23 @@ function configuredTradeSymbols(){
  const symbols=data?.tradeSymbols;
  return Array.isArray(symbols)&&symbols.length?symbols:null;
 }
+function configuredTradeSymbolValues(){
+ const configured=configuredTradeSymbols()||[];
+ return [...new Set(configured.map(symbol=>String(symbol||'').trim()).filter(Boolean))];
+}
+function uiTradeSymbolValues(){
+ const values=configuredTradeSymbolValues();
+ // EAがまだ旧版でも、週末BTCテストをONにした時点で「EA価格待ち」の
+ // 実銘柄行を出す。プレビュー専用行には落とさず、最新EAを付ければ
+ // 同じ銘柄に価格・チャート・デモ注文が接続される。
+ if(weekendBtcTestEnabled()&&!values.some(isWeekendBtcSymbol))values.push('BTCUSDz');
+ return values;
+}
 function isGotoSymbol(symbol){
  const configured=configuredTradeSymbols();
  const isConfigured=configured?configured.includes(symbol):isCoreGotoSymbol(symbol);
- return isConfigured&&(!isWeekendBtcSymbol(symbol)||weekendBtcTestEnabled());
+ const isWeekendFallback=isWeekendBtcSymbol(symbol)&&weekendBtcTestEnabled()&&String(symbol).toUpperCase()==='BTCUSDZ';
+ return (isConfigured||isWeekendFallback)&&(!isWeekendBtcSymbol(symbol)||weekendBtcTestEnabled());
 }
 function syncSelectOptions(select,options,selectedValue){
  if(!select)return;
@@ -381,13 +394,14 @@ function tradeSymbolLabel(symbol){
  return symbol;
 }
 function syncTradeSymbolOptions(){
- const select=$('tradeSymbol'),gotobi=marketList(data).filter(m=>isGotoSymbol(m.symbol));
+ const select=$('tradeSymbol'),marketRows=marketList(data),symbols=[...new Set([...marketRows.map(m=>m.symbol),...uiTradeSymbolValues()])];
+ const gotobi=symbols.filter(isGotoSymbol).map(symbol=>marketRows.find(m=>m.symbol===symbol)||{symbol,missingPrice:true});
  const btcToggle=$('weekendBtcTest');
  if(btcToggle)btcToggle.checked=weekendBtcTestEnabled();
- const previewSelected=TRADINGVIEW_SYMBOL_CATALOG.some(item=>item.symbol===selectedTradeSymbol);
+ const previewSelected=isTradingViewCatalogSymbol(selectedTradeSymbol)&&!isWeekendBtcSymbol(selectedTradeSymbol);
  if(gotobi.length&&!gotobi.some(m=>m.symbol===selectedTradeSymbol)&&!previewSelected)selectedTradeSymbol=gotobi[0].symbol;
  if(gotobi.length){
-  const options=gotobi.map(m=>({text:tradeSymbolLabel(m.symbol),value:m.symbol}));
+  const options=gotobi.map(m=>({text:tradeSymbolLabel(m.symbol)+(m.missingPrice?'（EA価格待ち）':''),value:m.symbol}));
   if(previewSelected)options.unshift({text:tradeSymbolLabel(selectedTradeSymbol)+'（TVプレビュー）',value:selectedTradeSymbol});
   syncSelectOptions(select,options,selectedTradeSymbol);
  }
@@ -403,7 +417,11 @@ function syncIndicatorSymbolOptions(){
 function selectedMarket(){
  return marketList(data).find(m=>m.symbol===selectedTradeSymbol)||null;
 }
-function isTradingViewCatalogSymbol(symbol){return TRADINGVIEW_SYMBOL_CATALOG.some(item=>item.symbol===symbol);}
+function tradingViewCatalogItemForSymbol(symbol){
+ const value=String(symbol||'').toUpperCase();
+ return TRADINGVIEW_SYMBOL_CATALOG.find(item=>item.symbol===value)||TRADINGVIEW_SYMBOL_CATALOG.find(item=>value.startsWith(item.symbol));
+}
+function isTradingViewCatalogSymbol(symbol){return Boolean(tradingViewCatalogItemForSymbol(symbol));}
 function marketForSymbol(symbol){return marketList(data).find(m=>m.symbol===symbol)||null;}
 function currentPositionPips(position){
  const open=Number(position.openPrice),market=marketForSymbol(position.symbol);
@@ -497,7 +515,8 @@ function canCreateCloseCommand(items=chosen()){
 function canCreateOrder(){
  const freshLive=!data.live||((Date.now()/1000-liveReceivedAt)<=10);
  const market=selectedMarket();
- return isLiveSource(data.source)&&data.schema===2&&data.tradeMode==='demo'&&connectionKey()&&freshLive&&(!!market||isTradingViewCatalogSymbol(selectedTradeSymbol));
+ const brokerTestSymbol=!market&&isWeekendBtcSymbol(selectedTradeSymbol)&&weekendBtcTestEnabled()&&configuredTradeSymbolValues().includes(selectedTradeSymbol);
+ return isLiveSource(data.source)&&data.schema===2&&data.tradeMode==='demo'&&connectionKey()&&freshLive&&(!!market||brokerTestSymbol);
 }
 function canSendLiveCommand(){
  const freshLive=!data.live||((Date.now()/1000-liveReceivedAt)<=10);
@@ -861,8 +880,14 @@ function updateMarket(){
  if(!market){
   $('marketQuote').textContent=isTradingViewCatalogSymbol(selectedTradeSymbol)?'TradingViewプレビュー（注文時の口座価格はEAから取得）':'EA最新版からドル円／ユーロ円、または有効化したBTCテストの価格を受信してください';
   $('marketPrice').textContent='--';
-  if(isTradingViewCatalogSymbol(selectedTradeSymbol))showTradingViewChartPreview('marketChart','chartEmpty',selectedTradeSymbol);
-  else{$('chartEmpty').hidden=false;$('chartEmpty').textContent='ゴトー日通貨ペアの価格待ち（EA設定を確認）';}
+  const previewItem=tradingViewCatalogItemForSymbol(selectedTradeSymbol);
+  if(previewItem&&!isWeekendBtcSymbol(selectedTradeSymbol))showTradingViewChartPreview('marketChart','chartEmpty',previewItem.symbol);
+  else if(isWeekendBtcSymbol(selectedTradeSymbol)){
+   $('marketQuote').textContent='BTC週末テスト：EA価格を待っています（最新EAで許可をON）';
+   drawChartFor('marketChart','chartEmpty',null,chartTimeframe);
+   $('chartEmpty').hidden=false;
+   $('chartEmpty').textContent='BTCのEA価格・ローソク足を待っています。最新EA（MT4／MT5）でEnableWeekendBtcTestをONにして再接続してください。';
+  }else{$('chartEmpty').hidden=false;$('chartEmpty').textContent='ゴトー日通貨ペアの価格待ち（EA設定を確認）';}
   setOrderBusy(orderInFlight);
   return;
  }
@@ -1185,7 +1210,7 @@ function showTradingViewChartPreview(canvasId,emptyId,symbol){
  const canvas=$(canvasId),host=$(canvasId+'TradingView'),empty=$(emptyId);
  if(!canvas||!host||!symbol)return;
  destroyChartLayout(canvasId);clearChartLevelLabels(canvasId);
- const tvSymbol=(TRADINGVIEW_SYMBOL_CATALOG.find(item=>item.symbol===symbol)||{}).tvSymbol||'OANDA:'+symbol;
+ const tvSymbol=tradingViewCatalogItemForSymbol(symbol)?.tvSymbol||'OANDA:'+symbol;
  const iframe=document.createElement('iframe');iframe.title=symbol+' TradingViewプレビュー';iframe.loading='lazy';iframe.referrerPolicy='no-referrer-when-downgrade';iframe.src=tradingViewPreviewUrl(tvSymbol);
  host.replaceChildren(iframe);host.dataset.externalPreview='1';host.hidden=false;canvas.hidden=true;if(empty)empty.hidden=true;
 }
@@ -1537,8 +1562,10 @@ function setAppPage(page){
 }
 
 function currencyMarkets(){
- const markets=marketList(data);
- if(markets.length)return markets.filter(m=>!isWeekendBtcSymbol(m.symbol)||weekendBtcTestEnabled());
+ const markets=marketList(data),known=new Set(markets.map(m=>m.symbol));
+ const waiting=uiTradeSymbolValues().filter(symbol=>!known.has(symbol)).map(symbol=>({symbol,missingPrice:true}));
+ const merged=[...markets,...waiting];
+ if(merged.length)return merged.filter(m=>!isWeekendBtcSymbol(m.symbol)||weekendBtcTestEnabled());
  return [{symbol:'USDJPYz'},{symbol:'EURJPYz'}];
 }
 function tradingViewCatalogMatches(query){
@@ -1599,10 +1626,11 @@ function renderCurrencyList(){
   button.type='button';button.className='currency-row'+(symbol===current?' is-active':'');button.onclick=()=>selectCurrency(symbol);
   const main=document.createElement('span');main.className='currency-main';
   const title=document.createElement('strong');title.textContent=label;
-  const detail=document.createElement('small');detail.textContent=symbol;
+  const detail=document.createElement('small');detail.textContent=market.missingPrice?symbol+' · EA価格待ち':symbol;
   main.append(title,detail);
   const quote=document.createElement('span');quote.className='currency-quote';
-  const bid=Number(market.bid),ask=Number(market.ask);quote.textContent=Number.isFinite(bid)?marketPrice(bid,market)+(Number.isFinite(ask)?' / '+marketPrice(ask,market):''):'--';
+  const bid=Number(market.bid),ask=Number(market.ask);quote.textContent=market.missingPrice?'EA価格待ち':Number.isFinite(bid)?marketPrice(bid,market)+(Number.isFinite(ask)?' / '+marketPrice(ask,market):''):'--';
+  if(market.missingPrice)button.classList.add('currency-row-waiting');
   button.append(main,quote);container.append(button);
  }
  for(const item of previewMarkets){

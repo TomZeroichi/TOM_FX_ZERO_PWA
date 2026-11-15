@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#071a33">
   <meta name="application-name" content="TOM FX ZERO">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TOM FX ZERO">
   <meta name="description" content="デモMT4／MT5口座の手数料込み損益を確認するスマホ対応ツール">
   <title>TOM FX Zero｜手数料込み損益</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.5.51">
-  <link rel="icon" href="icons/app-icon.svg?v=0.5.51" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/app-icon.svg?v=0.5.51">
-  <link rel="stylesheet" href="style.css?v=0.5.51">
-  <link rel="stylesheet" href="mode-buttons.css?v=0.5.51">
+  <link rel="manifest" href="./manifest.webmanifest?v=0.5.58">
+  <link rel="icon" href="icons/tom-fx-zero-v0.5.55.png" type="image/png">
+  <link rel="apple-touch-icon" href="./icons/tom-fx-zero-apple-v0.5.55.png">
+  <link rel="stylesheet" href="style.css?v=0.5.58">
+  <link rel="stylesheet" href="mode-buttons.css?v=0.5.58">
 
   <style id="settings-tabs-style">
     /* 0.5.33: モード切替を横並び・低い高さへ固定 */
@@ -40,7 +40,15 @@
   <div id="toast" class="app-toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   <header>
     <div class="header-row">
-      <a class="brand" href="./">TOM <b>FX</b> <span>ZERO</span></a>
+      <a class="brand brand-zero-core" href="./" aria-label="TOM FX ZERO ホーム">
+        <svg class="brand-zero-core-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <circle cx="24" cy="24" r="20.5" fill="#ffffff" stroke="#071d37" stroke-width="4.5"/>
+          <path d="M14 13h23l-4.9 6H18.8z" fill="#8157f2"/>
+          <path d="M30.7 18.6H37L17.2 35H11z" fill="#071d37"/>
+          <path d="M16 35h22l-4.2-6H20.7z" fill="#18cfe3"/>
+        </svg>
+        <span class="brand-zero-core-name"><span class="brand-tom">TOM</span><span class="brand-fx">FX</span><span class="brand-zero">ZERO</span></span>
+      </a>
       <div class="account-select-wrap">
         <select id="accountProfile" class="header-account" aria-label="取引口座"></select>
         <span id="accountConnectionStatus" class="account-connection-status" data-state="idle" aria-live="polite" aria-label="未接続 0秒">
@@ -48,7 +56,7 @@
           <span id="accountConnectionAge">0秒</span>
         </span>
       </div>
-      <div class="header-actions"><span class="version">検証版 0.5.51</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
+      <div class="header-actions"><span class="version">検証版 0.5.58</span><button id="openMenu" class="menu-button" type="button" aria-label="設定を開く" aria-controls="menuDialog" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button></div>
     </div>
   </header>
 
@@ -200,7 +208,7 @@
     <p>接続キーを設定した専用EAから、デモ口座の最新ポジション、MT4／MT5価格チャートを暗号化通信で取得できます。リアルタイム連携中はデモ口座限定で決済・成行注文の指示を送信できます。実口座とコンテスト口座は常にロックされます。</p>
       </details>
       <div class="downloads">
-        <a href="https://tom-fx-zero.ryuichi512.chatgpt.site/TOM_FX_Zero_FULL.zip" download>フルコード・EA・VPS自動起動BAT・導入手順をダウンロード</a>
+        <a href="https://tom-fx-zero.ryuichi512.chatgpt.site/TOM_FX_Zero_FULL_v0.5.58_EA_FIX.zip" download>最新版フルコード・EA・VPS自動起動BAT・導入手順をダウンロード</a>
         <a href="https://tom-fx-zero.ryuichi512.chatgpt.site/README.txt">導入手順を読む</a>
       </div>
       </div>
@@ -370,7 +378,7 @@
         <label class="menu-toggle"><input id="closeNoConfirmSetting" type="checkbox"><span><strong>ワンクリック決済</strong><small>選択分の一括決済で確認画面を表示しません。</small></span></label>
       </section>
       <section id="settingsPanelSystem" class="settings-panel" data-settings-panel="system" role="tabpanel" aria-labelledby="settingsTabSystem" hidden>
-        <label class="menu-toggle weekend-btc-test"><input id="weekendBtcTest" type="checkbox"><span><strong>週末BTCテストを有効化</strong><small>BTCUSDはデモ口座でのみテストできます。EA側のBTCテスト許可も必要です。</small></span></label>
+        <label class="menu-toggle weekend-btc-test"><input id="weekendBtcTest" type="checkbox"><span><strong>週末BTCテストを有効化</strong><small>BTCUSDはデモ口座でのみテストできます。最新EAでは許可が初期ONです（旧EAはEA設定をONにして再接続）。</small></span></label>
         <p class="market-test-note menu-test-note" id="marketTestNote" hidden>BTC週末テスト中です。ゴトー日・ナンピンの本番運用とは分離され、ナンピン自動注文の対象にはなりません。</p>
         <div class="menu-divider"></div>
         <section class="vps-panel" id="vpsPanel" aria-labelledby="vpsTitle">
@@ -471,10 +479,10 @@
     <button id="closeProfileDialog" class="dialog-close" type="button" aria-label="口座管理を閉じる">×</button>
   </dialog>
 
-  <script src="calc.js?v=0.5.51"></script>
-  <script src="lightweight-charts.standalone.production.js?v=0.5.51"></script>
-  <script src="app.js?v=0.5.51"></script>
-  <script src="pwa.js?v=0.5.51"></script>
+  <script src="calc.js?v=0.5.58"></script>
+  <script src="lightweight-charts.standalone.production.js?v=0.5.58"></script>
+  <script src="app.js?v=0.5.58"></script>
+  <script src="pwa.js?v=0.5.58"></script>
 
   <script>
     (() => {

@@ -9,7 +9,6 @@ function validate(d){
  if(!d||![1,2].includes(d.schema)||!['demo','mt4-snapshot','mt5-snapshot'].includes(d.source)||typeof d.currency!=='string'||! /^[A-Z]{3}$/.test(d.currency)||!Number.isFinite(d.generatedAt)||d.generatedAt<0||d.generatedAt>Date.now()/1000+300||!Array.isArray(d.positions)||d.positions.length>5000)throw Error('対応するMT4/MT5出力ファイルではありません。');
  if(isLiveSource(d.source)&&d.schema===2&&(!/^\d+$/.test(d.account)||!['demo','real','contest'].includes(d.tradeMode)))throw Error('口座情報が不正です。');
  if(d.balance!==undefined&&(!Number.isFinite(d.balance)||d.balance<0))throw Error('残高情報が不正です。');
- if(d.equity!==undefined&&(!Number.isFinite(d.equity)||d.equity<0))throw Error('有効証拠金情報が不正です。');
  const ids=new Set(),tickets=new Set();
  for(const p of d.positions){
  if(!p||typeof p.id!=='string'||!p.id||ids.has(p.id)||typeof p.symbol!=='string'||p.symbol.length>64||!['BUY','SELL'].includes(p.side)||!['observed','unknown'].includes(p.costStatus)||(isLiveSource(d.source)&&d.schema===2&&!/^\d+$/.test(p.ticket)))throw Error('ポジション情報が不正、または重複しています。');
@@ -24,9 +23,8 @@ function validate(d){
   for(const tf of ['M1','M5','M15']){const bars=m.charts[tf];if(!Array.isArray(bars)||bars.length<2||bars.length>200)throw Error('チャート情報が不正です。');let previous=0;for(const b of bars){if(!b||!Number.isFinite(b.time)||b.time<=previous||!['open','high','low','close','volume'].every(k=>Number.isFinite(b[k]))||b.low>Math.min(b.open,b.close)||b.high<Math.max(b.open,b.close)||b.low<=0||b.high<=0||b.volume<0)throw Error('チャート情報が不正です。');previous=b.time;}}
  };
  if(d.market!==undefined)validateMarket(d.market);
- if(d.markets!==undefined){if(!Array.isArray(d.markets)||d.markets.length<1||d.markets.length>32)throw Error('チャート情報が不正です。');const marketSymbols=new Set();for(const m of d.markets){validateMarket(m);if(marketSymbols.has(m.symbol))throw Error('チャート情報が不正です。');marketSymbols.add(m.symbol);}}
- if(d.pendingOrders!==undefined){if(!Array.isArray(d.pendingOrders)||d.pendingOrders.length>5000)throw Error('予約注文情報が不正です。');const pendingIds=new Set();const pendingTickets=new Set();for(const o of d.pendingOrders){if(!o||typeof o.id!=='string'||!o.id||pendingIds.has(o.id)||typeof o.ticket!=='string'||!/^\d+$/.test(o.ticket)||pendingTickets.has(o.ticket)||typeof o.symbol!=='string'||o.symbol.length>64||!['BUY','SELL'].includes(o.side)||o.status!=='pending'||typeof o.type!=='string')throw Error('予約注文情報が不正、または重複しています。');pendingIds.add(o.id);pendingTickets.add(o.ticket);for(const k of ['volume','orderPrice','stopLoss','takeProfit'])if(typeof o[k]!=='number'||!Number.isFinite(o[k])||o[k]<0)throw Error('予約注文の価格・ロット情報が不正です。');if(o.volume<=0||o.orderPrice<=0)throw Error('予約注文のロット・価格が不正です。');}}
- if(d.tradeSymbols!==undefined){if(!Array.isArray(d.tradeSymbols)||d.tradeSymbols.length<1||d.tradeSymbols.length>32||d.tradeSymbols.some(symbol=>typeof symbol!=='string'||symbol.length<1))throw Error('取引銘柄情報が不正です。');}
+ if(d.markets!==undefined){if(!Array.isArray(d.markets)||d.markets.length<1||d.markets.length>8)throw Error('チャート情報が不正です。');const marketSymbols=new Set();for(const m of d.markets){validateMarket(m);if(marketSymbols.has(m.symbol))throw Error('チャート情報が不正です。');marketSymbols.add(m.symbol);}}
+ if(d.tradeSymbols!==undefined){if(!Array.isArray(d.tradeSymbols)||d.tradeSymbols.length<1||d.tradeSymbols.length>6||d.tradeSymbols.some(symbol=>typeof symbol!=='string'||symbol.length<1))throw Error('取引銘柄情報が不正です。');}
  return d;
 }
 function closeCommand(d,positionIds,now=Math.floor(Date.now()/1000)){
