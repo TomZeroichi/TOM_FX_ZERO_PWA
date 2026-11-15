@@ -1,14 +1,14 @@
 'use strict';
-const CACHE_NAME='tom-fx-zero-shell-0.5.58';
+const CACHE_NAME='tom-fx-zero-shell-0.5.59';
 const APP_SHELL=[
   './',
   './index.html',
-  './style.css?v=0.5.58',
-  './mode-buttons.css?v=0.5.58',
+  './style.css?v=0.5.59',
+  './mode-buttons.css?v=0.5.59',
   './calc.js',
   './lightweight-charts.standalone.production.js',
-  './app.js?v=0.5.58',
-  './pwa.js?v=0.5.58',
+  './app.js?v=0.5.59',
+  './pwa.js?v=0.5.59',
   './manifest.webmanifest',
   './icons/tom-fx-zero-v0.5.55.png',
   './icons/tom-fx-zero-192-v0.5.55.png',

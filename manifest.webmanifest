@@ -1,11 +1,11 @@
 {
-  "id": "./?app=tom-fx-zero-0-5-58",
+  "id": "./?app=tom-fx-zero-0-5-59",
   "name": "TOM FX ZERO",
   "short_name": "TOM FX ZERO",
   "description": "デモMT5口座の手数料込み損益を確認するスマホ対応ツール",
   "lang": "ja",
   "dir": "ltr",
-  "start_url": "./?app=tom-fx-zero-0-5-58",
+  "start_url": "./?app=tom-fx-zero-0-5-59",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f8fbff",

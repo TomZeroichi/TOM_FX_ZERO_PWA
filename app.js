@@ -354,7 +354,21 @@ const pipSize=(symbol,market=null)=>{
 const marketList=source=>Array.isArray(source?.markets)&&source.markets.length?source.markets:(source?.market?[source.market]:[]);
 const isCoreGotoSymbol=symbol=>/^(USDJPY|EURJPY)/i.test(String(symbol||''));
 const isWeekendBtcSymbol=symbol=>/^BTCUSD/i.test(String(symbol||''));
-function weekendBtcTestEnabled(){try{return localStorage.getItem(profileSettingKey(WEEKEND_BTC_TEST_KEY))==='true';}catch{return false;}}
+function weekendBtcTestEnabled(){
+ try{
+  const scoped=localStorage.getItem(profileSettingKey(WEEKEND_BTC_TEST_KEY));
+  if(scoped==='true')return true;
+  if(scoped==='false')return false;
+  // プロファイル分割前に保存した設定も引き継ぐ。
+  if(localStorage.getItem(WEEKEND_BTC_TEST_KEY)==='true'){
+   localStorage.setItem(profileSettingKey(WEEKEND_BTC_TEST_KEY),'true');
+   return true;
+  }
+ }catch{}
+ // GitHub Pagesへ移行した直後など、設定キーがまだない場合でも、
+ // EAがBTC銘柄を配信していればテスト銘柄を消さない。
+ return marketList(data).some(m=>isWeekendBtcSymbol(m.symbol))||configuredTradeSymbolValues().some(isWeekendBtcSymbol);
+}
 function saveWeekendBtcTest(enabled){try{localStorage.setItem(profileSettingKey(WEEKEND_BTC_TEST_KEY),enabled?'true':'false');}catch{}}
 function configuredTradeSymbols(){
  const symbols=data?.tradeSymbols;
@@ -435,7 +449,7 @@ function pipsText(rows){
  const values=rows.map(currentPositionPips);
  if(values.some(value=>value===null))return '--';
  const total=values.reduce((sum,value)=>sum+value,0);
- return (total>=0?'+':'')+total.toFixed(1)+' pips';
+ return formatPips(total);
 }
 function setPipsValue(element,rows){
  if(!element)return;
@@ -458,6 +472,16 @@ const money=n=>n===null?'未確認':new Intl.NumberFormat('ja-JP',{
  signDisplay:'always',
  maximumFractionDigits:data.currency==='JPY'?0:2
 }).format(Math.abs(n)<1e-8?0:n);
+function formatPipsNumber(value,digits=1){
+ const number=Number(value);
+ if(!Number.isFinite(number))return '--';
+ const rounded=Number(number.toFixed(digits));
+ return (rounded>=0?'+':'')+new Intl.NumberFormat('ja-JP',{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(rounded);
+}
+function formatPips(value,digits=1){
+ const formatted=formatPipsNumber(value,digits);
+ return formatted==='--'?'--':formatted+' pips';
+}
 const balanceMoney=n=>Number.isFinite(n)?new Intl.NumberFormat('ja-JP',{style:'currency',currency:data.currency,maximumFractionDigits:data.currency==='JPY'?0:2}).format(n):'--';
 const visible=()=>data.positions.filter(p=>!$('symbol').value||p.symbol===$('symbol').value);
 const pendingVisible=()=>Array.isArray(data.pendingOrders)?data.pendingOrders.filter(p=>!$('symbol').value||p.symbol===$('symbol').value):[];
@@ -963,7 +987,7 @@ function signedPipsForChartLevel(position,level,market){
 }
 function chartLevelPipsText(position,level,market){
  const pips=signedPipsForChartLevel(position,level,market);
- return pips===null?'--':(pips>=0?'+':'')+pips.toFixed(1)+' pips';
+ return pips===null?'--':formatPips(pips);
 }
 function updateChartLevelAction(){
  const action=$('chartLevelAction'),indicatorAction=$('indicatorChartLevelAction');if(!action||!indicatorAction)return;
@@ -971,7 +995,7 @@ function updateChartLevelAction(){
  const position=data.positions.find(item=>item.id===chartLevelDraft.positionId),market=position&&marketForSymbol(position.symbol);
  if(!position||!market){chartLevelDraft=null;action.hidden=true;indicatorAction.hidden=true;return;}
  const sl=pipsForChartLevel(position,chartLevelDraft.stopLoss,'stopLoss',market),tp=pipsForChartLevel(position,chartLevelDraft.takeProfit,'takeProfit',market);
- const text=position.symbol+' '+position.side+' / SL '+(chartLevelDraft.stopLoss?sl.toFixed(1)+' pips':'なし')+' / TP '+(chartLevelDraft.takeProfit?tp.toFixed(1)+' pips':'なし');
+ const text=position.symbol+' '+position.side+' / SL '+(chartLevelDraft.stopLoss?formatPips(sl):'なし')+' / TP '+(chartLevelDraft.takeProfit?formatPips(tp):'なし');
  $('chartLevelText').textContent=text;$('indicatorChartLevelText').textContent=text;
  action.hidden=activeMode!=='goto';indicatorAction.hidden=activeMode!=='indicator';
 }
@@ -1339,7 +1363,7 @@ function historyPipsValue(item){
 }
 function historyPipsText(item){
  const value=historyPipsValue(item);
- return value===null?'実質pips --':'実質pips '+(value>=0?'+':'')+value.toFixed(1);
+ return value===null?'実質pips --':'実質pips '+formatPipsNumber(value);
 }
 function renderHistory(){
  const container=$('historyRows'),items=Array.isArray(data.history)?[...data.history].sort((a,b)=>Number(b.time)-Number(a.time)):[];
@@ -1475,7 +1499,7 @@ function openCalendarDay(key,rows){
  title.textContent=calendarDateLabel(key)+'の取引';
  const sorted=[...rows].sort((a,b)=>Number(b.time)-Number(a.time));
  const total=sorted.reduce((sum,item)=>sum+historyNet(item),0),pips=sorted.map(historyPipsValue),pipsKnown=pips.every(value=>value!==null),totalPips=pipsKnown?pips.reduce((sum,value)=>sum+value,0):null;
- summary.textContent=sorted.length?`${sorted.length}件 ／ ${money(total)}${totalPips===null?'':' ／ '+(totalPips>=0?'+':'')+totalPips.toFixed(1)+' pips'}`:'この日の決済履歴はありません。';
+ summary.textContent=sorted.length?`${sorted.length}件 ／ ${money(total)}${totalPips===null?'':' ／ '+formatPips(totalPips)}`:'この日の決済履歴はありません。';
  container.replaceChildren();
  if(!sorted.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='この日の決済履歴はありません。';container.append(empty);}
  for(const item of sorted){
@@ -1518,7 +1542,7 @@ function renderPnlCalendar(){
   const rows=dailyRows.get(key)||[];rows.push(item);dailyRows.set(key,rows);
  }
  const total=[...daily.values()].reduce((sum,item)=>sum+item.net,0),count=[...daily.values()].reduce((sum,item)=>sum+item.count,0),totalPips=[...daily.values()].every(item=>item.pipsKnown)?[...daily.values()].reduce((sum,item)=>sum+item.pips,0):null;
- summary.textContent=count?`${count}件 ／ ${money(total)}${totalPips===null?'':' ／ '+(totalPips>=0?'+':'')+totalPips.toFixed(1)+' pips'}`:'この月の決済履歴はありません';
+ summary.textContent=count?`${count}件 ／ ${money(total)}${totalPips===null?'':' ／ '+formatPips(totalPips)}`:'この月の決済履歴はありません';
  summary.classList.toggle('positive',count>0&&total>=0);summary.classList.toggle('negative',count>0&&total<0);
  grid.replaceChildren();
  for(let index=0;index<firstDay;index++)grid.append(document.createElement('div'));
@@ -1530,7 +1554,7 @@ function renderPnlCalendar(){
   if(isGotoCalendarDate(key)){const gotobi=document.createElement('small');gotobi.className='calendar-gotobi';gotobi.textContent='ゴトー';cell.append(gotobi);}
   if(item){
    const net=document.createElement('strong');net.className='calendar-net '+(item.net<0?'negative':'positive');net.textContent=money(item.net);cell.append(net);
-   const pips=document.createElement('small');pips.className='calendar-pips';pips.textContent=item.pipsKnown?(item.pips>=0?'+':'')+item.pips.toFixed(1)+' pips':item.count+'件';cell.append(pips);
+   const pips=document.createElement('small');pips.className='calendar-pips';pips.textContent=item.pipsKnown?formatPips(item.pips):item.count+'件';cell.append(pips);
    cell.title=[...item.profiles].join('、');
   }
   grid.append(cell);
@@ -1826,7 +1850,7 @@ function render(){
    ['手数料（残数量分）',p.costStatus==='observed'?money(p.commission):'未確認'],
    ['スワップ',money(p.swap)],
    ['その他費用',money(p.fee)],
-   ['現在pips',currentPositionPips(p)===null?'--':(currentPositionPips(p)>=0?'+':'')+currentPositionPips(p).toFixed(1)+' pips'],
+   ['現在pips',currentPositionPips(p)===null?'--':formatPips(currentPositionPips(p))],
    ['SL',Number(p.stopLoss)>0?chartPrice(p.stopLoss,marketForSymbol(p.symbol)):'なし'],
    ['TP',Number(p.takeProfit)>0?chartPrice(p.takeProfit,marketForSymbol(p.symbol)):'なし'],
    ['ポジション番号','#'+p.id]
@@ -2321,7 +2345,7 @@ function openPositionModifyConfirm(position,stopLossInput,takeProfitInput){
  if(!Number.isFinite(stopLossPips)||stopLossPips<0||!Number.isFinite(takeProfitPips)||takeProfitPips<0){$('message').textContent='SL／TPのpips距離を確認してください。';return;}
  if(!position.ticket){$('message').textContent=currentPlatform()+'ポジション情報を更新してから、もう一度お試しください。';return;}
  pendingModify={tickets:[position.ticket],positionIds:[position.id],stopLossPips,takeProfitPips};
- $('modifyConfirmText').textContent=position.symbol+' '+position.side+' に SL '+stopLossPips.toFixed(1)+' pips / TP '+takeProfitPips.toFixed(1)+' pips を設定します。';
+ $('modifyConfirmText').textContent=position.symbol+' '+position.side+' に SL '+formatPips(stopLossPips)+' / TP '+formatPips(takeProfitPips)+' を設定します。';
  $('modifyConfirm').showModal();
 }
 function openModifyConfirm(){
@@ -2457,7 +2481,7 @@ function applyChartLevels(automatic=false){
   sendModifyLevels();
   return;
  }
- $('modifyConfirmText').textContent=position.symbol+' '+position.side+' に SL '+stopLossPips.toFixed(1)+' pips / TP '+takeProfitPips.toFixed(1)+' pips を設定します。';
+ $('modifyConfirmText').textContent=position.symbol+' '+position.side+' に SL '+formatPips(stopLossPips)+' / TP '+formatPips(takeProfitPips)+' を設定します。';
  $('modifyConfirm').showModal();
 }
 function setupChartInteractions(){
