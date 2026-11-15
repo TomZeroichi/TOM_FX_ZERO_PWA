@@ -1,20 +1,20 @@
 'use strict';
-const CACHE_NAME='tom-fx-zero-shell-0.5.62';
+const CACHE_NAME='tom-fx-zero-shell-0.5.63';
 const APP_SHELL=[
   './',
   './index.html',
-  './style.css?v=0.5.62',
-  './mode-buttons.css?v=0.5.62',
+  './style.css?v=0.5.63',
+  './mode-buttons.css?v=0.5.63',
   './calc.js',
   './lightweight-charts.standalone.production.js',
-  './app.js?v=0.5.62',
-  './pwa.js?v=0.5.62',
+  './app.js?v=0.5.63',
+  './pwa.js?v=0.5.63',
   './manifest.webmanifest',
-  './icons/tom-fx-zero-v0.5.55.png?v=0.5.62',
-  './icons/tom-fx-zero-192-v0.5.55.png?v=0.5.62',
-  './icons/tom-fx-zero-512-v0.5.55.png?v=0.5.62',
-  './icons/tom-fx-zero-maskable-v0.5.55.png?v=0.5.62',
-  './icons/tom-fx-zero-apple-v0.5.55.png?v=0.5.62'
+  './icons/tom-fx-zero-v0.5.55.png?v=0.5.63',
+  './icons/tom-fx-zero-192-v0.5.55.png?v=0.5.63',
+  './icons/tom-fx-zero-512-v0.5.55.png?v=0.5.63',
+  './icons/tom-fx-zero-maskable-v0.5.55.png?v=0.5.63',
+  './icons/tom-fx-zero-apple-v0.5.55.png?v=0.5.63'
 ];
 
 self.addEventListener('install',event=>{
