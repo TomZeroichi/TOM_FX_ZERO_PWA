@@ -1,11 +1,11 @@
 {
-  "id": "./?app=tom-fx-zero-0-5-60",
+  "id": "./?app=tom-fx-zero-0-5-61",
   "name": "TOM FX ZERO",
   "short_name": "TOM FX ZERO",
   "description": "デモMT5口座の手数料込み損益を確認するスマホ対応ツール",
   "lang": "ja",
   "dir": "ltr",
-  "start_url": "./?app=tom-fx-zero-0-5-60",
+  "start_url": "./?app=tom-fx-zero-0-5-61",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f8fbff",
@@ -13,19 +13,19 @@
   "categories": ["finance", "utilities"],
   "icons": [
     {
-      "src": "icons/tom-fx-zero-192-v0.5.55.png?v=0.5.60",
+      "src": "icons/tom-fx-zero-192-v0.5.55.png?v=0.5.61",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/tom-fx-zero-512-v0.5.55.png?v=0.5.60",
+      "src": "icons/tom-fx-zero-512-v0.5.55.png?v=0.5.61",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/tom-fx-zero-maskable-v0.5.55.png?v=0.5.60",
+      "src": "icons/tom-fx-zero-maskable-v0.5.55.png?v=0.5.61",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

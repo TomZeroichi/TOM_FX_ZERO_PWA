@@ -1806,13 +1806,14 @@ body[data-theme] .bottom-nav button[aria-current="page"] .nav-icon{color:#22c7ff
 .reserve-cancel{width:100%;margin-top:8px;border-color:#d99a9e;background:#fff7f7;color:#ffb5b8;font-weight:750}
 .reserve-status{min-height:1.35em;margin:8px 0 0;color:#ffcfaf}
 .brand-zero-core{display:inline-flex;align-items:center;gap:7px;font-style:normal;letter-spacing:0!important;line-height:1;text-decoration:none}
-.brand-zero-core-mark{display:block;flex:0 0 auto;width:31px;height:31px;filter:drop-shadow(0 1px 5px #0008)}
+.brand-zero-core-mark{position:relative;display:block;overflow:hidden;flex:0 0 31px;width:31px;height:31px;border-radius:50%;background:#fff;filter:drop-shadow(0 1px 5px #0008)}
+.brand-zero-core-mark img{position:absolute;display:block;max-width:none;width:52px;height:52px;left:-10.5px;top:-5.25px}
 .brand-zero-core-name{display:inline-flex!important;align-items:baseline;margin:0!important;padding:0!important;font-size:1rem!important;font-weight:900;letter-spacing:-.75px!important;line-height:1;white-space:nowrap}
 .brand-zero-core-name .brand-tom{margin:0!important;color:#8b63f4!important;font-size:inherit!important;letter-spacing:inherit!important}
 .brand-zero-core-name .brand-fx{margin:0 1px!important;color:#f5fbff!important;font-size:inherit!important;letter-spacing:inherit!important}
 .brand-zero-core-name .brand-zero{margin:0!important;color:#18cfe3!important;font-size:inherit!important;letter-spacing:inherit!important}
 @media(max-width:999px){
  body[data-app-page="home"] .brand-zero-core{gap:6px}
- body[data-app-page="home"] .brand-zero-core-mark{width:29px;height:29px}
+ body[data-app-page="home"] .brand-zero-core-mark{width:31px;height:31px;flex-basis:31px}
  body[data-app-page="home"] .brand-zero-core-name{font-size:.91rem!important;letter-spacing:-.8px!important}
 }
