@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#020b18">
+  <meta name="description" content="TOM FX ZERO ACADEMY - GOTO / EVENT トレード マスタープログラム">
+  <title>TOM FX ZERO ACADEMY</title>
+  <link rel="stylesheet" href="./academy.css?v=1.0.0">
+</head>
+<body class="academy-body">
+  <div class="academy-app" id="academyApp">
+    <aside class="academy-sidebar" aria-label="ACADEMY メニュー">
+      <a class="academy-brand" href="./" aria-label="TOM FX ZEROへ戻る">
+        <span class="academy-brand-mark" aria-hidden="true">↗</span>
+        <span><b>TOM FX ZERO</b><em>ACADEMY</em></span>
+      </a>
+      <nav class="academy-nav" id="academyNav">
+        <button type="button" data-view="home"><span>⌂</span>ホーム</button>
+        <button type="button" class="is-active" data-view="curriculum"><span>▱</span>カリキュラム</button>
+        <button type="button" data-view="training"><span>↯</span>トレーニング</button>
+        <button type="button" data-view="review"><span>⌁</span>検証・復習</button>
+        <button type="button" data-view="report"><span>▥</span>戦績レポート</button>
+        <button type="button" data-view="badges"><span>♜</span>実績・バッジ</button>
+        <button type="button" data-view="settings"><span>⚙</span>設定</button>
+      </nav>
+      <div class="academy-sidebar-foot">
+        <span class="status-dot" id="connectionDot"></span>
+        <span id="connectionText">接続キーを確認中</span>
+      </div>
+    </aside>
+
+    <main class="academy-main">
+      <header class="academy-topbar">
+        <div class="academy-title">
+          <span class="academy-cap" aria-hidden="true">▱</span>
+          <div><h1>TOM FX ZERO ACADEMY</h1><p>GOTO / EVENT トレード マスタープログラム</p></div>
+        </div>
+        <div class="academy-top-actions">
+          <button class="level-chip" type="button" id="levelChip"><span>▰</span> Lv.1 トレーニー</button>
+          <div class="learning-progress" aria-label="学習進捗"><span>学習進捗</span><b id="overallProgress">0%</b><i><em id="overallProgressBar" style="width:0%"></em></i></div>
+          <button class="icon-round" type="button" id="academyNotice" aria-label="通知">♢<sup></sup></button>
+          <button class="icon-round profile" type="button" id="academyProfile" aria-label="アカウント">●</button>
+        </div>
+      </header>
+
+      <section class="academy-content" id="academyContent">
+        <section class="stage-column panel" aria-labelledby="stageListTitle">
+          <div class="panel-title"><span>▰</span><h2 id="stageListTitle">カリキュラム <small>（初期コース）</small></h2></div>
+          <div class="stage-list" id="stageList" aria-live="polite"></div>
+        </section>
+
+        <section class="trainer-column">
+          <section class="trainer-panel panel">
+            <div class="trainer-head">
+              <div><span class="trainer-screen-icon">▣</span><h2 id="activeStageTitle">STAGE 1：PC過去相場トレード</h2><b id="activeStageSub">（MT5 トレーニングEA）</b></div>
+              <div class="trainer-wordmark">// <strong>TOM FX ZERO TRAINER</strong> //</div>
+            </div>
+            <div class="training-meta"><b id="metaSymbol">USDJPY M1（過去相場検証モード）</b><span id="metaDate">検証日：セッションを開始してください</span><span id="metaTime">現在時刻（JST）--:--:--</span></div>
+            <div class="chart-shell">
+              <canvas id="academyChart" aria-label="トレーニング用チャート"></canvas>
+              <span class="chart-line-label">ENTRY LINE</span>
+              <span class="chart-price" id="chartPrice">155.100</span>
+              <div class="chart-empty" id="chartEmpty">MT5ストラテジーテスターで TRAINER EA を起動すると、同期結果がここへ反映されます。</div>
+            </div>
+            <div class="trainer-controls">
+              <label>ロット数<input id="academyLot" type="number" min="0.01" step="0.01" value="0.10"></label>
+              <label>TP（利確）<input id="academyTp" type="number" min="0" step="0.1" value="3.0"><small>pips</small></label>
+              <label>SL（損切）<input id="academySl" type="number" min="0" step="0.1" value="20.0"><small>pips</small></label>
+              <button class="trade-button buy" data-stage-action="tester"><span>↑</span><b>BUY</b><small>成行買い</small></button>
+              <button class="trade-button sell" data-stage-action="tester"><span>↓</span><b>SELL</b><small>成行売り</small></button>
+              <button class="secondary-action" data-stage-action="tester"><span>◉</span><b>決済</b><small>選択中のポジション</small></button>
+              <button class="secondary-action" data-stage-action="tester"><span>▱</span><b>全決済</b><small>全ポジション</small></button>
+            </div>
+            <div class="trainer-subcontrols">
+              <button type="button" data-stage-action="tester">◷　時間予約<small>指定時刻に成行注文</small></button>
+              <button type="button" data-stage-action="tester">⌁　価格予約<small>指値・逆指値注文</small></button>
+              <button type="button" data-stage-action="tester">☷　予約一覧<small>確認・取消</small></button>
+              <div class="player-controls"><button type="button" data-stage-action="tester">▶</button><button type="button" data-stage-action="tester">Ⅱ</button><button type="button" data-stage-action="tester">▸</button><label>再生速度<select id="playbackSpeed"><option>× 1.0</option><option>× 2.0</option><option>× 5.0</option></select></label></div>
+            </div>
+          </section>
+          <section class="academy-bottom-grid">
+            <section class="tasks-panel panel">
+              <div class="panel-title"><span>⌂</span><h2 id="taskPanelTitle">STAGE 1 の課題 <small>（4ステップ）</small></h2><b id="taskSummary">0 / 4 完了</b></div>
+              <ol id="taskList" class="task-list"></ol>
+            </section>
+            <section class="history-panel panel">
+              <div class="panel-title"><span>▰</span><h2>トレード履歴 <small>（検証中）</small></h2></div>
+              <div class="history-scroll"><table><thead><tr><th>No.</th><th>約定時刻</th><th>売買</th><th>ロット</th><th>決済時刻</th><th>損益（pips）</th></tr></thead><tbody id="tradeHistory"></tbody></table><p class="empty-row" id="historyEmpty">まだ同期済みの取引はありません。</p></div>
+            </section>
+            <section class="score-panel panel">
+              <div class="panel-title"><span>▱</span><h2>現在の成績 <small id="scoreStage">（STAGE 1）</small></h2></div>
+              <div class="score-content"><div class="score-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="46"/><circle id="scoreRing" cx="60" cy="60" r="46"/></svg><b><small>ルール遵守率</small><strong id="ruleRate">--%</strong></b></div><dl><div><dt>取引回数</dt><dd id="tradeCount">0 / 10 回</dd></div><div><dt>勝率</dt><dd id="winRate">--%</dd></div><div><dt>合計損益</dt><dd id="totalPips">-- pips</dd></div><div><dt>重大違反</dt><dd id="majorViolations">0 件</dd></div></dl></div>
+            </section>
+          </section>
+          <section class="unlock-panel panel"><div><span>◎</span><b id="passTitle">STAGE 1 合格条件</b></div><ul id="passConditions"></ul><button type="button" id="unlockStatus" disabled>🔒 STAGE 2 をアンロック</button></section>
+        </section>
+      </section>
+
+      <section class="academy-secondary-view panel" id="academySecondaryView" hidden></section>
+    </main>
+  </div>
+
+  <dialog class="academy-dialog" id="academyDialog"><form method="dialog"><button class="dialog-close" value="cancel" aria-label="閉じる">×</button><div id="academyDialogContent"></div></form></dialog>
+  <div class="academy-toast" id="academyToast" role="status" aria-live="polite" hidden></div>
+  <script src="./academy.js?v=1.0.0"></script>
+</body>
+</html>
