@@ -62,7 +62,7 @@
     const stage=activeStage();
     $('activeStageTitle').textContent=`STAGE ${stage.number}：${stage.title}`;
     $('activeStageSub').textContent=`（${stage.environment||'TOM FX ZERO ACADEMY'}）`;
-    $('metaSymbol').textContent=stage.id==='stage-1'?'USDJPY M1（過去相場検証モード）':stage.id==='stage-2'?'MT5アプリ デモ口座':'TOM FX ZERO デモ口座';
+    $('metaSymbol').textContent=stage.id==='stage-1'?`${state.session?.symbol||'USDJPY'} ${state.session?.timeframe||'M1'}（過去相場検証モード）`:stage.id==='stage-2'?'MT5アプリ デモ口座':'TOM FX ZERO デモ口座';
     $('metaDate').textContent=state.session?.targetDate?`検証日：${state.session.targetDate}（ゴトー日）`:'検証日：セッションを開始してください';
     $('metaTime').textContent='現在時刻（JST）'+new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
     $('taskPanelTitle').innerHTML=`STAGE ${stage.number} の課題 <small>（${tasksFor(stage.id).length}ステップ）</small>`;
@@ -129,10 +129,18 @@
   }
   function showDialog(html){$('academyDialogContent').innerHTML=html;$('academyDialog').showModal();}
   function download(name,content,type='application/json'){const url=URL.createObjectURL(new Blob([content],{type}));const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-  async function startSession(){
+  async function beginSession({symbol,targetDate,dataQuality}){
     if(!connectionKey()){toast('先に通常のTOM FX ZEROでデモ口座をペアリングしてください。');return;}
-    try{const result=await api('/session',{method:'POST',body:JSON.stringify({stageId:'stage-1',symbol:'USDJPY',timeframe:'M1',targetDate:null})});state.session=result.session;const config={apiBase:API_ORIGIN,sessionId:result.session.sessionId,uploadToken:result.uploadToken,stageId:'stage-1',resultFile:'TOM_FX_ZERO_TRAINER_results.jsonl'};download('TOM_FX_ZERO_Academy_Sync_Config.json',JSON.stringify(config,null,2));toast('同期設定ファイルをダウンロードしました。TRAINER EAと同期スクリプトへ同じ値を設定してください。');renderAll();}
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(targetDate||'')){toast('検証対象のゴトー日を選択してください。');return;}
+    const expectedDataQuality=Number(dataQuality);
+    if(!Number.isFinite(expectedDataQuality)||expectedDataQuality<0||expectedDataQuality>100){toast('検証データ品質を0〜100で入力してください。');return;}
+    try{const result=await api('/session',{method:'POST',body:JSON.stringify({stageId:'stage-1',symbol,timeframe:'M1',targetDate,expectedDataQuality})});state.session=result.session;const config={apiBase:API_ORIGIN,sessionId:result.session.sessionId,uploadToken:result.uploadToken,stageId:'stage-1',resultFile:'TOM_FX_ZERO_TRAINER_results.jsonl',targetDate,expectedDataQuality,trainerInputs:{InpSessionId:result.session.sessionId,InpUploadToken:result.uploadToken,InpTargetDate:targetDate,InpResultFile:'TOM_FX_ZERO_TRAINER_results.jsonl'}};download('TOM_FX_ZERO_Academy_Sync_Config.json',JSON.stringify(config,null,2));$('academyDialog').close();toast(expectedDataQuality>=90?'同期設定ファイルをダウンロードしました。EAと同期スクリプトへ同じ値を設定してください。':'品質が90%未満のため、今回は練習記録として保存し、正式採点には含めません。');renderAll();}
     catch(error){toast('セッションを開始できません：'+error.message);}
+  }
+  function startSession(){
+    if(activeStage().id!=='stage-1'){toast('この画面のセッション開始は、STAGE 1の過去相場トレーニング用です。');return;}
+    showDialog(`<h2>STAGE 1 セッションを開始</h2><p>対象のゴトー日と、MT5テスターに表示される検証データ品質を入力してください。90%以上のリアルティック検証だけが正式採点の対象です。</p><label>通貨ペア<select id="academySessionSymbol"><option value="USDJPY">USDJPY</option><option value="EURJPY">EURJPY</option></select></label><label>検証対象日（JST）<input id="academySessionDate" type="date" required></label><label>検証データ品質（%）<input id="academySessionQuality" type="number" min="0" max="100" step="0.1" value="100" required></label><button type="button" class="primary" id="academyCreateSession">同期設定ファイルを作成</button>`);
+    $('academyCreateSession').addEventListener('click',()=>beginSession({symbol:$('academySessionSymbol').value,targetDate:$('academySessionDate').value,dataQuality:$('academySessionQuality').value}));
   }
   function renderSecondary(view){
     const panel=$('academySecondaryView');const main=$('academyContent');if(view==='curriculum'){panel.hidden=true;main.hidden=false;return;}main.hidden=true;panel.hidden=false;
