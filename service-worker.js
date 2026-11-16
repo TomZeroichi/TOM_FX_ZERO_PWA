@@ -11,6 +11,7 @@ const APP_SHELL=[
   './pwa.js?v=0.5.64',
   './academy.html',
   './academy.css?v=1.0.0',
+  './academy-dialog.css?v=1.0.0',
   './academy.js?v=1.0.0',
   './manifest.webmanifest',
   './icons/tom-fx-zero-v0.5.55.png?v=0.5.63',
