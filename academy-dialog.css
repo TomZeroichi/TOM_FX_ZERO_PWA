@@ -1,0 +1,30 @@
+.academy-dialog label {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+  color: #d5e8f7;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.academy-dialog label input,
+.academy-dialog label select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #3b83b2;
+  border-radius: 7px;
+  padding: 10px;
+  background: #020d18;
+  color: #fff;
+  font: inherit;
+}
+
+.academy-dialog .primary {
+  margin-top: 8px;
+  border: 1px solid #4fe7ff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #0875d1, #12bbdf);
+  color: #fff;
+  font-weight: 800;
+}
